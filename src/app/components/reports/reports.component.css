@@ -1,0 +1,130 @@
+.select-report-div {
+    background: #d9d9d9;
+    padding: 0;
+}
+
+.report-heading {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 15px;
+}
+
+.report-name {
+    padding: 15px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.report-name-div:hover {
+    background: #3f51b5;
+    color: #ffffff;
+}
+
+.f-14{
+    font-size: 14px;
+}
+
+
+/* .report-name:hover {
+    background: #3f51b5;
+    color: #ffffff;
+} */
+
+:root {
+    --red: hsl(0, 78%, 62%);
+    --cyan: hsl(180, 62%, 55%);
+    --orange: hsl(34, 97%, 64%);
+    --blue: hsl(212, 86%, 64%);
+    --varyDarkBlue: hsl(234, 12%, 34%);
+    --grayishBlue: hsl(229, 6%, 66%);
+    --veryLightGray: hsl(0, 0%, 98%);
+    --weight1: 200;
+    --weight2: 400;
+    --weight3: 600;
+}
+.container-flud{
+    background-color: hsl(0, 0%, 98%);
+}
+
+.box{
+    border-radius: 1em;
+    perspective: 600px;
+    box-shadow: 0 0.125em 0.3125em rgb(0 0 0 / 25%), 0 0.02125em 0.06125em rgb(0 0 0 / 25%);
+    /* background-color: #3252ab; */
+    /* color: white; */
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+    background-color: hsl(0, 0%, 98%);
+    cursor: pointer;
+    /* height: 117px; */
+    border-radius: 5px;
+    box-shadow: 0px 30px 40px -20px hsl(229, 6%, 66%);
+    padding: 24px;
+    /* padding-bottom: 10px !important; */
+    
+}
+.card::before {
+    border-radius: 0 0 1em 1em;
+    width: 100%;
+    height: 50%;
+    transform-origin: center top;
+    transform: rotateX(180deg);
+    background: #333232
+        linear-gradient(180deg,
+                        rgba(0, 0, 0, 0.1) 50%,
+                        rgba(0, 0, 0, 0.4));
+    transition: 1.0s ease-in-out transform;
+}
+
+.card:hover {
+    cursor: pointer;
+        box-shadow: rgb(0 0 0 / 25%) 0 8px 15px;
+    transform: translateY(-2px);
+}
+.box p {
+    color: hsl(229, 6%, 66%);
+}
+.box h3{
+    display: block;
+    font-size: 1.17em;
+    margin: 0px !important;
+    font-weight: bold;
+    line-height: inherit;
+}
+svg{
+    position: absolute;
+    right: 27px;
+    bottom: 22px;
+}
+
+@media (max-width: 1650px) {
+    .box p{
+        font-size: 10px;
+    }
+    .box h3{
+        font-size: 14px; 
+    }
+}
+
+@media (max-width: 1400px) {
+    .box p {
+        color: hsl(229, 6%, 66%);
+        font-size: 10px;
+        line-height: 1.5;
+    }
+    .box h3 {
+        display: block;
+        font-size: 1.17em;
+        margin: 0px !important;
+        font-weight: 700;
+        line-height: 1.5;
+        font-size: 13px;
+    }
+
+}
+@media  (min-width: 1200px){
+    .col-xl-2{
+        padding-right: 5px !important;
+        padding-left: 5px !important;   
+    } 
+}

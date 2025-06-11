@@ -1,0 +1,110 @@
+<div>
+  <div class="dialog-heading-div" appDraggableDialog>
+    <span class="page-title ml-4">{{ 'EDIT_DELEGATION' | translate }}</span>
+  </div>
+  <mat-dialog-content class="mat-typography" class="text-right" style="height: 380px;">
+    <form #f="ngForm" name="form">
+      <ng-container>
+        <div class="row">
+          <div class="col-lg-12 col-md-6 pl-0">
+            <ng-container>
+              <div class="mt-3 pl-3 float-left">
+                <label class="page-sub-title">{{ 'DELEGATE_FROM' | translate }}
+                  <span class="text-danger font-weight-bold">*</span>:</label>
+              </div>
+              <div class="float-left w-75 pl-0">
+                <mat-form-field class="w-100 ml-02">
+                  <input [ngModelOptions]="{standalone: true}" readonly matInput class="ml-2 cursor-not-allowed"
+                    [(ngModel)]="updateData.fromUserName">
+                </mat-form-field>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12 col-md-6 pl-0">
+            <div class="mt-3 pl-3 float-left">
+              <label class="page-sub-title">{{ 'DELEGATE_TO' | translate }}
+                <span class="text-danger font-weight-bold">*</span>: </label>
+            </div>
+            <div class="float-left w-75 pl-0">
+              <mat-form-field class="w-100 ml-4">
+                <input readonly [ngModelOptions]="{standalone: true}" matInput class="ml-2 cursor-not-allowed"
+                  [(ngModel)]="updateData.toUserName">
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12 col-md-6 pl-0">
+            <div class="mt-3 pl-3 float-left">
+              <label class="page-sub-title"> {{ 'FROM_DATE' | translate }}
+                <span class="text-danger font-weight-bold">*</span>: </label>
+            </div>
+            <div class="float-left pl-2 c-weight">
+              <mat-form-field class="w-95 ml-4">
+                <input class="ml-2" name="fromDateInput" matInput [matDatepicker]="from" [max]="" [min]="minDate"
+                  (dateChange)="changeFrom($event)"  #fromDateInput="ngModel" [(ngModel)]="updateData.delegationFrom"
+                  required>
+                <mat-datepicker-toggle matSuffix [for]="from"></mat-datepicker-toggle>
+                <mat-datepicker #from></mat-datepicker>
+                <mat-error *ngIf="fromDateInput.errors?.required">
+                  <strong>{{'FROM_DATE' | translate}}</strong><span> {{'IS_REQUIRED' | translate}}</span>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12 col-md-6 pl-0">
+            <div class="mt-3 mr-4 pl-3 float-left">
+              <label class="page-sub-title"> {{'TO_DATE' | translate}}
+                <span class="text-danger font-weight-bold">*</span>: </label>
+            </div>
+            <div class="float-left pl-2 c-weight">
+              <mat-form-field class="w-95 ml-4">
+                <input class="ml-2" name="toDateInput" matInput [matDatepicker]="to"
+                  [(ngModel)]="updateData.delegationTo" [min]="minToDate" #toDateInput="ngModel"  (dateChange)="compareDates()"  required>
+                <mat-datepicker-toggle matSuffix [for]="to"></mat-datepicker-toggle>
+                <mat-datepicker #to></mat-datepicker>
+                <mat-error *ngIf="toDateInput.errors?.required">
+                  <strong *ngIf="toDateInput.errors?.required">{{'TO_DATE' | translate}} </strong> <span>{{'IS_REQUIRED' |
+                    translate}}</span>
+                </mat-error>
+              </mat-form-field>
+              <mat-error class="ml-4 to-date-error" *ngIf="msg != '' && !toDateInput.errors?.required">
+                <strong >{{'TO_DATE' | translate}}</strong><span>{{msg}}</span><strong >{{'FROM_DATE' | translate}}</strong>
+              </mat-error>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12 col-md-6 pl-0">
+            <div class="mt-3 pl-3 float-left">
+              <label class="page-sub-title"> {{ 'REASON' | translate }}
+                <span class="font-weight-bold"></span>: </label>
+            </div>
+            <div class="float-left w-75 pl-2 c-weight">
+              <mat-form-field class="w-100  border-textarea ml-6 ">
+                <textarea [ngModelOptions]="{standalone: true}" readonly class="ml-2 cursor-not-allowed" matInput
+                  [(ngModel)]="updateData.delegationReason" [matTextareaAutosize]=false [matAutosizeMinRows]=3
+                  [matAutosizeMaxRows]=5 #message maxlength="100" style="min-height: 70px !important;
+                                  height: 70px !important; min-height: 70px !important;"></textarea>
+                <mat-hint align="end">{{message.value.trim().length}} / 100</mat-hint>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+
+    <button mat-raised-button mat-dialog-close class="mr-3">{{ 'CLOSE' | translate }}</button>
+    <button mat-raised-button class="b-blue c-white ml-0 mr-2"
+      [disabled]="isButtonDisabled || toDateInput.errors?.required || fromDateInput.errors?.required "
+      (click)="editDelegateUser()">
+      {{ 'Update' | translate }}</button>
+    <!--         [disabled]="!selectedReason.value" -->
+  </mat-dialog-actions>
+</div>

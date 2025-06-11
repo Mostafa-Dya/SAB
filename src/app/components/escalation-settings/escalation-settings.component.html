@@ -1,0 +1,178 @@
+<div class="container-flud">
+   <mat-card class="main-card">
+      <div class="row">
+         <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+            <mat-icon class="bread-page-heading-icon">escalator</mat-icon>
+            <span class="page-heading">{{ 'ESCALATION_SETTINGS' | translate }}</span>
+         </div>
+      </div>
+      <div class="row" [ngClass]="{'text-right': isRtl}">
+         <div class="col-12">
+            <div class="row">
+               <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2">
+                  <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                     <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">{{ 'REPORT_CYCLE' |
+                        translate }}
+                     </mat-label>
+                     <mat-select [formControl]="reportCycleData" multiple>
+                        <mat-select-trigger>                         
+                           {{reportCycleData.value ? reportCycleData.value[0] =='KNPC Response Report' ? 'Initial Report': reportCycleData.value[0] : ''}}
+                           <span *ngIf="reportCycleData.value?.length > 1 && reportCycleData.value[0] != 'All'">
+                              (+{{reportCycleData.value.length - 1}} {{reportCycleData.value?.length === 2
+                              ? 'other' : 'others'}})
+                           </span>
+                        </mat-select-trigger>
+                        <mat-option *ngFor="let reportCycle of reportCycleList" [value]="reportCycle"
+                           (onSelectionChange)="reportCycleChange($event);"
+                           [ngClass]="{'rtl-direction text-right': isRtl}">
+                           {{ reportCycle == 'KNPC Response Report' ? "Initial Report" : reportCycle}}</mat-option>
+                     </mat-select>
+                  </mat-form-field>
+               </div>
+               <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2">
+                  <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                     <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">{{ 'OBSERVATION_CATEGORY' |
+                        translate }}
+                     </mat-label>
+                     <mat-select [formControl]="obsCategoryData" multiple>
+                        <mat-select-trigger>
+                           {{obsCategoryData.value ? obsCategoryData.value[0] : ''}}
+                           <span *ngIf="obsCategoryData.value?.length > 1 && obsCategoryData.value[0] != 'All'">
+                              (+{{obsCategoryData.value.length - 1}} {{obsCategoryData.value?.length === 2
+                              ? 'other' : 'others'}})
+                           </span>
+                        </mat-select-trigger>
+                        <mat-option *ngFor="let obsCategory of obsCategoryList" [value]="obsCategory"
+                           (onSelectionChange)="obsCategoryChange($event);"
+                           [ngClass]="{'rtl-direction text-right': isRtl}">
+                           {{ obsCategory }}</mat-option>
+                     </mat-select>
+                  </mat-form-field>
+               </div>
+               <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2">
+                  <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                     <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">{{ 'CONFIGURATION_NAME' |
+                        translate }}
+                     </mat-label>
+                     <mat-select [formControl]="configurationKeyData" multiple>
+                        <mat-select-trigger>
+                           {{configurationKeyData.value ? configurationKeyData.value[0] : ''}}
+                           <span
+                              *ngIf="configurationKeyData.value?.length > 1 && configurationKeyData.value[0] != 'All'">
+                              (+{{configurationKeyData.value.length - 1}} {{configurationKeyData.value?.length
+                              === 2
+                              ? 'other' : 'others'}})
+                           </span>
+                        </mat-select-trigger>
+                        <mat-option *ngFor="let configurationKey of configurationKeyList" [value]="configurationKey"
+                           (onSelectionChange)="configurationKeyChange($event);"
+                           [ngClass]="{'rtl-direction text-right': isRtl}">
+                           {{ configurationKey }}</mat-option>
+                     </mat-select>
+                  </mat-form-field>
+               </div>
+            </div>
+         </div>
+         <div class="col-12 hide-mob escalation-setting-table" *ngIf="dataSource && dataSource.data.length > 0">
+            <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}">
+               <ng-container matColumnDef="reportCycle">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'REPORT_CYCLE' | translate }} </th>
+                  <td mat-cell *matCellDef="let element" class="escalation-setting-td"> {{ element.reportCycle == 'KNPC Response Report' ? "Initial Report" : element.reportCycle}} </td>
+               </ng-container>
+               <ng-container matColumnDef="obsCategory">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'OBSERVATION_CATEGORY' | translate }} </th>
+                  <td mat-cell *matCellDef="let element" class="escalation-setting-td"> {{element.obsCategory}} </td>
+               </ng-container>
+               <ng-container matColumnDef="configurationKey">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'CONFIGURATION_NAME' | translate }} </th>
+                  <td mat-cell *matCellDef="let element" class="escalation-setting-td"> {{element.configurationKey}}
+                  </td>
+               </ng-container>
+               <ng-container matColumnDef="configurationValue">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'CONFIGURATION_VALUE' | translate }} </th>
+                  <td mat-cell *matCellDef="let element" class="escalation-setting-td">
+                     <mat-form-field class="text-right" class="configValue">
+                        <!-- <textarea matInput [(ngModel)]="element.configurationValue" #message
+                        maxlength="256"></textarea> -->
+                        <!-- <mat-hint align="end">{{message.value.length}} / 256</mat-hint> -->
+                        <input matInput [(ngModel)]="element.configurationValue" type="number"
+                           [disabled]="isEscalationEnabled" class="example-right-align" min="0" oninput="this.value = 
+                                    !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null">
+                     </mat-form-field>
+                  </td>
+               </ng-container>
+               <ng-container matColumnDef="action">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"></th>
+                  <td mat-cell *matCellDef="let element">
+
+                     <button mat-raised-button class="b-blue c-white" [ngClass]="{'ml-0 mr-2' : isRtl}"
+                        (click)="updateEscalation(element)"
+                        [disabled]=" !element.configurationValue || element.configurationValue === '' || isEscalationEnabled">
+                        {{ 'UPDATE' | translate }}</button>
+                  </td>
+               </ng-container>
+               <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+         </div>
+
+
+         <div class="col-12 mt-4 show-mob escalation-setting-table" *ngIf="dataSource && dataSource.data.length > 0">
+            <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}" multiTemplateDataRows>
+                <ng-container matColumnDef="reportCycle">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let element" class="title-td">
+                     {{element.reportCycle}}
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="configurationValue">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'CONFIGURATION_VALUE' | translate }} </th>
+                  <td mat-cell *matCellDef="let element" class="escalation-setting-td">
+                     <mat-form-field class="text-right" class="configValue">
+                        <!-- <textarea matInput [(ngModel)]="element.configurationValue" #message
+                           maxlength="256"></textarea> -->
+                        <!-- <mat-hint align="end">{{message.value.length}} / 256</mat-hint> -->
+                       <input matInput [(ngModel)]="element.configurationValue" type="number"
+                           [disabled]="isEscalationEnabled" class="example-right-align" min="0" oninput="this.value = 
+                                       !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null">
+                     </mat-form-field>
+                  </td>
+               </ng-container>
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"></th>
+                    <td mat-cell *matCellDef="let element">
+                     <button mat-raised-button class="b-blue c-white" [ngClass]="{'ml-0 mr-2' : isRtl}"
+                     (click)="updateEscalation(element)"
+                     [disabled]=" !element.configurationValue || element.configurationValue === '' || isEscalationEnabled">
+                     {{ 'UPDATE' | translate }}</button>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="expandedDetail">
+                    <td class="expanded-td" mat-cell *matCellDef="let element"
+                        [attr.colspan]="displayedColumnsMob.length">
+                        <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                            <div class="col-12 expanded-content">{{element.obsCategory}}
+                            </div>
+                            <div class="col-12 expanded-content">{{element.configurationKey}}</div>
+                        </div>
+                    </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;" style="cursor: pointer;"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+            </table>
+        </div>
+      </div>
+      <div class="row center-block" *ngIf="!dataSource || (dataSource && dataSource.data.length == 0)">
+         <div class="center mt-5">
+            <mat-icon class="center-icon">cloud_queue</mat-icon>
+            <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+         </div>
+      </div>
+   </mat-card>
+</div>

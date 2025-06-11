@@ -1,0 +1,470 @@
+<div class="container-flud inbox" (window:resize)="onResize($event)" >
+  <mat-card class="main-card">
+    <div class="row">
+      <div class="col-12 col-sm-6" [ngClass]="{'text-right': isRtl}">
+        <mat-icon class="bread-page-heading-icon">mail</mat-icon>
+        <span class="page-heading">{{ 'INBOX' | translate }} <span style="font-size:16px ;"> ({{dataSource ? dataSource.data.length : 0}}) </span></span>
+      </div>
+      <div class="col-12 col-sm-6">
+        <button mat-raised-button class="b-blue c-white ml-2"
+          *ngIf="selection.selected.length > 0 && isAdmin && isAssignToDepartmentAvailable"
+          [ngClass]="{'float-right': !isRtl}" matTooltip="{{ 'ASSIGN_TO_DEPARTMENT_DES' | translate }}"
+          (click)="onAssignToDept()">
+          {{ 'ASSIGN_TO_DEPARTMENT' | translate }}
+        </button>
+      <!-- commented by venakt 2023-2024-SA2 -->
+       <button mat-raised-button class="b-blue c-white ml-2"
+          *ngIf="selection.selected.length > 0 && isAssignToStaffEnable" [ngClass]="{'float-right': !isRtl}"
+          matTooltip="{{ 'ASSIGN_STAFF_DES' | translate }}" (click)="onAssignToStaff()">
+          {{ 'ASSIGN_STAFF' | translate }}
+        </button> 
+        <button mat-raised-button class="b-blue c-white" *ngIf="selection.selected.length > 0 && isApproveEnable && this.userJobTitle != 'SEC' "
+          [ngClass]="{'float-right': !isRtl}" matTooltip="{{ 'APPROVE_DES' | translate }}" (click)="onApprove()">
+          {{ 'APPROVE' | translate }}
+        </button>
+        <!-- <button mat-raised-button class="b-blue c-white mr-2" [ngClass]="{'float-right': !isRtl}"
+        matTooltip="{{ 'REVIEWED' | translate }}"
+        *ngIf="isReviewEnabled && isReviewButtonEnabled && selectedRow && selectedRow.length > 0" (click)="onReviewed()">
+        {{ 'REVIEWED' | translate }}
+      </button> -->
+      </div>
+    </div>
+    <div class="row" *ngIf="!isLoading">
+      <div class="col-12 mt-3">
+        <div class="row">
+          <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-1">
+            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+              <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">{{ 'TYPE' | translate }}</mat-label>
+              <mat-select [formControl]="typeData" multiple>
+                <mat-select-trigger>
+                  {{typeData.value ? typeData.value[0] : ''}}
+                  <span *ngIf="typeData.value?.length > 1 && typeData.value[0] != 'All'">
+                    (+{{typeData.value.length - 1}} {{typeData.value?.length === 2 ? 'other' : 'others'}})
+                  </span>
+                </mat-select-trigger>
+                <mat-option *ngFor="let type of typeList" [value]="type" (onSelectionChange)="typeChange($event);"
+                  [ngClass]="{'rtl-direction text-right': isRtl}">
+                  <span *ngIf="type == 'All'">{{type}}</span>
+                  <span>
+                    <i class="fa fa-certificate text-success" aria-hidden="true" *ngIf="type == 'N'">
+                      <span class="px-2">N</span>
+                    </i>
+                    <i class="fa fa-certificate c-violet" aria-hidden="true" *ngIf="type == 'SO'">
+                      <span class="px-2">SO</span>
+                    </i>
+                    <i class="fa fa-certificate text-primary" aria-hidden="true" *ngIf="type == 'Rt'">
+                      <span class="px-2">Rt</span>
+                    </i>
+                    <i class="fa fa-certificate text-warning" aria-hidden="true" *ngIf="type == 'Sb'">
+                      <span class="px-2">Sb</span>
+                    </i>
+                    <i class="fa fa-check text-success" aria-hidden="true" *ngIf="type == 'C'">
+                      <span class="px-2">C</span>
+                    </i>
+                  </span>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2">
+            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+              <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">{{ 'SEQUENCE' | translate }}</mat-label>
+              <mat-select [formControl]="sequenceData" multiple>
+                <mat-select-trigger>
+                  {{sequenceData.value ? sequenceData.value[0] : ''}}
+                  <span *ngIf="sequenceData.value?.length > 1 && sequenceData.value[0] != 'All'">
+                    (+{{sequenceData.value.length - 1}} {{sequenceData.value?.length === 2 ? 'other' : 'others'}})
+                  </span>
+                </mat-select-trigger>
+                <mat-option *ngFor="let sequence of sequenceList" [value]="sequence"
+                  (onSelectionChange)="sequenceChange($event);" [ngClass]="{'rtl-direction text-right': isRtl}">
+                  {{sequence}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2">
+            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+              <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">{{ 'DEPARTMENT' | translate }}</mat-label>
+              <mat-select [formControl]="departmentData" multiple>
+                <mat-select-trigger>
+                  {{departmentData.value ? departmentData.value[0] : ''}}
+                  <span *ngIf="departmentData.value?.length > 1 && departmentData.value[0] != 'All'">
+                    (+{{departmentData.value.length - 1}} {{departmentData.value?.length === 2 ? 'other' : 'others'}})
+                  </span>
+                </mat-select-trigger>
+                <mat-option *ngFor="let department of departmentList" [value]="department"
+                  (onSelectionChange)="departmentChange($event);" [ngClass]="{'rtl-direction text-right': isRtl}">
+                  {{department}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2">
+            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+              <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">{{ 'STATUS' | translate }}</mat-label>
+              <mat-select [formControl]="statusData" multiple>
+                <mat-select-trigger>
+                  {{statusData.value ? statusData.value[0] : ''}}
+                  <span *ngIf="statusData.value?.length > 1 && statusData.value[0] != 'All'">
+                    (+{{statusData.value.length - 1}} {{statusData.value?.length === 2 ? 'other' : 'others'}})
+                  </span>
+                </mat-select-trigger>
+                <mat-option *ngFor="let status of statusList" [value]="status"
+                  (onSelectionChange)="statusChange($event);" [ngClass]="{'rtl-direction text-right': isRtl}">
+                  {{status}}</mat-option>
+              </mat-select>
+            </mat-form-field> 
+          </div>
+          <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2">
+            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+              <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                {{ 'SEND_TO_MULTIPLE_DEPT' | translate }}</mat-label>
+              <mat-select [formControl]="multipleData" multiple>
+                <mat-select-trigger>
+                  {{multipleData.value ? multipleData.value[0] : ''}}
+                  <span *ngIf="multipleData.value?.length > 1 && multipleData.value[0] != 'All'">
+                    (+{{multipleData.value.length - 1}} {{multipleData.value?.length === 2 ? 'other' : 'others'}})
+                  </span>
+                </mat-select-trigger>
+                <mat-option *ngFor="let multiple of multipleList" [value]="multiple"
+                  (onSelectionChange)="multipleChange($event);" [ngClass]="{'rtl-direction text-right': isRtl}">
+                  {{multiple}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2" *ngIf="isReviewEnabled">
+            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+              <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                {{ 'REVIEWED' | translate }}</mat-label>
+              <mat-select [formControl]="reviewedData" multiple>
+                <mat-select-trigger style="text-transform: capitalize;">
+                  {{reviewedData.value ? reviewedData.value[0] : ''}}
+                  <span *ngIf="reviewedData.value?.length > 1 && reviewedData.value[0] != 'All'">
+                    (+{{reviewedData.value.length - 1}} {{reviewedData.value?.length === 2 ? 'other' : 'others'}})
+                  </span>
+                </mat-select-trigger>
+                <mat-option *ngFor="let reviewed of reviewedList" [value]="reviewed" style="text-transform: capitalize;"
+                  (onSelectionChange)="reviewedChange($event);" [ngClass]="{'rtl-direction text-right': isRtl}">
+                  {{reviewed}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 hide-mob inbox-table" *ngIf="!isLoading && dataSource && dataSource.data.length > 0 && innerWidth > 991">
+        <table mat-table [dataSource]="dataSource" matSort [ngClass]="{'text-right': isRtl}">
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? masterToggle() : null;"
+                [checked]="selection.hasValue() && isAllSelected()"
+                [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()"
+                color="primary">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row;let index">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                (change)="$event ? selection.toggle(row.stepCustomId) : null; selectionChange($event,row);"
+                [checked]="selection.isSelected(row.stepCustomId)" [aria-label]="checkboxLabel(row)" color="primary">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td (click)="navigateTo($event, element)" mat-cell *matCellDef="let element; let i = index">
+              <a href="javascript:;"
+              target="_self">
+              <span [ngClass]="'anchor-tag-'+i" class="column-span">
+                <i class="fa fa-certificate text-success" aria-hidden="true" *ngIf="element.responseType == 'N'"
+                  matTooltip="New" matTooltipPosition="above">
+                  <span class="px-2">N</span>
+                </i>
+                <i class="fa fa-certificate c-violet" aria-hidden="true" *ngIf="element.responseType == 'SO'"
+                  matTooltip="Sent Out" matTooltipPosition="above">
+                  <span class="px-2">SO</span>
+                </i>
+                <i class="fa fa-certificate text-primary" aria-hidden="true" *ngIf="element.responseType == 'Rt'"
+                  matTooltip="Responded To" matTooltipPosition="above">
+                  <span class="px-2">Rt</span>
+                </i>
+                <i class="fa fa-certificate text-warning" aria-hidden="true" *ngIf="element.responseType == 'Sb'"
+                  matTooltip="Sent Back" matTooltipPosition="above">
+                  <span class="px-2">Sb</span>
+                </i>
+                <i class="fa fa-check text-success" aria-hidden="true" *ngIf="element.responseType == 'C'"
+                  matTooltip="Completed" matTooltipPosition="above">
+                  <span class="px-2">C</span>
+                </i>
+              </span>
+              </a>
+
+              
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="obsSeq">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'SEQ' | translate }} </th>
+            <td (click)="navigateTo($event, element)" mat-cell *matCellDef="let element; let i = index"> 
+              <a href="javascript:;" 
+              target="_self">
+              <div>
+                {{element.obsSeq}}
+              </div>
+            </a> 
+
+               
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="obsTitle">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'OBSERVATION_TITLE' | translate }} </th>
+            <td (click)="navigateTo($event, element)"  mat-cell *matCellDef="let element; let i = index" [ngClass]="{'rtl-direction': !isRtl}">
+              <a href="javascript:;"
+              target="_self"> {{element.obsTitle}} </a> 
+            
+             
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="receievedDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'RECEIVED_DATE' | translate }} </th>
+            <td (click)="navigateTo($event, element)" mat-cell *matCellDef="let element; let i = index">
+              <a href="javascript:;" 
+              target="_self"> {{element.receievedDate | date:'dd/MM/yyyy hh:mm'}} </a> 
+
+              
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="reportName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'REPORT' | translate }} </th>
+            <td (click)="navigateTo($event, element)" mat-cell *matCellDef="let element; let i = index">
+              <a href="javascript:;" 
+              target="_self"> {{element.reportName}} </a>
+
+              
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="deptName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'DEPARTMENT' | translate }} </th>
+            <td (click)="navigateTo($event, element)" mat-cell *matCellDef="let element; let i = index"> 
+              <a href="javascript:;"
+              target="_self">{{element.deptName}} </a>
+
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="sentToMultipleDept">
+            <th mat-header-cell *matHeaderCellDef> {{ 'SEND_TO_MULTIPLE_DEPT' | translate }}
+            </th>
+            <td (click)="navigateTo($event, element)" mat-cell *matCellDef="let element; let i = index" [ngClass]="element.sentToMultipleDept === 'Yes' ? 'text-primary': ''" class="text-center">
+              <a href="javascript:;" 
+              target="_self">{{element.sentToMultipleDept}} </a>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="responseStatus">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'STATUS' | translate }} </th>
+            <td (click)="navigateTo($event, element)" mat-cell *matCellDef="let element; let i = index" >
+              <a href="javascript:;" 
+              target="_self"> {{element.responseStatus}} </a>
+            
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="reviewed" *ngIf="isReviewEnabled">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'REVIWED' | translate }} </th>
+            <td mat-cell *matCellDef="let element" class="text-center"> 
+              <button class="reviewed-cell" 
+              [ngClass]="element?.reviewed == 'yes' 
+              ? 'text-success' : 'text-danger' "
+              *ngIf=" (element.stepUnqName=='G&PA Park' || element.stepUnqName=='G&PAApprove' || element.stepUnqName=='G&PAApprove-EditResponse' 
+              || element.stepUnqName=='G&PACOombineResponse' || element.stepUnqName=='NORMAL-DCEO-OR-CEO-APPROVAL') && (element.reviewed == 'yes' || element.reviewed == 'no')"
+              [matTooltip]="
+                element?.reviewed == 'yes'
+                ? 'Mark as Not Reviewed'
+                : 'Mark as Reviewed'"
+                matTooltipPosition="above"
+                (click)="onReviewed(element?.stepCustomId, element?.reviewed == 'yes' ? 'no' : 'yes')">
+                <i
+                [ngClass]="
+                  element?.reviewed == 'yes'
+                    ? 'fa fa-check'
+                    : element?.reviewed == 'no'
+                    ? 'fa fa-close'
+                    : ''
+                "
+                aria-hidden="true"
+                >
+              </i>
+            </button>
+            </td> 
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="cursor: pointer;" (contextmenu)="onContextMenu($event, row)"
+           ></tr>
+        </table>
+        <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="pageIndex" hidePageSize
+          showFirstLastButtons (page)="onPaginateChange($event)" dir="ltr">
+        </mat-paginator> -->
+      </div>
+      <div class="col-12 show-mob" *ngIf="!isLoading && dataSource && dataSource.data.length > 0 && innerWidth <= 991 &&  innerWidth > 575">
+        <table mat-table [dataSource]="dataSource" multiTemplateDataRows [ngClass]="{'text-right': isRtl}">
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row ;let index">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                (change)="$event ? selection.toggle(row.stepCustomId) : null; selectionChange($event,row)"
+                [checked]="selection.isSelected(row.stepCustomId)" [aria-label]="checkboxLabel(row)" color="primary">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="obsTitle">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element" class="title-td"
+              [ngClass]="isRtl ? 'title-td-rtl' : 'rtl-direction'">
+              {{element.obsTitle}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="receievedDate">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element">
+              <span [ngClass]="isRtl ? 'float-left' : 'float-right'">{{element.receievedDate}}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="expandedDetail">
+            <td class="expanded-td" mat-cell *matCellDef="let element" [attr.colspan]="displayedColumnsMob.length">
+              <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                <div class="col-12" [ngClass]="{'pl-0' : isRtl}">
+                  <span>{{element.reportName}}</span>
+                  <span class="h-22">
+                    <i class="fa fa-certificate text-success" aria-hidden="true" *ngIf="element.responseType == 'N'"
+                      matTooltip="New" matTooltipPosition="above" [ngClass]="isRtl ? 'float-left' : 'float-right'">
+                      <span class="px-2">N</span>
+                    </i>
+                    <i class="fa fa-certificate c-violet" aria-hidden="true" *ngIf="element.responseType == 'SO'"
+                      matTooltip="Sent Out" matTooltipPosition="above" [ngClass]="isRtl ? 'float-left' : 'float-right'">
+                      <span class="px-2">SO</span>
+                    </i>
+                    <i class="fa fa-certificate text-primary" aria-hidden="true" *ngIf="element.responseType == 'Rt'"
+                      matTooltip="Responded To" matTooltipPosition="above"
+                      [ngClass]="isRtl ? 'float-left' : 'float-right'">
+                      <span class="px-2">Rt</span>
+                    </i>
+                    <i class="fa fa-certificate text-warning" aria-hidden="true" *ngIf="element.responseType == 'Sb'"
+                      matTooltip="Sent Back" matTooltipPosition="above"
+                      [ngClass]="isRtl ? 'float-left' : 'float-right'">
+                      <span class="px-2">Sb</span>
+                    </i>
+                    <i class="fa fa-check text-success" aria-hidden="true" *ngIf="element.responseType == 'C'"
+                      matTooltip="Completed" matTooltipPosition="above"
+                      [ngClass]="isRtl ? 'float-left' : 'float-right'">
+                      <span class="px-2">C</span>
+                    </i>
+                  </span>
+                </div>
+                <div class="col-12" [ngClass]="{'pl-0' : isRtl}">
+                  {{element.deptName}}
+                  <span [ngClass]="isRtl ? 'sequence-mob-rtl' : 'sequence-mob'">{{'SEQUENCE'|translate}}: {{element.obsSeq}}</span>
+                </div>
+                <div class="col-12">{{element.responseStatus}}</div>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+          <tr mat-row *matRowDef="let element; columns: displayedColumnsMob;" style="cursor: pointer;"
+            (click)="navigateTo($event, element)" (contextmenu)="onContextMenu($event, element)"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" (click)="navigateTo($event, row)" (contextmenu)="onContextMenu($event, row)"></tr>
+        </table>
+        <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="pageIndex" hidePageSize
+          showFirstLastButtons (page)="onPaginateChange($event)" dir="ltr">
+        </mat-paginator> -->
+      </div>
+      <div class="col-12 show-small-mob" *ngIf="!isLoading && dataSource && dataSource.data.length > 0 && innerWidth <= 575">
+        <table mat-table [dataSource]="dataSource" multiTemplateDataRows [ngClass]="{'text-right': isRtl}">
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row ; let i = index">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                (change)="$event ? selection.toggle(row.stepCustomId) : null; selectionChange($event,row)"
+                [checked]="selection.isSelected(row.stepCustomId)" [aria-label]="checkboxLabel(row)" color="primary">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="obsTitle">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element" class="title-td"
+              [ngClass]="isRtl ? 'title-td-rtl' : 'rtl-direction'">
+              {{element.obsTitle}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="expandedDetail">
+            <td class="expanded-td" mat-cell *matCellDef="let element" [attr.colspan]="displayedColumnsSmallMob.length">
+              <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                <div class="col-12">
+                  <span>{{element.receievedDate}}</span>
+                </div>
+                <div class="col-12 h-22">
+                  <span>
+                    <i class="fa fa-certificate text-success" aria-hidden="true" *ngIf="element.responseType == 'N'"
+                      matTooltip="New" matTooltipPosition="above">
+                      <span class="px-2">N</span>
+                    </i>
+                    <i class="fa fa-certificate c-violet" aria-hidden="true" *ngIf="element.responseType == 'SO'"
+                      matTooltip="Sent Out" matTooltipPosition="above">
+                      <span class="px-2">SO</span>
+                    </i>
+                    <i class="fa fa-certificate text-primary" aria-hidden="true" *ngIf="element.responseType == 'Rt'"
+                      matTooltip="Responded To" matTooltipPosition="above">
+                      <span class="px-2">Rt</span>
+                    </i>
+                    <i class="fa fa-certificate text-warning" aria-hidden="true" *ngIf="element.responseType == 'Sb'"
+                      matTooltip="Sent Back" matTooltipPosition="above">
+                      <span class="px-2">Sb</span>
+                    </i>
+                    <i class="fa fa-check text-success" aria-hidden="true" *ngIf="element.responseType == 'C'"
+                      matTooltip="Completed" matTooltipPosition="above">
+                      <span class="px-2">C</span>
+                    </i>
+                  </span>
+                </div>
+                <div class="col-12">
+                  <span [ngClass]="isRtl ? 'sequence-mob-rtl' : 'sequence-mob'">{{ 'SEQUENCE' | translate }}:
+                    {{element.obsSeq}}</span>
+                </div>
+                <div class="col-12">
+                  <span>{{element.reportName}}</span>
+                </div>
+                <div class="col-12">{{element.deptName}}</div>
+                <div class="col-12">{{element.responseStatus}}</div>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsSmallMob; "></tr>
+          <tr mat-row *matRowDef="let element; columns: displayedColumnsSmallMob;" style="cursor: pointer;"
+            (click)="navigateTo($event, element)"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" (click)="navigateTo($event, row)"></tr>
+        </table>
+        <!-- <mat-paginator class="inbox-paginator" [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="pageIndex"
+          hidePageSize showFirstLastButtons (page)="onPaginateChange($event)" dir="ltr">
+        </mat-paginator> -->
+      </div>
+      <div class="col-12 d-none" *ngIf="!isLoading && dataSource && dataSource.data.length > 0 ">
+        <mat-paginator [length]="dataSource.data.length" [pageSize]="1000" [pageIndex]="pageIndex" hidePageSize
+        showFirstLastButtons (page)="onPaginateChange($event)" dir="ltr">
+      </mat-paginator>
+      </div>
+    </div>
+    <div class="row center-block">
+      <div class="center mt-5" *ngIf="!isLoading && dataSource && dataSource.data.length == 0">
+        <mat-icon class="center-icon">cloud_queue</mat-icon>
+        <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+      </div>
+    </div>
+  </mat-card>
+</div>
+
+<!-- // Menus -->
+<div style="visibility: hidden; position: fixed"
+  [style.left]="contextMenuPosition.x"
+  [style.top]="contextMenuPosition.y"
+  [matMenuTriggerFor]="contextMenu">
+</div>
+<mat-menu #contextMenu="matMenu" #contextMenu2="matMenu" class="right-click-menu">
+	<ng-template matMenuContent let-item="item">
+		<button mat-menu-item (click)="onContextMenuAction1(item)">Open New Tab 
+      <mat-icon class="ml-2 mr-0">launch</mat-icon>
+    </button>
+	</ng-template>
+</mat-menu>

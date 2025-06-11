@@ -1,0 +1,242 @@
+<!-- src/app/components/classification-count-report/classification-count-report.component.html -->
+<div class="container-flud">
+  <mat-card class="main-card">
+    <!-- ─────────────── HEADER ─────────────── -->
+    <div class="row">
+      <div class="col-12 mb-3" [class.text-right]="isRtl()">
+        <span
+          class="page-heading-icon pointer"
+          routerLink="/reports"
+          matTooltip="{{ 'BACK' | translate }}"
+        >
+          {{ "BACK_HEADING" | translate }}
+        </span>
+        <span class="page-sub-heading">
+          / {{ "CLASSIFICATION_COUNT_REPORT" | translate }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ─────────────── SEARCH FORM ─────────────── -->
+    <form [formGroup]="countForm" (ngSubmit)="search()">
+      <div class="row">
+        <!-- Fiscal Year -->
+        <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+          <mat-form-field class="w-100" [class.text-right]="isRtl()">
+            <mat-label [ngClass]="labelClass">{{
+              "FISCAL_YEAR" | translate
+            }}</mat-label>
+            <mat-select formControlName="fiscalYear">
+              <mat-option
+                *ngFor="let y of years"
+                [value]="y.value"
+                [class.rtl-direction]="isRtl()"
+              >
+                {{ y.value }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Report Type -->
+        <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+          <mat-form-field class="w-100" [class.text-right]="isRtl()">
+            <mat-label [ngClass]="labelClass">{{
+              "REPORT_TYPE" | translate
+            }}</mat-label>
+            <mat-select formControlName="types" required>
+              <mat-option
+                *ngFor="let t of reportType"
+                [value]="t.value"
+                [class.rtl-direction]="isRtl()"
+              >
+                {{ t.name | translate }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="errorHandling('types', 'required')">
+              <strong>{{ "REPORT_TYPE" | translate }}</strong>
+              {{ "IS_REQUIRED" | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Department -->
+        <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+          <mat-form-field class="w-100" [class.text-right]="isRtl()">
+            <mat-label [ngClass]="labelClass">{{
+              "DEPARTMENT" | translate
+            }}</mat-label>
+            <mat-select [(ngModel)]="selectedDepartment">
+              <mat-option
+                *ngFor="let d of departmentValue"
+                [value]="d.id"
+                [class.rtl-direction]="isRtl()"
+              >
+                {{ d.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Search buttons -->
+        <div class="col-12 col-lg-3">
+          <button
+            class="search-btn b-blue c-white"
+            mat-raised-button
+            *ngIf="!isMobile"
+          >
+            {{ "SEARCH" | translate }}
+          </button>
+
+          <button
+            class="search-btn-mob b-blue c-white"
+            mat-raised-button
+            *ngIf="isMobile"
+          >
+            {{ "SEARCH" | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- ─────────────── RESULT TABLE – DESKTOP ─────────────── -->
+    <div
+      class="col-12 mt-4 hide-mob"
+      *ngIf="dataSource?.data?.length && !isMobile"
+    >
+      <table
+        mat-table
+        *ngIf="dataSource"
+        [dataSource]="dataSource"
+        [class.text-right]="isRtl()"
+      >
+        <!-- count -->
+        <ng-container matColumnDef="count">
+          <th mat-header-cell *matHeaderCellDef [class.text-right]="isRtl()">
+            {{ "COUNT" | translate }}
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let row"
+            [class.font-weight-bold]="row.type === 'الاجمالي'"
+          >
+            {{ row.count }}
+          </td>
+        </ng-container>
+
+        <!-- type -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef [class.text-right]="isRtl()">
+            {{ "TYPE_CLAS_COUNT" | translate }}
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let row"
+            [class.font-weight-bold]="row.type === 'الاجمالي'"
+          >
+            {{ row.type }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let r; columns: displayedColumns"></tr>
+      </table>
+    </div>
+
+    <!-- ─────────────── RESULT TABLE – MOBILE ─────────────── -->
+    <div
+      class="col-12 mt-4 show-mob"
+      *ngIf="dataSource?.data?.length && isMobile"
+    >
+      <table
+        mat-table
+        *ngIf="dataSource"
+        [dataSource]="dataSource"
+        multiTemplateDataRows
+        [class.text-right]="isRtl()"
+      >
+        <!-- count headline -->
+        <ng-container matColumnDef="count">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td
+            mat-cell
+            *matCellDef="let r"
+            [class.count-mob]="!isRtl()"
+            [class.count-mob-rtl]="isRtl()"
+          >
+            {{ "COUNT" | translate }}: {{ r.count }}
+          </td>
+        </ng-container>
+
+        <!-- expanded row -->
+        <ng-container matColumnDef="expandedDetail">
+          <td
+            mat-cell
+            *matCellDef="let r"
+            [attr.colspan]="displayedColumnsMob.length"
+            class="expanded-td"
+          >
+            <div
+              class="row"
+              [class.expanded-div]="!isRtl()"
+              [class.expanded-div-rtl]="isRtl()"
+            >
+              <div class="col-12 expanded-content">{{ r.type }}</div>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumnsMob"></tr>
+        <tr mat-row *matRowDef="let r; columns: displayedColumnsMob"></tr>
+        <tr mat-row *matRowDef="let r; columns: ['expandedDetail']"></tr>
+      </table>
+    </div>
+
+    <!-- ─────────────── EXPORT BUTTONS ─────────────── -->
+    <div class="col-12 mt-5" *ngIf="!isLoading && dataSource?.data?.length">
+      <button
+        id="btn-excel"
+        class="b-blue c-white"
+        mat-raised-button
+        (click)="exportMSExcel()"
+        matTooltip="{{ 'MS Excel تحويل الملاحظات المحددة إلى' }}"
+        [class.float-right]="!isRtl()"
+        [class.float-left]="isRtl()"
+      >
+        {{ "EXPORT_TO_MS_EXCEL" | translate }}
+      </button>
+
+      <button
+        id="btn-word"
+        class="b-blue c-white mr-2"
+        mat-raised-button
+        (click)="exportMSWord()"
+        matTooltip="{{ 'EXPORT_MS_WORD_DEC' | translate }}"
+        [class.float-right]="!isRtl()"
+        [class.float-left]="isRtl()"
+      >
+        {{ "EXPORT_TO_MS_WORD" | translate }}
+      </button>
+    </div>
+
+    <!-- ─────────────── EMPTY STATES ─────────────── -->
+    <div class="row center-block" *ngIf="!isLoading && !dataSource">
+      <div class="center mt-5">
+        <mat-icon class="center-icon">trending_up</mat-icon>
+        <span class="center-text search-report">
+          {{ "PLEASE_SEARCH_REPORT" | translate }}
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="row center-block"
+      *ngIf="!isLoading && dataSource?.data?.length === 0"
+    >
+      <div class="center mt-5">
+        <mat-icon class="center-icon">cloud_queue</mat-icon>
+        <span class="center-text">{{ "NO_DATA" | translate }}</span>
+      </div>
+    </div>
+  </mat-card>
+</div>

@@ -1,0 +1,56 @@
+<div [class.rtl-direction]="isRtl$ | async">
+  <!-- Header (draggable) -->
+  <div
+    cdkDrag
+    class="dialog-heading-div"
+    [class.text-right]="isRtl$ | async"
+    appDraggableDialog
+  >
+    <span [class.mr-4]="isRtl$ | async" [class.ml-4]="!(isRtl$ | async)"
+      >{{ 'G&PA_NOTES' | translate }}</span
+    >
+  </div>
+
+  <mat-dialog-content class="mat-typography" [class.text-right]="isRtl$ | async">
+    <!-- Table -->
+    <div class="table-container" *ngIf="(dataSource.data.length > 0)">
+      <table mat-table [dataSource]="dataSource" matSort matSortActive="addedDate" matSortDirection="asc">
+        <!-- Added Date -->
+        <ng-container matColumnDef="addedDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'ADDED_ON' | translate }}</th>
+          <td mat-cell *matCellDef="let e">{{ e.addedDate }}</td>
+        </ng-container>
+        <!-- Added By -->
+        <ng-container matColumnDef="addedBy">
+          <th mat-header-cell *matHeaderCellDef>{{ 'ADDED_BY' | translate }}</th>
+          <td mat-cell *matCellDef="let e">{{ e.addedBy }}</td>
+        </ng-container>
+        <!-- Department Name -->
+        <ng-container matColumnDef="departmentName">
+          <th mat-header-cell *matHeaderCellDef>{{ 'DEPARTMENT_NAME' | translate }}</th>
+          <td mat-cell *matCellDef="let e">{{ e.departmentName }}</td>
+        </ng-container>
+        <!-- Notes -->
+        <ng-container matColumnDef="notes">
+          <th mat-header-cell *matHeaderCellDef>{{ 'G&PA_NOTE' | translate }}</th>
+          <td mat-cell *matCellDef="let e">{{ e.notes }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+      <mat-paginator [pageSize]="5" showFirstLastButtons></mat-paginator>
+    </div>
+
+    <!-- No data -->
+    <div
+      class="row center-block w-300 mt-5 mb-5 pt-5 pb-5"
+      *ngIf="(dataSource.data.length === 0)"
+    >
+      <div class="center mt-5">
+        <mat-icon class="center-icon">cloud_queue</mat-icon>
+        <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+      </div>
+    </div>
+  </mat-dialog-content>
+</div>

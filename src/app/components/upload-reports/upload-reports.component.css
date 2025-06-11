@@ -1,0 +1,13 @@
+.show-mob {
+    display: none;
+}
+
+@media (max-width: 991px) {
+    .show-mob {
+        display: block;
+    }
+
+    .hide-mob {
+        display: none;
+    }
+}

@@ -1,0 +1,59 @@
+/* -------- header -------- */
+.dialog-heading-div {
+  padding: 15px 0;
+  margin: 0 -24px;
+  background: #3253ab;
+  color: #fff;
+}
+
+/* -------- table basics -------- */
+table {
+  width: 100%;
+}
+
+tr.mat-header-row {
+  height: unset;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-header-cell {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+th.mat-header-cell:first-of-type,
+td.mat-cell:first-of-type {
+  padding-left: 10px !important;
+}
+th.mat-header-cell:last-of-type,
+td.mat-cell:last-of-type {
+  padding-right: 10px !important;
+}
+
+th.mat-header-cell,
+td.mat-cell {
+  padding: 10px !important;
+}
+
+/* -------- responsive helpers -------- */
+@media (max-width: 767px) {
+  tr.mat-header-row {
+    border-top: none;
+  }
+  th.mat-header-cell,
+  td.mat-cell {
+    border-bottom: none;
+    padding: unset !important;
+  }
+  tr.mat-row,
+  tr.mat-footer-row {
+    height: 32px;
+  }
+}
+
+/* truncate helper */
+.dot {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

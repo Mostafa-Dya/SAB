@@ -1,0 +1,24 @@
+<div [ngClass]="{'rtl-direction' : isRtl}"> 
+  <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+    <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">
+      {{ 'PREVIOUS_CLASSIFICATION' | translate }} 
+    </span>
+  </div>
+
+  <div class="row mt-2">
+    
+    <div class="col-5 pr-0 pt-1" *ngIf="data.prevCompletionYear">
+      <label class="page-sub-title" >{{ 'COMPLETION_YEAR' | translate }}: </label>
+    </div>
+    <div class="col-7 pl-0" *ngIf="data.prevCompletionYear">
+      <p  style="margin-left: -19px;"> {{data.prevCompletionYear}} </p>
+    </div>
+    <div class="col-5 pr-0" *ngIf="data.prevGovtEntity">
+      <label class="page-sub-title"  >{{ 'GOVT_ENTITIES' | translate }}: </label>
+    </div>
+    <div class="col-7 pl-0" *ngIf="data.prevGovtEntity">
+      <p  style="margin-left: -19px;" class="rtl-direction"> {{ data.prevGovtEntity?.replaceAll(",",", ") }} </p>
+    </div>
+  </div>
+  
+</div>

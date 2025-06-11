@@ -1,0 +1,61 @@
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 col-sm-10 mb-3" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/extractReports">flip_to_back</mat-icon> -->
+                <span class="page-heading-icon pointer" routerLink="/extractReports" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+                <span class="page-sub-heading">
+                    <span class="pointer font-weight-bold" routerLink="/extractReports/compare-observations/new">
+                        / {{ 'COMPARE_OBSERVATIONS' | translate }}
+                    </span>
+                    / {{ 'EXTRACT_FINAL_OBSERVATION' | translate }}
+                </span>
+            </div>
+            <div class="col-12 col-sm-2 mb-3">
+                <button mat-raised-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                    (click)="goCompareObs()" *ngIf="finalObsData">
+                    {{ 'GO_COMPARE_OBS' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="row" *ngIf="finalObsData" [ngClass]="{'text-right': isRtl}">
+            <div class="col-12">
+                <p class="verify-info">{{ 'PLEASE_VERIFY_LINK' | translate }}:
+                    <button mat-raised-button class="b-blue c-white" (click)="goNotMatch()">
+                        {{ 'NOT_MATCHED' | translate }}
+                    </button>
+                </p>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div>
+                    {{'FINAL_REPORT_OBSERVATION'|translate}}
+                </div>
+                <div class="observation-content">
+                    <p class="font-weight-bold" [ngClass]="{'text-right': !isRtl}">:تعقيب الديوان</p>
+                    <div [innerHTML]="finalObsData.obsFinalContent | safeHtml"></div>
+                    <p class="font-weight-bold" [ngClass]="{'text-right': !isRtl}">:رد الشركة</p>
+                    <div [innerHTML]="finalObsData.sabResponse | safeHtml"></div>
+                    <p class="font-weight-bold" [ngClass]="{'text-right': !isRtl}">:تعقيب الديوان</p>
+                    <div [innerHTML]="finalObsData.diwanReply | safeHtml"></div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div>
+                    {{'SUGGESTED_OBSERVATION_IN_INITIAL_REPORT'|translate}}
+                </div>
+                <div class="observation-content">
+                    <p class="font-weight-bold" [ngClass]="{'text-right': !isRtl}">:الملاحظة</p>
+                    <div [innerHTML]="finalObsData.obsInitialContent | safeHtml"></div>
+                    <p class="font-weight-bold" [ngClass]="{'text-right': !isRtl}">:رد الشركة</p>
+                    <div [innerHTML]="finalObsData.irResponse | safeHtml"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row center-block" *ngIf="!finalObsData">
+            <div class="center mt-5">
+                <mat-icon class="center-icon">cloud_queue</mat-icon>
+                <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+            </div>
+        </div>
+    </mat-card>
+</div>

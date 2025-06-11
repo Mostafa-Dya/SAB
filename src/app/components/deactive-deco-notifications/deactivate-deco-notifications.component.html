@@ -1,0 +1,190 @@
+<div class="container-flud">
+  <mat-card class="main-card">
+    <div class="row">
+      <div class="col-6 mb-3" [ngClass]="{ 'text-right': isRtl }">
+        <mat-icon class="bread-page-heading-icon">notifications_off</mat-icon>
+        <span class="page-heading">
+          {{ "DEACTIVATE_DECO_NOTIFICATIONS" | translate }}
+        </span>
+      </div>
+      <div class="col-6 mb-3" [ngClass]="{ 'text-right': isRtl }"></div>
+    </div>
+
+    <div class="row" [ngClass]="{ 'text-right': isRtl }">
+      <!-- Desktop/table display -->
+      <div
+        class="col-12 hide-mob deactive-deco-notification-table"
+        *ngIf="dataSource && dataSource.data.length > 0"
+      >
+        <table
+          mat-table
+          [dataSource]="dataSource"
+          [ngClass]="{ 'text-right': isRtl }"
+        >
+          <!-- USER NAME -->
+          <ng-container matColumnDef="userName">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [ngClass]="{ 'text-right': isRtl }"
+              class="w-450px"
+            >
+              {{ "USERNAME" | translate }}
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="escalation-setting-td"
+            >
+              {{ element.userName }}
+            </td>
+          </ng-container>
+
+          <!-- LOGIN ID -->
+          <ng-container matColumnDef="loginId">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [ngClass]="{ 'text-right': isRtl }"
+              class="w-185px"
+            >
+              {{ "USERLOGIN" | translate }}
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="escalation-setting-td"
+            >
+              {{ element.loginId }}
+            </td>
+          </ng-container>
+
+          <!-- DEPARTMENT NAME -->
+          <ng-container matColumnDef="departmetName">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [ngClass]="{ 'text-right': isRtl }"
+              class="min-w-200px"
+            >
+              {{ "DEPARTMENT_NAME" | translate }}
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="escalation-setting-td"
+            >
+              {{ element.departmentName }}
+            </td>
+          </ng-container>
+
+          <!-- USER JOB TITLE -->
+          <ng-container matColumnDef="userJobTitle">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [ngClass]="{ 'text-right': isRtl }"
+              class="w-130px"
+            >
+              {{ "USER_JOB_TITLE" | translate }}
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="escalation-setting-td"
+            >
+              {{ element.userJobTitle }}
+            </td>
+          </ng-container>
+
+          <!-- REGULAR MAIL DISABLED -->
+          <ng-container matColumnDef="regMailDisabled">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [ngClass]="{ 'text-right': isRtl }"
+              class="w-170px"
+            >
+              {{ "REGULAREMAILSTATUS" | translate }}
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="escalation-setting-td"
+            >
+              <mat-form-field style="width: 100px">
+                <mat-select
+                  [(ngModel)]="element.regMailDisabled"
+                  class="example-right-align {{
+                    !element.regMailDisabled ? 'text-success' : 'text-danger'
+                  }}"
+                  (ngModelChange)="updateNotification(element)"
+                >
+                  <mat-option [value]="false" class="text-success">
+                    Active
+                  </mat-option>
+                  <mat-option [value]="true" class="text-danger">
+                    Inactive
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <!-- ESCALATIONS MAIL DISABLED -->
+          <ng-container matColumnDef="esclatnMailDisabled">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [ngClass]="{ 'text-right': isRtl }"
+              class="w-170px"
+            >
+              {{ "ESCALATIONSEMAILSTATUS" | translate }}
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="escalation-setting-td"
+            >
+              <mat-form-field style="width: 100px">
+                <mat-select
+                  [(ngModel)]="element.esclatnMailDisabled"
+                  class="example-right-align {{
+                    !element.esclatnMailDisabled
+                      ? 'text-success'
+                      : 'text-danger'
+                  }}"
+                  (ngModelChange)="updateNotification(element)"
+                >
+                  <mat-option [value]="false" class="text-success">
+                    Active
+                  </mat-option>
+                  <mat-option [value]="true" class="text-danger">
+                    Inactive
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns; sticky: true"
+          ></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- NO DATA -->
+    <div
+      class="row center-block"
+      *ngIf="!dataSource || (dataSource && dataSource.data.length === 0)"
+    >
+      <div class="center mt-5">
+        <mat-icon class="center-icon">cloud_queue</mat-icon>
+        <span class="center-text">{{ "NO_DATA" | translate }}</span>
+      </div>
+    </div>
+  </mat-card>
+</div>

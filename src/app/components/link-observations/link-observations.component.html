@@ -1,0 +1,74 @@
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 col-sm-10 mb-3" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/extractReports">flip_to_back</mat-icon> -->
+                <span class="page-heading-icon pointer" routerLink="/extractReports" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+                <span class="page-sub-heading"> / {{ 'LINK_OBSERVATIONS' | translate }}</span>
+            </div>
+            <div class="col-12 col-sm-2 mb-3">
+                <button mat-raised-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}" (click)="onFinish()">
+                    {{ 'FINISH' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="row" *ngIf="!isLoading && pandingObservationLink" [ngClass]="{'text-right': isRtl}">
+            <div class="col-12">
+                <label class="page-sub-title">{{ 'REMAINING_OBSERVATION_MATCHED' | translate }} :&nbsp;</label>
+                <label class="verify-info">{{pandingObservationLink.observationsPending}}</label>
+                <p class="verify-info">{{ 'PLEASE_VERIFY_LINK' | translate }}</p>
+            </div>
+            <div class="col-12 mt-3 d-flex justify-content-center">
+                <mat-form-field class="w-40" [ngClass]="{'text-right': isRtl}">
+                    <mat-label>{{ 'OBSERVATION_TITLE' | translate }}</mat-label>
+                    <input matInput type="text" [(ngModel)]="obsTitle">
+                    <button mat-button *ngIf="obsTitle" matSuffix mat-icon-button aria-label="Clear"
+                        (click)="obsTitle=''; onSearch()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+                <button class="search-btn b-blue c-white" [ngClass]="isRtl ? 'mr-3' : 'ml-3'" mat-raised-button
+                    (click)="onSearch()">{{ 'SEARCH' | translate }}</button>
+            </div>
+            <div class="col-12 mb-2 hide-mobile" *ngIf="oldObs">
+                <button [ngClass]="isRtl ? 'float-left' : 'float-right'" mat-raised-button class="b-blue c-white"
+                    (click)="onNext()" [disabled]="currentIndex >= (oldObs.length - 1)">
+                    {{ 'NEXT' | translate }}</button>
+                <button [ngClass]="isRtl ? 'float-left ml-2' : 'float-right mr-2'" mat-raised-button class="b-blue c-white"
+                    (click)="onPrevious()" [disabled]="currentIndex == 0">{{ 'PREVIOUS' | translate }}</button>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="observation-content" [innerHTML]="pandingObservationLink.finalObs.obsContent | safeHtml">
+                </div>
+            </div>
+            <div class="col-12 mt-2 mb-2 show-mobile" *ngIf="oldObs">
+                <button [ngClass]="isRtl ? 'float-left' : 'float-right'" mat-raised-button class="b-blue c-white"
+                    (click)="onNext()" [disabled]="currentIndex >= (oldObs.length - 1)">
+                    {{ 'NEXT' | translate }}</button>
+                <button [ngClass]="isRtl ? 'float-left ml-2' : 'float-right mr-2'" mat-raised-button class="b-blue c-white"
+                    (click)="onPrevious()" [disabled]="currentIndex == 0">{{ 'PREVIOUS' | translate }}</button>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="observation-content">
+                    <div [innerHTML]="oldObs[currentIndex].obsContent | safeHtml" *ngIf="oldObs.length > 0"></div>
+                </div>
+            </div>
+            <div class="col-12">
+                <button class="mt-2 b-blue c-white" [ngClass]="isRtl ? 'float-left' : 'float-right'" mat-raised-button
+                    (click)="onConfirm()">{{ 'CONFIRM' | translate }}</button>
+            </div>
+        </div>
+        <!-- <div class="row" *ngIf="isLoading">
+            <div class="col-12" class="loading-indicator">
+                <mat-progress-spinner color="primary" mode="indeterminate">
+                </mat-progress-spinner>
+            </div>
+        </div> -->
+        <div class="row center-block" *ngIf="!isLoading && !pandingObservationLink">
+            <div class="center mt-5">
+                <mat-icon class="center-icon">cloud_queue</mat-icon>
+                <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+            </div>
+        </div>
+    </mat-card>
+</div>

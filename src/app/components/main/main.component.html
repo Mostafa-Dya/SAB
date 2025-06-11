@@ -1,0 +1,263 @@
+<div class="col-12" *ngIf="isLoading" class="loading-indicator">
+  <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+</div>
+<mat-toolbar class="main-header c-white" [ngClass]="{'rtl-direction': rtlValue == true}">
+  <!-- <div class="header-image"></div> -->
+  <img src="assets/images/logo.png" width="225px">
+  <span class="current-report-title hide-s-mob" *ngIf="!rtlValue">
+    {{ 'REPORT_YEAR' | translate }} : {{reportYear}}
+  </span>
+  <span class="current-report-title-rtl hide-s-mob" *ngIf="rtlValue">
+    {{reportYear}} : {{ 'REPORT_YEAR' | translate }}
+  </span>
+  <span class="sabToolbar-spacer"></span>
+  <div class="select d-none">
+    <select id="standard-select" #langSelect
+      (change)="translate.use(langSelect.value); flipDirection(langSelect.value)">
+      <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">
+        {{ lang }}</option>
+    </select>
+    <span class="focus"></span>
+  </div>
+  <button mat-icon-button aria-label="User Icon" *ngIf="rtlValue">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+  <span class="u-name hide-mob">{{userName}}</span>
+  <button mat-icon-button aria-label="User Icon" *ngIf="!rtlValue">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-sidenav-container class="main-container" [ngClass]="{'rtl-direction': rtlValue == true}">
+  <mat-sidenav #sidenav mode="side" opened class="main-sidenav" [fixedInViewport]="true" [fixedTopGap]="70"
+    [fixedBottomGap]="0">
+    <mat-card class="sidebar-card">
+      <mat-card-header>
+        <mat-card-title [ngClass]="{'text-right': rtlValue == true}">{{ 'SAB' | translate }}</mat-card-title>
+        <mat-card-subtitle class="mb-0 c-white hide-mob">{{ 'SAB_DESCRIPTION' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+    <mat-nav-list>
+      <ng-container *ngIf="isAdmin">
+        <a mat-list-item [routerLink]="'/inbox'" [ngClass]="currentRoute.match('/inbox') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('inbox')">
+          <mat-icon>mail</mat-icon>
+          <span class="feature-name hide-mob">{{ 'INBOX' | translate }}</span>
+          <span class="item-count hide-mob">{{inboxCount}}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/launchReports'" [ngClass]="currentRoute.match('/launchReports') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('launchReports')">
+          <mat-icon>file_upload</mat-icon>
+          <span class="feature-name hide-mob">{{ 'LAUNCH_REPORT' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/extractReports'" [ngClass]="currentRoute.match('/extractReports') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('extractReports')">
+          <mat-icon>flip_to_back</mat-icon>
+          <span class="feature-name hide-mob">{{ 'EXTRACT_OBSERVATION' | translate }}</span>
+        </a>
+        <ng-container *ngIf="selectedDelegatedUser && selectedDelegatedUser.loginId != 'Delegated User'">
+          <a mat-list-item [routerLink]="'/response-progress'" [ngClass]="currentRoute.match('/response-progress') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+            (click)="clearFilter('response-progress')">
+            <mat-icon>refresh</mat-icon>
+            <span class="feature-name hide-mob">{{ 'RESPONSE_PROGRESS' | translate }}</span>
+            <span class="item-count hide-mob">{{responseInprogCount}}</span>
+          </a>
+        </ng-container>
+        <ng-container *ngIf="selectedDelegatedUser && selectedDelegatedUser.loginId == 'Delegated User'">
+          <a mat-list-item [routerLink]="'/response-progress'" [ngClass]="currentRoute.match('/response-progress') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+            (click)="clearFilter('response-progress')"
+            *ngIf="delegatedUserInfo && delegatedUserInfo.userJobTitle != '' && !(delegatedUserInfo.userJobTitle == 'ENG' || delegatedUserInfo.userJobTitle == 'SENG')">
+            <mat-icon>refresh</mat-icon>
+            <span class="feature-name hide-mob">{{ 'RESPONSE_PROGRESS' | translate }}</span>
+            <span class="item-count hide-mob">{{responseInprogCount}}</span>
+          </a>
+        </ng-container>
+        <a mat-list-item [routerLink]="'/observation-settings'" [ngClass]="currentRoute.match('/observation-settings') ? 'active' : ''" class="feature-link h-40"
+          [routerLinkActive]="['active']" (click)="clearFilter('observation-settings')">
+          <mat-icon>settings_applications</mat-icon>
+          <span class="feature-name hide-mob">{{ 'OBSERVATION_SETTINGS' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/settings'" [ngClass]="currentRoute.match('/settings') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('settings')">
+          <mat-icon>settings</mat-icon>
+          <span class="feature-name hide-mob">{{ 'SETTINGS' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/search-observations'" [ngClass]="currentRoute.match('/search-observations') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('search-observations')">
+          <mat-icon>search</mat-icon>
+          <span class="feature-name hide-mob">{{ 'SEARCH_OBSERVATIONS' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/archived-observations'" [ngClass]="currentRoute.match('/archived-observations') ? 'active' : ''" class="feature-link h-40"
+          [routerLinkActive]="['active']" (click)="clearFilter('archived-observations')">
+          <mat-icon>archive</mat-icon>
+          <span class="feature-name hide-mob">{{ 'ARCHIVED_RESPONSE' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/search-reports'" [ngClass]="currentRoute.match('/search-reports') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('search-reports')">
+          <mat-icon>find_in_page</mat-icon>
+          <span class="feature-name hide-mob">{{ 'SEARCH_REPORTS' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/reports'" [ngClass]="currentRoute.match('/reports') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('reports')">
+          <mat-icon>trending_up</mat-icon>
+          <span class="feature-name hide-mob">{{ 'REPORTS' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/upload-reports'" [ngClass]="currentRoute.match('/upload-reports') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('upload-reports')">
+          <mat-icon>upload_file</mat-icon>
+          <span class="feature-name hide-mob">{{ 'UPLOAD_REPORTS' | translate }}</span>
+        </a>
+
+        <!-- <a mat-list-item [routerLink]="'/users'" class="feature-link h-40" [routerLinkActive]="['active']"
+          *ngIf="isAddUserPageEnabled" (click)="clearFilter('users')">
+          <mat-icon>account_box</mat-icon>
+          <span class="feature-name hide-mob">{{ 'USERS' | translate }}</span>
+        </a> -->
+        <!--  -->
+        <ng-container
+          *ngIf="userInfo.delegationAdminPageEnabled && selectedDelegatedUser && selectedDelegatedUser.loginId != 'Delegated User'">
+          <a mat-list-item [routerLink]="'/delegation'" class="feature-link h-40" [routerLinkActive]="['active']"
+            (click)="clearFilter('delegation')">
+            <mat-icon>supervisor_account</mat-icon>
+            <span class="feature-name hide-mob">{{ 'DELEGATION' | translate }}</span>
+          </a>
+        </ng-container>
+        <ng-container>
+          <a class="feature-link sub-link admin-active-link" [ngClass]="isAdminLinkActive ? 'active':''">
+            <mat-expansion-panel [expanded]="currentRoute.match('deactive-deco-notification') || currentRoute.match('escalation-settings')|| currentRoute.match('/contact-detail') || currentRoute.match('/users')">
+              <mat-expansion-panel-header class="admin-link-header h-40">
+                <mat-icon>settings_system_daydream</mat-icon> <span class="feature-name hide-mob">{{ 'ADMIN_ACTIVE_LINK'
+                  | translate }}</span>
+              </mat-expansion-panel-header>
+              <mat-nav-list class="pt-0 sub-links">
+                <ng-container>
+                  <a mat-list-item [routerLink]="'/escalation-settings'" class="feature-link h-40" [routerLinkActive]="['active']"
+                    (click)="clearFilter('escalation-settings')">
+                    <mat-icon>escalator</mat-icon>
+                    <span class="feature-name hide-mob">{{ 'ESCALATION_SETTINGS' | translate }}</span>
+                  </a>
+                  
+                  <a mat-list-item [routerLink]="'/contact-detail'" class="feature-link h-40" [routerLinkActive]="['active']"
+                    (click)="clearFilter('contact-detail')">
+                    <mat-icon>perm_contact_calendar</mat-icon>
+                    <span class="feature-name hide-mob">{{ 'G&PACONTACT' | translate }}</span>
+                  </a> 
+                  <a mat-list-item [routerLink]="'/deactive-deco-notification'" class="feature-link h-40"
+                    [routerLinkActive]="['active']" (click)="clearFilter('deactive-deco-notification')">
+                    <mat-icon>notifications_off</mat-icon>
+                    <span class="feature-name hide-mob">{{ 'DEACTIVATE_DECO_NOTIFICATIONS' | translate }}</span>
+                  </a>
+                  <a mat-list-item [routerLink]="'/users'" class="feature-link h-40" [routerLinkActive]="['active']"
+                    *ngIf="isAddUserPageEnabled" (click)="clearFilter('users')">
+                    <mat-icon>account_box</mat-icon>
+                    <span class="feature-name hide-mob">{{ 'Manage_Users' | translate }}</span>
+                  </a>
+                </ng-container>
+              </mat-nav-list>
+            </mat-expansion-panel>
+          </a>
+        </ng-container>
+        
+      </ng-container>
+      <ng-container *ngIf="!isAdmin">
+        <a mat-list-item [routerLink]="'/inbox'" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('inbox')">
+          <mat-icon>mail</mat-icon>
+          <span class="feature-name hide-mob">{{ 'INBOX' | translate }}</span>
+          <span class="item-count hide-mob">{{inboxCount}}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/sent-items'" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('sent-items')">
+          <mat-icon>send</mat-icon>
+          <span class="feature-name hide-mob">{{ 'SEND_ITEMS' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/archive'" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('archive')" *ngIf="isTestEnabled">
+          <mat-icon>inventory_2</mat-icon>
+          <span class="feature-name hide-mob">{{ 'ARCHIVE' | translate }}</span>
+        </a>
+        <ng-container *ngIf="delegatedUsers[0].loginId != 'Delegated User'">
+          <a mat-list-item [routerLink]="'/response-progress'" [ngClass]="currentRoute.match('/response-progress') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+            (click)="clearFilter('response-progress')"
+            *ngIf="userJobTitle != '' && !(userJobTitle == 'ENG' || userJobTitle == 'SENG')">
+            <mat-icon>refresh</mat-icon>
+            <span class="feature-name hide-mob">{{ 'RESPONSE_PROGRESS' | translate }}</span>
+            <span class="item-count hide-mob">{{responseInprogCount}}</span>
+          </a>
+        </ng-container>
+        <ng-container *ngIf="delegatedUsers[0].loginId == 'Delegated User'">
+          <a mat-list-item [routerLink]="'/response-progress'" [ngClass]="currentRoute.match('/response-progress') ? 'active' : ''" class="feature-link h-40" [routerLinkActive]="['active']"
+            (click)="clearFilter('response-progress')"
+            *ngIf="delegatedUserInfo && delegatedUserInfo.userJobTitle != '' && !(delegatedUserInfo.userJobTitle == 'ENG' || delegatedUserInfo.userJobTitle == 'SENG')">
+            <mat-icon>refresh</mat-icon>
+            <span class="feature-name hide-mob">{{ 'RESPONSE_PROGRESS' | translate }}</span>
+            <span class="item-count hide-mob">{{responseInprogCount}}</span>
+          </a>
+        </ng-container>
+        <a mat-list-item [routerLink]="'/search-observations'" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('search-observations')">
+          <mat-icon>search</mat-icon>
+          <span class="feature-name hide-mob">{{ 'SEARCH_OBSERVATIONS' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/archived-observations'" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('archived-observations')">
+          <mat-icon>archive</mat-icon>
+          <span class="feature-name hide-mob">{{ 'ARCHIVED_RESPONSE' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/running-observations'" class="feature-link h-40"
+          [routerLinkActive]="['active']" (click)="clearFilter('running-observations')" *ngIf="isTestEnabled">
+          <mat-icon>manage_search</mat-icon>
+          <span class="feature-name hide-mob">{{ 'RUNNING_OBSERVATIONS' | translate }}</span>
+        </a>
+        <!-- {{selectedDelegatedUserDetails | json}} -->
+        <a mat-list-item [routerLink]="'/reports'" class="feature-link h-40" [routerLinkActive]="['active']" 
+        *ngIf="userJobTitle == 'MGR' || (userJobTitle == 'SEC' && userInfo.supervisorDetails.userJobTitle == 'MGR') || 
+         (selectedDelegatedUserDetails && selectedDelegatedUserDetails.userJobTitle == 'MGR')"
+          (click)="clearFilter('reports')">
+          <!-- *ngIf="userJobTitle == 'MGR' || (userJobTitle == 'SEC' && userInfo.supervisorDetails.userJobTitle == 'MGR')" -->
+          <mat-icon>trending_up</mat-icon>
+          <span class="feature-name hide-mob">{{ 'REPORTS' | translate }}</span>
+        </a>
+        <ng-container *ngIf="selectedDelegatedUser && selectedDelegatedUser.loginId != 'Delegated User' " >
+          <!-- && userInfo.sabMember.userJobTitle != 'SEC' -->
+          <a mat-list-item [routerLink]="'/delegation'" class="feature-link h-40" [routerLinkActive]="['active']"
+            (click)="clearFilter('delegation')">
+            <mat-icon>supervisor_account</mat-icon>
+            <span class="feature-name hide-mob">{{ 'DELEGATION' | translate }}</span>
+          </a>
+        </ng-container>
+      </ng-container>
+    </mat-nav-list>
+    <nz-select [(ngModel)]="selectedDelegatedUser" class="delegate-select mt-3 mb-3" *ngIf="delegatedUsers.length > 1"
+      (ngModelChange)="delegatedUserChange()">
+      <nz-option *ngFor="let user of delegatedUsers" [nzValue]="user" [nzLabel]="user.userName"></nz-option>
+    </nz-select>
+  </mat-sidenav>
+
+  <mat-menu #adminMenu="matMenu" class="custom-menu">
+    <mat-nav-list class="pt-0">
+      <ng-container>
+        <a mat-list-item [routerLink]="'/escalation-settings'" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('escalation-settings')">
+          <mat-icon>escalator</mat-icon>
+          <span class="feature-name hide-mob">{{ 'ESCALATION_SETTINGS' | translate }}</span>
+        </a>
+        
+        <a mat-list-item [routerLink]="'/contact-detail'" class="feature-link h-40" [routerLinkActive]="['active']"
+          (click)="clearFilter('contact-detail')">
+          <mat-icon>perm_contact_calendar</mat-icon>
+          <span class="feature-name hide-mob">{{ 'G&PACONTACT' | translate }}</span>
+        </a>
+        <a mat-list-item [routerLink]="'/deactive-deco-notification'" class="feature-link h-40"
+          [routerLinkActive]="['active']" (click)="clearFilter('deactive-deco-notification')">
+          <mat-icon>notifications_off</mat-icon>
+          <span class="feature-name hide-mob">{{ 'DEACTIVATE_DECO_NOTIFICATIONS' | translate }}</span>
+        </a>
+      </ng-container>
+    </mat-nav-list>
+  </mat-menu>
+  <!--  [ngStyle]="{'overflow' : isHidden ? 'hidden' :'auto'}" -->
+  <mat-sidenav-content [ngStyle]="{'overflow' : isHidden ? 'hidden' :'auto'}"
+    [ngClass]="{'margin-sidenav-rtl': rtlValue == true}">
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

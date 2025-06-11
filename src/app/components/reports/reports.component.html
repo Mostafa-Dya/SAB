@@ -1,0 +1,127 @@
+<div class="container-flud" style="background-color: #F5F5F5;" (window:resize)="onResize($event)">
+  <mat-card class="main-card" style="background-color: #F5F5F5;">
+    <div class="row">
+      <div class="col-12 mb-2" [ngClass]="{'text-right': isRtl}">
+        <mat-icon class="bread-page-heading-icon">trending_up</mat-icon>
+        <span class="page-heading">{{ 'REPORTS' | translate }}</span>
+      </div>
+      <!-- <div class="col-12 mt-5" [ngClass]="{'text-right': isRtl}" *ngIf="reportToBeEnabled != undefined">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-12 col-sm-8 col-md-8 col-lg-6 col-xl-5 select-report-div">
+                        <div class="report-heading">
+                            Please select the type of the Report to generate
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" [routerLink]="'/reports/new-or-repeated-report'">
+                            <label class="report-name">Generate New/Repeated Report</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" [routerLink]="'/reports/initial-or-final-report'">
+                            <label class="report-name">Generate Initial/Final Comparison Report</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" [routerLink]="'/reports/initial-or-final-observation-titles'">
+                            <label class="report-name">Generate Initial/Final Observation Titles</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('KNPC Response Report')"
+                            *ngIf="reportToBeEnabled == 'KNPC Response Report'">
+                            <label class="report-name">Generate KNPC Response Report</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('SAB Quarterly Report Q1')"
+                            *ngIf="reportToBeEnabled == 'SAB Quarterly Report Q1'">
+                            <label class="report-name">Generate KPC - Q1</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('SAB Quarterly Report Q2')"
+                            *ngIf="reportToBeEnabled == 'SAB Quarterly Report Q2'">
+                            <label class="report-name">Generate KPC - Q2</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('SAB Quarterly Report Q3')"
+                            *ngIf="reportToBeEnabled == 'SAB Quarterly Report Q3'">
+                            <label class="report-name">Generate KPC - Q3</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('SAB Quarterly Report Q4')"
+                            *ngIf="reportToBeEnabled == 'SAB Quarterly Report Q4'">
+                            <label class="report-name">Generate KPC - Q4</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('Final Report Launch')"
+                            *ngIf="reportToBeEnabled != ''">
+                            <label class="report-name">Generate KNPC Final Report</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('SAB Semi-annual Report 1')"
+                            *ngIf="reportToBeEnabled == 'SAB Semi-annual Report 1'">
+                            <label class="report-name">SemiAnnual - 1</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('SAB Semi-annual Report 2')"
+                            *ngIf="reportToBeEnabled == 'SAB Semi-annual Report 2'">
+                            <label class="report-name">SemiAnnual - 2</label>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="report-name-div" (click)="generateReport('GenerateMasterFile')"
+                            *ngIf="reportToBeEnabled != ''">
+                            <label class="report-name">Generate Master file</label>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+      <div class="col-12">
+        <hr class="w-100">
+      </div>
+      <div class="col-12 mt-4">
+        <div class="row mb-4">
+          <ng-container *ngFor="let item of row_1_report;let i = index">
+            <div class="col-lg-1 mb-3" *ngIf="(i == 0 || i == 5 || i == 10 || i == 15) && innerWidth >= 1200"></div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3" *ngIf="item.condition">
+              <div class="box" style="min-height: 231px;" (click)="nagivateToReport(item)"
+                [ngStyle]="{'border-top' :'3px solid ', 'border-color':item.brColor}">
+                <div class="w-100">
+                  <h3 class="mb-2" [innerHtml]="item.name"> </h3>
+                  <p class="mt-3"> {{item.description}} </p>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"
+                    style="width: 40px; margin-left: 70%; cursor: pointer; " *ngIf="!item.isRedirect">
+                    <path data-name="layer2" d="M13 7v38a5 5 0 0 0 5 5h33V12H18a5 5 0 0 1-5-5"
+                      [attr.fill]="item.brColor"></path>
+                    <path data-name="layer1" d="M47 12V2H18a5 5 0 0 0 0 10z" fill="#ffffff"></path>
+                    <path data-name="opacity"
+                      d="M18 2a5 5 0 0 0-5 5 4.9 4.9 0 0 0 .3 1.5A5 5 0 0 1 18 5h29V2zm15 48V34.8L20.8 50H33z"
+                      fill="#000064" opacity=".15"></path>
+                    <path data-name="opacity" d="M18 12a5 5 0 0 1-5-5v38a5 5 0 0 0 5 5V12z" fill="#000064"
+                      opacity=".15"></path>
+                    <path data-name="stroke" d="M41 50h10V12H18a5 5 0 0 1 0-10h29v10" fill="none"
+                      [attr.stroke]="item.brColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"
+                      stroke-linejoin="round"></path>
+                    <path data-name="stroke" d="M13 7v38a5 5 0 0 0 5 5h7m8-15.2V62m6-6.2L33 62l-6-6.2" fill="none"
+                      [attr.stroke]="item.brColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"
+                      stroke-linejoin="round"></path>
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" style="width: 40px; margin-left: 70%;"
+                    *ngIf="item.isRedirect">
+                    <path data-name="layer1"
+                      d="M34 21.996V10l28 20-28 20V38c-11.133.004-21.271.434-30 16 0-9.887 1-32 30-32.004z"
+                      [attr.fill]="item.brColor"></path>
+                    <path data-name="opacity"
+                      d="M4.106 49.818A77.204 77.204 0 0 0 4 54.125c8.729-15.566 18.867-15.996 30-16V34c-11.088.004-21.19.435-29.895 15.818zM34 46v4.125l28-20-2.887-2.062L34 46z"
+                      fill="#000028" opacity=".15"></path>
+                    <path data-name="stroke"
+                      d="M34 21.996V10l28 20-28 20V38c-11.133.004-21.271.434-30 16 0-9.887 1-32 30-32.004z" fill="none"
+                      [attr.stroke]="item.brColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                    </path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-1 mb-3" *ngIf="(i == 4 || i == 9 || i == 14 || i == 19) && innerWidth >= 1200"></div>
+          </ng-container>
+        </div>
+
+      </div>
+    </div>
+  </mat-card>
+</div>

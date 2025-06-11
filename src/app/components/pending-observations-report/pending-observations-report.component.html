@@ -1,0 +1,133 @@
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/reports" matTooltip="{{ 'BACK' | translate }}">
+                    trending_up
+                </mat-icon> -->
+                <span class="page-heading-icon pointer" routerLink="/reports" matTooltip="{{ 'BACK' | translate }}"> {{
+                    'BACK_HEADING' | translate }}</span>
+                <span class="page-sub-heading">/ {{ 'PENDING_OBSERVATIONS_REPORT' | translate }}</span>
+            </div>
+
+            <div class="col-12 mb-3 date-details" [ngClass]="{'text-right': isRtl}">
+                <p class="font-weight-bold"> {{'DAY' | translate}} : <mat-icon>calendar_today</mat-icon>
+                    {{day}} &nbsp; &nbsp;
+                    {{'DATE' | translate}} : <mat-icon>date_range</mat-icon>
+                    {{date}} &nbsp; &nbsp; {{'TIME' | translate}} : <mat-icon>access_time</mat-icon>
+                    {{time}}</p>
+            </div>
+
+            <!-- DCEO -->
+            <div class="col-12">
+                <mat-accordion class="example-headers-align w-100 pending-observations-report" multi>
+                    <mat-expansion-panel (opened)="panelOpenState = true" class="mb-2" (closed)="panelOpenState = false"   [expanded]="i === 0" 
+                        *ngFor="let data of observationReportData ;let i = index">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                {{data.dirName}} - {{'TOTAL' | translate}} : {{data.total}}
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <div class="row">
+                            <div class="col-12 mb-1">
+                                <table mat-table [dataSource]="data.departmentData" [ngClass]="{'text-right': isRtl}">
+                                    <ng-container matColumnDef="deptName" >
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" class="w-50p">
+                                            {{ 'DEPARTMENT' | translate }} </th>
+                                        <td mat-cell *matCellDef="let element" class="w-50p"> {{element.deptName}} </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="pendingManager">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" class="w-16p">
+                                            {{ 'PENDING_MANAGER' | translate }} </th>
+                                        <td mat-cell *matCellDef="let element" class="w-16p pl-2"> {{element.pendingManager}} </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="pendingTl">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" class="w-16p">
+                                            {{ 'PENDING_TL' | translate }} </th>
+                                        <td mat-cell *matCellDef="let element" class="w-16p pl-2"> {{element.pendingTl}} </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="pendingUser">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" class="w-16p">
+                                            {{ 'PENDING_USER' | translate }} </th>
+                                        <td mat-cell *matCellDef="let element" class="w-16p pl-2"> {{element.pendingUser}} </td>
+                                    </ng-container>
+
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumnsForDCEO; sticky: true"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: displayedColumnsForDCEO;"></tr>
+                                </table>
+                                <div class="w-100 border font-weight-bold p-2 table-caption-header">
+                                    <div class="row">
+                                        <div class="col-4">{{'TOTAL' | translate}}</div>
+                                        <div class="col-4 text-center" *ngIf="data">{{data.total}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+
+            <!-- Committes -->
+            <div class="col-12">
+                <mat-accordion class="example-headers-align w-100 pending-observations-report" multi>
+                    <mat-expansion-panel (opened)="panelOpenState = true" class="mb-2"  [expanded]="observationReportData.length === 0" 
+                        (closed)="panelOpenState = false">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                {{'COMMITTEES' |translate}} - {{'TOTAL' | translate}} : {{committiTotal}}
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <div class="row">
+                            <div class="col-12 mb-1">
+                                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}">
+                                    <ng-container matColumnDef="department">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                                            {{'DESIGNATION' | translate}} </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.department}} </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="pendingResponse">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                                            {{ 'PENDING_RESPONSE' | translate }} <br />
+                                            {{ 'LEVEL_1' | translate }} <br />
+
+                                        </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.pendingResponse}} </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="pendingApproval">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                                            {{ 'PENDING_APPROVAL' | translate }} <br />
+                                            {{ 'LEVEL_2' | translate }} <br />
+                                        </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.pendingApproval}} </td>
+                                    </ng-container>
+
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                                </table>
+                                <div class="w-100 border font-weight-bold p-2 table-caption-header">
+                                    <div class="row">
+                                        <div class="col-4">{{'TOTAL' | translate}}</div>
+                                        <div class="col-4 text-center">{{committiTotal}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+
+            <div class="col-12 mt-3 mb-3">
+                <button id="btn3" class="b-blue c-white  mr-2" [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'"
+                    mat-raised-button (click)="exportMSWordForDCEO()" matTooltip="{{ 'EXPORT_MS_WORD_DEC' | translate }}">
+                    {{ 'EXPORT_TO_MS_WORD' | translate }}
+                </button>
+            </div>
+
+        </div>
+    </mat-card>
+</div>

@@ -1,0 +1,154 @@
+<div class="container-flud"  (window:resize)="onResize($event)">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 col-sm-10 mb-3" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/extractReports">flip_to_back</mat-icon> -->
+                <span class="page-heading-icon pointer" routerLink="/extractReports" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+                <span class="page-sub-heading">
+                    <span class="pointer font-weight-bold" routerLink="/extractReports/compare-observations/new">
+                        / {{ 'COMPARE_OBSERVATIONS' | translate }}
+                    </span>
+                    / {{ 'INITIAL_FINAL_COMPARISON_REPORT' | translate }}
+                </span>
+            </div>
+            <div class="col-12 col-sm-2 mb-3">
+                <button mat-raised-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                    routerLink="/launchReports">
+                    {{ 'CONTINUE_TO_LAUNCH_REPORT' | translate }}
+                </button>
+            </div>
+            <div class="col-12 mb-3">
+                <button mat-raised-button class="b-blue c-white float-right" (click)="exportToWord()"
+                matTooltip="{{ 'EXPORT_MS_WORD_DEC' | translate }}">
+                    {{ 'EXPORT_TO_MS_WORD' | translate }}
+                </button>
+            </div>
+            <div class="col-12" *ngIf="dataSource && dataSource.data.length > 0">
+                <div class="row">
+                    <div class="col-12 mb-3 hide-mob" *ngIf="innerWidth > 575">
+                        <table mat-table [dataSource]="dataSource" matSort [ngClass]="{'text-right': isRtl}"  >
+                            <ng-container matColumnDef="obsSeq">
+                                <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" mat-sort-header>
+                                    {{ 'الرقم' | translate }} </th>
+                                <td mat-cell *matCellDef="let element"> {{element.obsSeq}} </td>
+                            </ng-container>
+                            <ng-container matColumnDef="obsTitle">
+                                <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" mat-sort-header>
+                                    {{ 'الملاحظة' | translate }} </th>
+                                <td mat-cell *matCellDef="let element" [ngClass]="{'rtl-direction': !isRtl}">
+                                    {{element.obsTitle}} </td>
+                            </ng-container>
+                            <ng-container matColumnDef="obsType">
+                                <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" mat-sort-header>
+                                    {{ 'جديدة / متكررة' | translate }} </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <span *ngIf="element.obsType == 'NEW'">جديدة</span>
+                                    <span *ngIf="element.obsType != 'NEW'">متكررة</span>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="isFirst">
+                                <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" mat-sort-header>
+                                    {{ 'التقرير الأولى' | translate }} </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-icon class="f-18 text-success font-weight-bold">check</mat-icon>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="isFinal">
+                                <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" mat-sort-header>
+                                    <!-- {{ 'التقرير النهائي' | translate }} -->
+                                    {{'تقرير تعقيب'}}
+                                
+                                </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <span *ngIf="element.final">
+                                        <mat-icon class="f-18 text-success font-weight-bold">check</mat-icon>
+                                    </span>
+                                    <span *ngIf="!element.final">
+                                        <mat-icon class="f-18 text-danger font-weight-bold">close</mat-icon>
+                                    </span>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="cursor: pointer;"></tr>
+                        </table>
+                        <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="0" hidePageSize
+                            showFirstLastButtons dir="ltr">
+                        </mat-paginator> -->
+                    </div>
+                    <div class="col-12 mb-3 show-mob" *ngIf="innerWidth <= 575">
+                        <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}"
+                            multiTemplateDataRows>
+                            <ng-container matColumnDef="obsTitle">
+                                <th mat-header-cell *matHeaderCellDef></th>
+                                <td mat-cell *matCellDef="let element" class="title-td"
+                                    [ngClass]="{'rtl-direction': !isRtl}"> {{element.obsTitle}} </td>
+                            </ng-container>
+                            <ng-container matColumnDef="expandedDetail">
+                                <td class="expanded-td" mat-cell *matCellDef="let element"
+                                    [attr.colspan]="displayedColumnsMob.length">
+                                    <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                                        <div class="col-12 expanded-content">
+                                            <span *ngIf="element.obsType == 'NEW'">جديدة</span>
+                                            <span *ngIf="element.obsType != 'NEW'">متكررة</span>
+                                            <span [ngClass]="isRtl ? 'sequence-mob-rtl' : 'sequence-mob'">
+                                                {{ 'الرقم' | translate }}: {{element.obsSeq}}</span>
+                                        </div>
+                                        <div class="col-12 expanded-content">
+                                            <span>التقرير الأولى</span> : <mat-icon
+                                                class="f-18 text-success font-weight-bold">check
+                                            </mat-icon>
+                                        </div>
+                                        <div class="col-12 expanded-content">
+                                            <span>التقرير النهائي</span> :
+                                            <span *ngIf="element.final">
+                                                <mat-icon class="f-18 text-success font-weight-bold">check</mat-icon>
+                                            </span>
+                                            <span *ngIf="!element.final">
+                                                <mat-icon class="f-18 text-danger font-weight-bold">close</mat-icon>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;" style="cursor: pointer;">
+                            </tr>
+                            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+                        </table>
+                        <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="0" hidePageSize
+                            showFirstLastButtons dir="ltr">
+                        </mat-paginator> -->
+                    </div>
+                    <div class="col-12 mb-3">
+                        <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="0" hidePageSize
+                            showFirstLastButtons dir="ltr">
+                        </mat-paginator>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="row" [ngClass]="isRtl ? '' : 'rtl-direction text-right'">
+                            <div class="col-12" [ngClass]="{'text-right': isRtl}">
+                                <label class="page-sub-title mb-0">{{ 'TOTAL_MATCHED_REPORTS' | translate }}:</label>
+                                <span class="mr-2">{{matchedObsCount}}</span>
+                            </div>
+                            <div class="col-12" [ngClass]="{'text-right': isRtl}">
+                                <label class="page-sub-title mb-0">
+                                    {{ 'TOTAL_NOT_MATCHED_REPORTS' | translate }}:</label>
+                                <span class="mr-2">{{notMatchedObsCount}}</span>
+                            </div>
+                            <div class="col-12" [ngClass]="{'text-right': isRtl}">
+                                <label class="page-sub-title mb-0">{{ 'TOTAL_NUMBER_REPORTS' | translate }}:</label>
+                                <span class="mr-2">{{totalObsCount}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row center-block" *ngIf="dataSource && dataSource.data.length == 0">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">cloud_queue</mat-icon>
+                    <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+                </div>
+            </div>
+        </div>
+    </mat-card>
+</div>

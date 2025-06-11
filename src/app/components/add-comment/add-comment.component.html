@@ -1,0 +1,63 @@
+<div [class.rtl-direction]="isRtl$ | async">
+  <div
+    cdkDrag
+    cdkDragRootElement=".mat-dialog-container"
+    class="dialog-heading-div"
+    [class.text-right]="isRtl$ | async"
+  >
+    <span
+      class="page-title"
+      [class.ml-4]="!(isRtl$ | async)"
+      [class.mr-4]="isRtl$ | async"
+    >
+      Add Comment
+    </span>
+  </div>
+
+  <mat-dialog-content
+    class="mat-typography"
+    [class.custom-height]="form.get('comment')?.errors?.['maxlength']"
+  >
+    <div class="mt-3">
+      <label class="page-sub-title">
+        {{ 'COMMENT' | translate }}
+        <span class="text-danger">*</span>:
+      </label>
+    </div>
+
+    <div class="mt-n3 h-120">
+      <mat-form-field class="w-100 border-textarea">
+        <textarea
+          matInput
+          formControlName="comment"
+          cdkTextareaAutosize
+          cdkAutosizeMinRows="3"
+          cdkAutosizeMaxRows="5"
+        ></textarea>
+        <mat-hint align="end">
+          {{ form.value.comment?.trim()?.length || 0 }} / {{ maxLen }}
+        </mat-hint>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="isAdmin" class="mt-3 pt-3">
+      <span class="font-weight-bold">
+        {{ 'PLEASE_NOTE_THIS_COMMENT_WILL_APPEAR_IN_THE_NOTIFICATION_EMAIL_SENT_TO_THE_DEPARTMENT' | translate }}
+      </span>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close>
+      {{ 'CLOSE' | translate }}
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="onSend()"
+      [disabled]="form.invalid"
+    >
+      {{ 'SEND' | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

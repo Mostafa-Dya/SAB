@@ -1,0 +1,494 @@
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-10 mb-3" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/running-observations"
+                    matTooltip="{{ 'BACK' | translate }}">manage_search</mat-icon> -->
+                    <span class="page-heading-icon pointer" routerLink="/running-observations" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+                <span class="page-sub-heading"> / {{ 'OBSERVATION_DETAILS' | translate }}</span>
+            </div>
+            <div class="col-2 mb-3">
+                <button mat-mini-fab class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                    aria-label="Example icon button with a menu icon" (click)="getWorkItemInfo()"
+                    matTooltip="{{ 'RELOAD' | translate }}">
+                    <mat-icon>refresh</mat-icon>
+                </button>
+            </div>
+        </div>
+        <div class="row" *ngIf="!isLoading">
+            <div class="col-4 col-sm-3 col-lg-2" [ngClass]="{'text-right': isRtl}">
+                <label class="page-sub-title">{{ 'TITLE' | translate }}:</label>
+            </div>
+            <div class="col-8 col-sm-9 col-lg-10" [ngClass]="{'text-right': isRtl}">
+                <span>{{workItem.obsTitle}}</span>
+            </div>
+            <div class="col-4 col-sm-3 col-lg-2" [ngClass]="{'text-right': isRtl}">
+                <label class="page-sub-title">{{ 'SEQUENCE_ID' | translate }}:</label>
+            </div>
+            <div class="col-8 col-sm-9 col-lg-10" [ngClass]="{'text-right': isRtl}">
+                <span>{{workItem.obsSeq}}</span>
+            </div>
+            <div class="col-4 col-sm-3 col-lg-2" [ngClass]="{'text-right': isRtl}">
+                <label class="page-sub-title">{{ 'REPORT_NAME' | translate }}:</label>
+            </div>
+            <div class="col-8 col-sm-9 col-lg-10" [ngClass]="{'text-right': isRtl}">
+                <span>{{'KNPC_RESPONSE_REPORT' | translate}}</span>
+            </div>
+            <div class="col-12">
+                <mat-divider></mat-divider>
+            </div>
+            <div class="col-12 col-lg-3 left-div">
+                <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+                    <label class="page-sub-title">{{ 'RECEIVED_DATE' | translate }}:</label>
+                </div>
+                <div class="data-center">
+                    <span>{{workItem.receievedDate | date:'d/M/yyyy h:mm a'}}</span>
+                </div>
+                <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+                    <label class="page-sub-title">{{ 'STATUS' | translate }}:</label>
+                </div>
+                <div class="data-center">
+                    <span>{{workItem.status}}</span>
+                </div>
+                <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+                    <label class="page-sub-title">{{ 'CALL_DATE' | translate }}:</label>
+                </div>
+                <div class="data-center">
+                    <span>{{workItem.callDate | date:'d/M/yyyy'}}</span>
+                </div>
+                <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+                    <label class="page-sub-title">{{ 'LAST_COMMENT' | translate }}:</label>
+                </div>
+                <div>
+                  <mat-form-field class="w-100 text-right border-textarea action-comment">
+                    <textarea matInput [(ngModel)]="workItem.actionComment" [matTextareaAutosize]=true [matAutosizeMinRows]=2
+                      [matAutosizeMaxRows]=2 readonly></textarea>
+                  </mat-form-field>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white" (click)="onApprove()"
+                        matTooltip="{{ 'APPROVE_DES' | translate }}" matTooltipPosition="above"
+                        *ngIf="workItem.approveEnabled">
+                        {{ 'APPROVE' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white"
+                        matTooltip="{{ 'APPROVE_AND_COMBINE_RESPONSE_DES' | translate }}" matTooltipPosition="above"
+                        (click)="onApproveAndComine()" *ngIf="workItem.approveAndCombineEnabled">
+                        {{ 'APPROVE_AND_COMBINE_RESPONSE' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white" [disabled]="workItem.noOfActiveDepts >= 3"
+                        matTooltip="{{ 'ASSIGN_TO_DEPARTMENT_DES' | translate }}" matTooltipPosition="above"
+                        (click)="onAssignToDept()" *ngIf="workItem.assignToDeptEnabled">
+                        {{ 'ASSIGN_TO_DEPARTMENT' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white"
+                        matTooltip="{{ 'ASSIGN_TO_CEO_DES' | translate }}" matTooltipPosition="above"
+                        (click)="sendToCEOAndMarkObsAsExcect()" *ngIf="workItem.sendToCEOEnabled">
+                        {{ 'ASSIGN_TO_CEO' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white" [disabled]="workItem.activeAssignments >= 2"
+                        matTooltip="{{ 'ASSIGN_TO_EXECUTIVE_DES' | translate }}" matTooltipPosition="above"
+                        (click)="onAssignToExecutive()" *ngIf="workItem.assignToExecutiveEnabled">
+                        {{ 'ASSIGN_TO_EXECUTIVE' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white" [disabled]="workItem.activeAssignments >= 2"
+                        matTooltip="{{ 'ASSIGN_STAFF_DES' | translate }}" matTooltipPosition="above"
+                        (click)="onAssignStaff()" *ngIf="workItem.assignToStaffEnabled">
+                        {{ 'ASSIGN_STAFF' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white"
+                        matTooltip="{{ 'ASSIGN_TO_COMMITTEE_DES' | translate }}" matTooltipPosition="above"
+                        (click)="assignToCommittee()" *ngIf="workItem.assignToComitteeEnabled">
+                        {{ 'ASSIGN_TO_COMMITTEE' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white"
+                        matTooltip="{{ 'SEND_RESPONSE_DES' | translate }}" matTooltipPosition="above"
+                        (click)="onSendResponse()" *ngIf="workItem.sendResponseEnabled">
+                        {{ 'SEND_RESPONSE' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white"
+                        matTooltip="{{ 'REASSIGN_DEPARTMENT_DES' | translate }}" matTooltipPosition="above"
+                        (click)="onTransferDept()" *ngIf="workItem.transferDeptEnabled">
+                        {{ 'REASSIGN_DEPARTMENT' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white"
+                        matTooltip="{{ 'RESPOND_ON_BEHALF_DES' | translate }}" matTooltipPosition="above"
+                        (click)="onRespondOnBehalf()" *ngIf="workItem.respondOnBehalf">
+                        {{ 'RESPOND_ON_BEHALF' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white"
+                        matTooltip="{{ 'DECLINE_AND_SEND_BACK_DES' | translate }}" matTooltipPosition="above"
+                        (click)="ondeclineAndSendBack()" *ngIf="workItem.declineSendBackEnabled">
+                        {{ 'DECLINE' | translate }}</button>
+                </div>
+                <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white"
+                        matTooltip="{{ 'SEND_BACK_DES' | translate }}" matTooltipPosition="above" (click)="onSendBack()"
+                        *ngIf="workItem.sendBackEnabled">
+                        {{ 'SEND_BACK_FOR_CORRECTION' | translate }}</button>
+                </div>
+            </div>
+            <div class="col-12 col-lg-9" dir="ltr">
+                <mat-tab-group class="mat-tab-right" *ngIf="!isRtl">
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon">description</mat-icon>
+                            {{ 'INITIAL_DETAILS' | translate }} -->
+
+                            <div matTooltip= "{{ 'INITIAL_DETAILS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">description</mat-icon> </div>
+                                <div><span> {{ 'INITIAL_DETAILS' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div>
+                            <mat-tab-group class="mat-tab-right-details">
+                                <mat-tab *ngFor="let initialData of workItem.irDetails">
+                                    <ng-template mat-tab-label>
+                                        <!-- {{initialData.reportName}} -->
+                                        <label matTooltip= "{{ initialData.reportName == 'Observation' ?' الملاحظة' : initialData.reportName == 'SAB Request' ?'طلب الديوان':'الرد الأولي' }}"   matTooltipClass="f-s-14"
+                                        class="pointer"> {{initialData.reportName}} </label>
+                                     </ng-template>
+                    <!--venkat     <div>
+     <p class="initial-report" [innerHTML]="initialData.reportContent | safeHtml">   </p>
+                                    </div> -->
+     <div>
+ <p *ngIf="initialData.reportName === 'Initial Response'; else notIRId"
+ class="initial-report" id="intialResponseFont"  [innerHTML]="initialData.reportContent | safeHtml"></p>
+<ng-template #notIRId>
+ <p class="initial-report" [innerHTML]="initialData.reportContent | safeHtml"></p>
+</ng-template>
+    </div>
+                                </mat-tab>
+                            </mat-tab-group>
+                        </div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon">text_snippet</mat-icon>
+                            {{ 'FINAL_DETAILS' | translate }} -->
+                            <div matTooltip= "{{ 'FINAL_DETAILS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">description</mat-icon> </div>
+                                <div><span> {{ 'FINAL_DETAILS' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div>
+                            <mat-tab-group class="mat-tab-right-details">
+                                <mat-tab *ngFor="let finalData of workItem.frDetails">
+                                    <ng-template mat-tab-label>
+                                        <!-- {{finalData.reportName}} -->
+                                        <label matTooltip= "{{ finalData.reportName == 'Observation' ? 'الملاحظة' : finalData.reportName == 'SAB Commentary' ?'تعقيب الديوان': finalData.reportName == 'Semi-Annual 1' ? 'الرد النصف سنوي الأول' :finalData.reportName != 'Q1 Response' && finalData.reportName != 'Q2 Response' && finalData.reportName != 'Q3 Response' && finalData.reportName != 'Q4 Response'  ? 'الرد النصف سنوي الثاني':'' }}" class="pointer"  matTooltipClass="f-s-14"> 
+                                            {{finalData.reportName}} </label>
+                                     </ng-template>
+                                    <div>
+    <!-- venkat <p class="initial-report" [innerHTML]="finalData.reportContent | safeHtml"></p> --> 
+    <p *ngIf="finalData.reportName === 'Semi-Annual 1' || finalData.reportName === 'Semi-Annual 2'; else notIRId"
+       class="initial-report"   id="intialResponseFont"   [innerHTML]="finalData.reportContent | safeHtml">
+    </p>
+    <ng-template #notIRId>
+      <p class="initial-report" [innerHTML]="finalData.reportContent | safeHtml"></p>
+    </ng-template> 
+                                    </div>
+                                </mat-tab>
+                            </mat-tab-group>
+                        </div>
+                    </mat-tab>
+                    <mat-tab *ngIf="workItem.stepUniqueName != 'G&PA Park' && workItem.stepUniqueName != 'G&PAApprove-EditResponse'">
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon">reply</mat-icon>
+                            {{ 'RESPONSE' | translate }} -->
+                            <div matTooltip="{{ 'RESPONSE_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">reply</mat-icon> </div>
+                                <div><span> {{ 'IPR' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div></div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon">chat</mat-icon>
+                            {{ 'COMMENTS' | translate }} -->
+                            <div matTooltip="{{ 'COMMENTS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">chat</mat-icon> </div>
+                                <div><span> {{ 'COMMENTS' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div class="commentsContainer">
+                            <!-- <h1> Obseration Comments</h1> -->
+                            <section *ngFor="let cmnt of workItem.comments">
+                                <mat-expansion-panel>
+                                    <mat-expansion-panel-header>
+                                        <mat-panel-title>
+                                            {{cmnt.comment}}
+                                        </mat-panel-title>
+                                    </mat-expansion-panel-header>
+                                    <div class="comments" style="direction:ltr">
+                                        <div class="comment">
+                                            <div class="form-group">
+                                                <label for="">{{ 'SENDER' | translate }}:</label>
+                                                <input style="width:86%;" readonly type="text"
+                                                    [(ngModel)]="cmnt.sender">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="centerText" for="">{{ 'SENT_TO' | translate }}:</label>
+                                                <input style="width:86%;" readonly type="text"
+                                                    [(ngModel)]="cmnt.sentTo">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">{{ 'STEP' | translate }}:</label>
+                                                <input style="width:86%;" readonly type="text"
+                                                    [(ngModel)]="cmnt.stepName">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">{{ 'DATE' | translate }}:</label>
+                                                <input style="width:86%;" readonly type="text"
+                                                    value="{{cmnt.commentDate | date:'d/M/yyyy h:mm a'}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">{{ 'COMMENT' | translate }}:</label>
+                                                <p class="commentText" style="text-align:right; width:86%; display: inline-block;">
+                                                    {{cmnt.comment}}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </mat-expansion-panel>
+                            </section>
+                        </div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon">history</mat-icon>
+                            {{ 'HISTORY' | translate }} -->
+                            <div matTooltip="{{ 'HISTORY_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">history</mat-icon> </div>
+                                <div><span> {{ 'HISTORY' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div>
+                            <!-- <h1>Observation History</h1> -->
+                            <table mat-table [dataSource]="workItem.historyList">
+                                <ng-container matColumnDef="id">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'SEQUENCE' | translate }} </th>
+                                    <td mat-cell *matCellDef="let index = index"> {{index}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="historyDate">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'DATE' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.historyDate | date:'d/M/yyyy h:mm a'}}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="stepName">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'STEP_NAME' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.stepName}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="responseTaken">
+                                  <th mat-header-cell *matHeaderCellDef> {{ 'RSPONSE_TAKEN' | translate }} </th>
+                                  <td mat-cell *matCellDef="let element"> {{element.responseTaken}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="from">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'FROM' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.from}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="to">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'TO' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.to}} </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="histortTableColumns"></tr>
+                                <tr mat-row *matRowDef="let row; columns: histortTableColumns;"></tr>
+                            </table>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+                <mat-tab-group class="mat-tab-right" dir="rtl" *ngIf="isRtl">
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon">description</mat-icon>
+                            {{ 'INITIAL_DETAILS' | translate }} -->
+
+                            <div matTooltip= "{{ 'INITIAL_DETAILS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">description</mat-icon> </div>
+                                <div><span> {{ 'INITIAL_DETAILS' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div>
+                            <mat-tab-group class="mat-tab-right-details">
+                                <mat-tab *ngFor="let initialData of workItem.irDetails">
+                                    <ng-template mat-tab-label>
+                                        <!-- {{initialData.reportName}}  -->
+                                        <label matTooltip= "{{ initialData.reportName == 'Observation' ?' الملاحظة' : initialData.reportName == 'SAB Request' ?'طلب الديوان':'الرد الأولي' }}"   matTooltipClass="f-s-14" 
+                                        class="pointer"> {{initialData.reportName}} </label>
+                                    </ng-template>
+                            <!-- venkat       <div>
+                                        <p [innerHTML]="initialData.reportContent | safeHtml"></p>
+                                    </div> -->
+              <div>
+  <p *ngIf="initialData.reportName === 'Initial Response'; else notIRId" class="initial-report" 
+  id="intialResponseFont"  [innerHTML]="initialData.reportContent | safeHtml"></p>
+<ng-template #notIRId>
+ <p class="initial-report" [innerHTML]="initialData.reportContent | safeHtml"></p>
+</ng-template>
+                                           </div>
+
+                                </mat-tab>
+                            </mat-tab-group>
+                        </div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon">text_snippet</mat-icon>
+                            {{ 'FINAL_DETAILS' | translate }} -->
+                            <div matTooltip= "{{ 'FINAL_DETAILS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">description</mat-icon> </div>
+                                <div><span> {{ 'FINAL_DETAILS' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div>
+                            <mat-tab-group class="mat-tab-right-details">
+                                <mat-tab *ngFor="let finalData of workItem.frDetails">
+                                    <ng-template mat-tab-label>
+                                        <!-- {{finalData.reportName}} -->
+                                        <label matTooltip= "{{ finalData.reportName == 'Observation' ? 'الملاحظة' : finalData.reportName == 'SAB Commentary' ?'تعقيب الديوان': finalData.reportName == 'Semi-Annual 1' ? 'الرد النصف سنوي الأول' :finalData.reportName != 'Q1 Response' && finalData.reportName != 'Q2 Response' && finalData.reportName != 'Q3 Response' && finalData.reportName != 'Q4 Response' ? 'الرد النصف سنوي الثاني':'' }}" class="pointer"  matTooltipClass="f-s-14"> 
+                                            {{finalData.reportName}} </label>
+                                     </ng-template>
+                                    <div>
+<!--venkat <p [innerHTML]="finalData.reportContent | safeHtml"></p> -->
+<p *ngIf="finalData.reportName === 'Semi-Annual 1' || 
+finalData.reportName === 'Semi-Annual 2'; else notIRId"
+   class="initial-report"
+   id="intialResponseFont"
+   [innerHTML]="finalData.reportContent | safeHtml">
+</p>
+<ng-template #notIRId>
+  <p class="initial-report" [innerHTML]="finalData.reportContent | safeHtml"></p>
+</ng-template>
+                                    </div>
+                                </mat-tab>
+                            </mat-tab-group>
+                        </div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon-rtl">reply</mat-icon>
+                            {{ 'RESPONSE' | translate }} -->
+                            <div matTooltip="{{ 'RESPONSE_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">reply</mat-icon> </div>
+                                <div><span> {{ 'IPR' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div></div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon-rtl">chat</mat-icon>
+                            {{ 'COMMENTS' | translate }} -->
+                            <div matTooltip="{{ 'COMMENTS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">chat</mat-icon> </div>
+                                <div><span> {{ 'COMMENTS' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div class="commentsContainer">
+                            <!-- <h1> Obseration Comments</h1> -->
+                            <section *ngFor="let cmnt of workItem.comments">
+                                <mat-expansion-panel>
+                                    <mat-expansion-panel-header>
+                                        <mat-panel-title>
+                                            {{cmnt.comment}}
+                                        </mat-panel-title>
+                                    </mat-expansion-panel-header>
+                                    <div class="comments" style="direction:ltr">
+                                        <div class="comment">
+                                            <div class="form-group">
+                                                <label for="">{{ 'SENDER' | translate }}:</label>
+                                                <input style="width:86%;" readonly type="text"
+                                                    [(ngModel)]="cmnt.sender">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="centerText" for="">{{ 'SENT_TO' | translate }}:</label>
+                                                <input style="width:86%;" readonly type="text"
+                                                    [(ngModel)]="cmnt.sentTo">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">{{ 'STEP' | translate }}:</label>
+                                                <input style="width:86%;" readonly type="text"
+                                                    [(ngModel)]="cmnt.stepName">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">{{ 'COMMENT' | translate }}:</label>
+                                                <p class="commentText" style="text-align:right; width:86%; display: inline-block;">
+                                                    {{cmnt.comment}}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </mat-expansion-panel>
+                            </section>
+                        </div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <!-- <mat-icon class="sab-tab-icon-rtl">history</mat-icon>
+                            {{ 'HISTORY' | translate }} -->
+                            <div matTooltip="{{ 'HISTORY_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                                <div> <mat-icon class="sab-tab-icon">history</mat-icon> </div>
+                                <div><span> {{ 'HISTORY' | translate }}</span></div>
+                              </div>
+                        </ng-template>
+                        <div>
+                            <!-- <h1>Observation History</h1> -->
+                            <table mat-table [dataSource]="workItem.historyList" class="text-right">
+                                <ng-container matColumnDef="id">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'SEQUENCE' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="historyDate">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'DATE' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.historyDate | date:'d/M/yyyy h:mm a'}}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="stepName">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'STEP_NAME' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.stepName}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="responseTaken">
+                                  <th mat-header-cell *matHeaderCellDef> {{ 'RSPONSE_TAKEN' | translate }} </th>
+                                  <td mat-cell *matCellDef="let element"> {{element.responseTaken}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="from">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'FROM' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.from}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="to">
+                                    <th mat-header-cell *matHeaderCellDef> {{ 'TO' | translate }} </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.to}} </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="histortTableColumns"></tr>
+                                <tr mat-row *matRowDef="let row; columns: histortTableColumns;"></tr>
+                            </table>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+        </div>
+        <div class="row">
+            <!-- <div class="col-12" *ngIf="isLoading || isDialogLoading" class="loading-indicator">
+                <mat-progress-spinner color="primary" mode="indeterminate">
+                </mat-progress-spinner>
+            </div> -->
+        </div>
+        <div class="row center-block" *ngIf="!isLoading && workItem.obsTitle == ''">
+            <div class="center mt-5">
+                <mat-icon class="center-icon">cloud_queue</mat-icon>
+                <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+            </div>
+        </div>
+    </mat-card>
+</div>

@@ -1,0 +1,61 @@
+.observation-card-div {
+  margin-top: 5px;
+  overflow: auto;
+  padding: 0;
+  display: inline-flex;
+  text-align: right;
+}
+
+.observation-card {
+  min-width: 200px;
+  /* width: 260px; */
+  min-height: 100px;
+  margin: 15px;
+  cursor: pointer;
+}
+
+.observation-card-title {
+  font-size: 14px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.titleLabel {
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 20px;
+  display: flex;
+}
+
+.sync-icon {
+  margin: 0 10px 0 10px;
+  cursor: pointer;
+}
+
+.save-btn {
+  position: absolute;
+}
+
+.observation-content {
+  border: 1px solid;
+  padding: 20px;
+  overflow: auto;
+  max-height: 500px;
+}
+
+.obs-type {
+  position: absolute;
+  right: 15px;
+  bottom: 0;
+}
+
+.obs-type-text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@media (max-width: 991px) {
+  .titleLabel {
+    margin-top: 0px;
+  }
+}

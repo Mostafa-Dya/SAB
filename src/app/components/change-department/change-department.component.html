@@ -1,0 +1,223 @@
+<div class="container-fluid" [class.rtl-direction]="isRtl">
+  <mat-card class="main-card">
+    <!-- ─────────────── HEADER ROW ─────────────── -->
+    <div class="row mb-2">
+      <div
+        class="col-12 col-sm-6 d-flex align-items-center"
+        [class.text-right]="isRtl"
+      >
+        <span
+          class="page-heading-icon pointer"
+          routerLink="/launchReports"
+          matTooltip="{{ 'BACK' | translate }}"
+        >
+          {{ "BACK_HEADING" | translate }}
+        </span>
+        <span class="page-sub-heading">
+          / {{ "CHANGE_DEPARTMENT" | translate }}</span
+        >
+      </div>
+
+      <!-- launch button hidden for SAB Commentary -->
+      <div class="col-12 col-sm-6">
+        <button
+          mat-raised-button
+          class="b-blue c-white"
+          [class.float-right]="!isRtl"
+          *ngIf="reportId !== 'SAB Commentary Report'"
+          (click)="launchReport()"
+          matTooltip="{{ 'LAUNCH_DES' | translate }}"
+        >
+          {{ "LAUNCH" | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ─────────────── DATA SECTION ─────────────── -->
+    <ng-container *ngIf="!isLoading; else spinner">
+      <!-- desktop / tablet view -->
+      <ng-container *ngIf="!(handset$ | async); else handsetTable">
+        <table
+          mat-table
+          [dataSource]="dataSource"
+          matSort
+          class="w-100 hide-mob"
+          [class.text-right]="isRtl"
+        >
+          <!-- seq -->
+          <ng-container matColumnDef="seq">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ "SEQ" | translate }}
+            </th>
+            <td mat-cell *matCellDef="let r">{{ r.obsSequence }}</td>
+          </ng-container>
+
+          <!-- title -->
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ "TITLE" | translate }}
+            </th>
+            <td mat-cell *matCellDef="let r" [class.rtl-direction]="!isRtl">
+              {{ r.obsTitle }}
+            </td>
+          </ng-container>
+
+          <!-- directorate -->
+          <ng-container matColumnDef="dir">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ "DIRECTORATE" | translate }}
+            </th>
+            <td mat-cell *matCellDef="let r">{{ r.directorate }}</td>
+          </ng-container>
+
+          <!-- departments -->
+          <ng-container matColumnDef="dept">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ "DEPARTMENTS" | translate }}
+            </th>
+            <td mat-cell *matCellDef="let r">{{ r.departments }}</td>
+          </ng-container>
+
+          <!-- change-dep action -->
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ "ACTION" | translate }}
+            </th>
+            <td mat-cell *matCellDef="let r">
+              <button
+                mat-raised-button
+                class="b-blue c-white"
+                (click)="updateDepartment(r.position)"
+                [disabled]="r.isActionDisabled"
+              >
+                {{ "CHANGE_DEPARTMENT" | translate }}
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- info icon -->
+          <ng-container matColumnDef="info">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let r">
+              <img
+                *ngIf="r.changedDep"
+                src="assets/images/changedepartment.jpg"
+                class="pointer info-img"
+                (click)="changeDepartmentInfo(r)"
+                matTooltip="{{ 'CHANGED_DEPARTMENTS' | translate }}"
+              />
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedDesktop"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedDesktop"></tr>
+        </table>
+      </ng-container>
+
+      <!-- handset view (collapsed rows) -->
+      <ng-template #handsetTable>
+        <table
+          mat-table
+          [dataSource]="dataSource"
+          multiTemplateDataRows
+          class="w-100 show-mob"
+          [class.text-right]="isRtl"
+        >
+          <!-- title row -->
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td
+              mat-cell
+              *matCellDef="let r"
+              class="title-td"
+              [class.title-td-rtl]="isRtl"
+              [class.rtl-direction]="!isRtl"
+            >
+              {{ r.obsTitle }}
+            </td>
+          </ng-container>
+
+          <!-- expanded detail -->
+          <ng-container matColumnDef="expand">
+            <td
+              mat-cell
+              *matCellDef="let r"
+              [attr.colspan]="1"
+              class="expanded-td"
+            >
+              <div
+                class="row"
+                [class.expanded-div-rtl]="isRtl"
+                [class.expanded-div]="!isRtl"
+              >
+                <div class="col-12 expanded-content">{{ r.obsSequence }}</div>
+                <div class="col-12 expanded-content">{{ r.departments }}</div>
+                <div class="col-12 expanded-content">
+                  <button
+                    mat-raised-button
+                    class="b-blue c-white"
+                    (click)="updateDepartment(r.position)"
+                    [disabled]="r.isActionDisabled"
+                  >
+                    {{ "CHANGE_DEPARTMENT" | translate }}
+                  </button>
+                  <img
+                    *ngIf="r.changedDep"
+                    src="assets/images/changedepartment.jpg"
+                    class="pointer ml-2"
+                    (click)="changeDepartmentInfo(r)"
+                    matTooltip="{{ 'CHANGED_DEPARTMENTS' | translate }}"
+                  />
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['title']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['title']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['expand']"></tr>
+        </table>
+      </ng-template>
+
+      <!-- export buttons -->
+      <div
+        class="col-12 d-flex justify-content-end mt-2"
+        *ngIf="dataSource.data.length"
+      >
+        <button
+          mat-raised-button
+          class="b-blue c-white"
+          (click)="exportMSExcel()"
+          matTooltip="{{ 'MS Excel تحويل الملاحظات المحددة إلى' }}"
+        >
+          {{ "EXPORT_TO_MS_EXCEL" | translate }}
+        </button>
+        <button
+          mat-raised-button
+          class="b-blue c-white ml-2"
+          (click)="exportMSWord()"
+          matTooltip="{{ 'EXPORT_MS_WORD_DEC' | translate }}"
+        >
+          {{ "EXPORT_TO_MS_WORD" | translate }}
+        </button>
+      </div>
+
+      <!-- no-data state -->
+      <div class="row center-block" *ngIf="!dataSource.data.length">
+        <div class="center mt-5">
+          <mat-icon class="center-icon">cloud_queue</mat-icon>
+          <span class="center-text">{{ "NO_DATA" | translate }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- loading spinner -->
+    <ng-template #spinner>
+      <div class="row">
+        <div class="col-12 text-center my-5">
+          <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+        </div>
+      </div>
+    </ng-template>
+  </mat-card>
+</div>

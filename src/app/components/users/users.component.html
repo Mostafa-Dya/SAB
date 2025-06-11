@@ -1,0 +1,199 @@
+<div class="container-flud" (window:resize)="onResize($event)" >
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+                <mat-icon class="bread-page-heading-icon">account_box</mat-icon>
+                <span class="page-heading">{{ 'Manage_Users' | translate }}</span>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-2 col-xl-2">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'LOGIN_ID' | translate }}
+                    </mat-label>
+                    <input matInput [(ngModel)]="selectedLoginId">
+                    <!-- <mat-select [(value)]="selectedLoginId">
+                        <mat-option *ngFor="let loginId of loginIdValue" [value]="loginId.value"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{loginId.value}}
+                        </mat-option>
+                    </mat-select> -->
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-2 col-xl-2">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'USER_NAME' | translate }}
+                    </mat-label>
+                    <input matInput [(ngModel)]="selectedName">
+                    <!-- <mat-select [(value)]="selectedName">
+                        <mat-option *ngFor="let name of nameValue" [value]="name.value"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{name.name}}
+                        </mat-option>
+                    </mat-select> -->
+                </mat-form-field>
+            </div>
+        
+            <div class="col-12 col-sm-6 col-lg-2 col-xl-2">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'DIRECTORATE' | translate }}
+                    </mat-label>
+                    <mat-select [(value)]="selectedDirectorate" (selectionChange)="getdepartment()">
+                        <mat-option *ngFor="let directorate of directorateValue" [value]="directorate.id"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{directorate.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-2 col-xl-2">
+        
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'DEPARTMENT_NAME' | translate }}
+                    </mat-label>
+
+                    <mat-select [(value)]="selectedDepartment">
+                        <mat-option *ngFor="let department of departmentValue" [value]="department.id"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{department.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="col-12 col-lg-3">
+                <button class="search-btn b-blue c-white" [ngClass]="isRtl ? 'float-right mr-2' : ''" mat-raised-button
+                    (click)="search()">
+                    {{ 'SEARCH' | translate }}
+                </button>
+                <button class="search-btn-mob b-blue c-white" [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'"
+                    mat-raised-button (click)="search()">
+                    {{ 'SEARCH' | translate }}
+                </button>
+            </div>
+            <!-- ==========================={{ HIDE_MOB }}======================================= -->
+
+            <div class="col-12 mt-4 hide-mob" *ngIf="dataSource && dataSource.data.length > 0 && innerWidth > 991">
+                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}">
+                    <ng-container matColumnDef="userName">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'USERNAME' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="loginId">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'LOGIN_ID' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.loginId}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="userTitle">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'USER_TITLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.userTitle}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="userjobTitle">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" style="width: 110px;">
+                            {{ 'USER_JOB_TITLE' | translate }}
+                        <span class="required">*</span>
+                        </th>
+                        <!-- <td mat-cell *matCellDef="let element"> {{element.userjobTitle}} </td> -->
+                        <td mat-cell *matCellDef="let element" class="escalation-setting-td" style="width: 110px;">
+                                <select [(ngModel)]="element.userJobTitle" class="example-right-align form-control">
+                                    <option *ngFor="let item of userJobTitle" value="{{item}}"> {{item}}</option>
+                                    <!-- <option value=""> Select Title</option> -->
+                                </select>
+                              
+                               <!-- <input matInput [(ngModel)]="element.configurationValue" type="number"
+                                  [disabled]="isEscalationEnabled" class="example-right-align" min="0" oninput="this.value = 
+                                           !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"> -->
+                            
+                         </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="departmentName">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'DEPARTMENT_NAME' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.departmentName}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="directorateName">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'DIRECTORATE_NAME' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.directorateName}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="action">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"></th>
+                        <td mat-cell *matCellDef="let element">
+
+                            <button mat-raised-button class="b-blue c-white" [ngClass]="{'ml-0 mr-2' : isRtl}"
+                            [disabled]="!element.userJobTitle"
+                                (click)="add(element)">
+                                {{ 'ADD' | translate }}</button>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="cursor: pointer;"></tr>
+                </table>
+                <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="0"  hidePageSize
+                    showFirstLastButtons dir="ltr">
+                </mat-paginator>
+            </div>
+            <!-- ============================================{{ SHOW_MOB}}================================================================== -->
+            <div class="col-12 mt-4 show-mob" *ngIf="dataSource && dataSource.data.length > 0 && innerWidth <= 991">
+                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}" multiTemplateDataRows>
+
+                    <ng-container matColumnDef="userName">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element" class="title-td">
+                           {{element.userName}}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="action">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"></th>
+                        <td mat-cell *matCellDef="let element">
+                            <button mat-raised-button class="b-blue c-white" [ngClass]="{'ml-0 mr-2' : isRtl}"
+                                (click)="add(element)">
+                                {{ 'ADD' | translate }}</button>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="expandedDetail">
+                        <td class="expanded-td" mat-cell *matCellDef="let element"
+                            [attr.colspan]="displayedColumnsMob.length">
+                            <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                                <div class="col-12 expanded-content">{{element.departmentName }}
+                                </div>
+                                <div class="col-12 expanded-content">{{element.directorateName}}</div>
+                            </div>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;" style="cursor: pointer;"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+                </table>
+                <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="0" hidePageSize
+                    showFirstLastButtons dir="ltr">
+                 </mat-paginator>
+            </div>
+            <!-- ============================================================================================== -->
+            <div class="row center-block" *ngIf="!dataSource && !isLoading">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">account_box</mat-icon>
+                    <span class="center-text search-report">{{ 'PLEASE_SEARCH_USERS' | translate }}</span>
+                </div>
+            </div>
+            <div class="row center-block" *ngIf="dataSource && dataSource.data.length == 0 &&  !isLoading">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">cloud_queue</mat-icon>
+                    <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+                </div>
+            </div>
+            <!-- <div class="col-12" *ngIf="isLoading" class="loading-indicator">
+                <mat-progress-spinner color="primary" mode="indeterminate">
+                </mat-progress-spinner>
+            </div> -->
+        </div>
+    </mat-card>
+</div>

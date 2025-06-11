@@ -1,0 +1,101 @@
+<div class="container-flud" (window:resize)="onResize($event)">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-6 mb-3" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/reports" matTooltip="{{ 'BACK' | translate }}">
+                    trending_up
+                </mat-icon> -->
+                <span class="page-heading-icon pointer" routerLink="/reports" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+                <span class="page-sub-heading">/ {{ 'USER_LIST_REPORT' | translate }}</span>
+            </div>
+            <div class="col-6 mb-3 total-users" [ngClass]="{'text-right': isRtl}">               
+                <span class="page-sub-heading"> {{ 'TOTAL_USERS' | translate }} : {{ this._alldata.length}}</span>
+            </div>
+            <div class="col-12 mt-4" *ngIf="!isLoading && dataSource && dataSource.data.length > 0 && innerWidth > 575">
+                <mat-table [dataSource]="dataSource">
+                    <ng-container *ngFor="let column of displayedColumns; let i = index" matColumnDef="{{ column }}">
+                        <mat-header-cell *matHeaderCellDef
+                            [ngStyle]="{'max-width':column === 'userName' ? '50%' : column === 'loginId' ? '20%': '30%'  }">
+                            {{ column | uppercase | translate }}
+                        </mat-header-cell>
+                        <mat-cell *matCellDef="let row"
+                            [ngStyle]="{'max-width':column === 'userName' ? '50%' : column === 'loginId' ? '20%': '30%'  }">
+                            {{ row[column] }}</mat-cell>
+                    </ng-container>
+                    <mat-header-row mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                    <!-- Group header -->
+                    <ng-container matColumnDef="groupHeader">
+                        <mat-cell colspan="999" *matCellDef="let group" style="cursor: pointer;">
+                            <mat-icon *ngIf="group.expanded">expand_less</mat-icon>
+                            <mat-icon *ngIf="!group.expanded">expand_more</mat-icon>
+                            <strong> {{group[groupByColumns[group.level-1]]}} - {{'TOTAL' | translate}} :
+                                {{group.totalCounts}}</strong>
+                        </mat-cell>
+                    </ng-container>
+                    <mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup"
+                        (click)="groupHeaderClick(row)"> </mat-row>
+                </mat-table>
+            </div>
+
+            <div class="col-12 mt-4" *ngIf="!isLoading && dataSource && dataSource.data.length > 0 && innerWidth <= 575">
+                <mat-table [dataSource]="dataSource" >
+                    <ng-container  matColumnDef="userName">
+                        <mat-header-cell *matHeaderCellDef >
+                            {{  'userName'| uppercase | translate }}
+                        </mat-header-cell>
+                        <mat-cell *matCellDef="let row">
+                            {{ row['userName'] }} - {{ row['loginId'] }}</mat-cell>
+                    </ng-container>
+
+                    <ng-container  matColumnDef="userTitle"  class="pl-3">
+                        <mat-header-cell *matHeaderCellDef class="pl-3">
+                            {{ 'userTitle' | uppercase | translate }}
+                        </mat-header-cell>
+                        <mat-cell *matCellDef="let row" class="pl-3">
+                            {{ row['userTitle'] }}</mat-cell>
+                    </ng-container>
+                    <mat-header-row mat-header-row *matHeaderRowDef="displayedColumnsSmallMob"></mat-header-row>
+                    <mat-row *matRowDef="let row; columns: displayedColumnsSmallMob;"></mat-row>
+                    <!-- Group header -->
+                    <ng-container matColumnDef="groupHeader">
+                        <mat-cell colspan="999" *matCellDef="let group" style="cursor: pointer;">
+                            <mat-icon *ngIf="group.expanded">expand_less</mat-icon>
+                            <mat-icon *ngIf="!group.expanded">expand_more</mat-icon>
+                            <strong> {{group[groupByColumns[group.level-1]]}} - {{'TOTAL' | translate}} :
+                                {{group.totalCounts}}</strong>
+                        </mat-cell>
+                    </ng-container>
+                    <mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup"
+                        (click)="groupHeaderClick(row)"> </mat-row>
+                </mat-table>
+            </div>
+            <div class="row center-block" *ngIf="!dataSource && !isLoading">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">account_box</mat-icon>
+                    <span class="center-text search-report">{{ 'PLEASE_SEARCH_USERS' | translate }}</span>
+                </div>
+            </div>
+            <div class="row center-block" *ngIf="dataSource && dataSource.data.length == 0 &&  !isLoading">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">cloud_queue</mat-icon>
+                    <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+                </div>
+            </div>
+            <div class='col-12 mt-4 ' *ngIf="dataSource && dataSource.data.length > 0">
+                <!-- <button id="btn1" class="search-btn b-blue c-white" [ngClass]="isRtl ? 'float-right mr-2' : ''"
+                    mat-raised-button>
+                    {{ 'PRINT' | translate }}
+                </button> -->
+                <button id="btn2" class="b-blue c-white" [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'"
+                    mat-raised-button (click)="msExcel()" matTooltip="{{ 'MS Excel تحويل الملاحظات المحددة إلى' }}">
+                    {{ 'EXPORT_TO_MS_EXCEL' | translate }}
+                </button>
+                <button id="btn3" class="b-blue c-white  mr-2" [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'"
+                    mat-raised-button matTooltip="{{ 'EXPORT_MS_WORD_DEC' | translate }}" (click)="msWord()">
+                    {{ 'EXPORT_TO_MS_WORD' | translate }}
+                </button>
+            </div>
+        </div>
+    </mat-card>
+</div>

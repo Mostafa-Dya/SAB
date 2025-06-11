@@ -1,0 +1,164 @@
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/reports" matTooltip="{{ 'BACK' | translate }}">
+                    trending_up
+                </mat-icon> -->
+                <span class="page-heading-icon pointer" routerLink="/reports" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+                <span class="page-sub-heading">/ {{ 'OBSERVATIONS_PER_DEPARTMENT_REPORT' | translate }} </span>
+            </div>
+            <div class="col-12 mt-2">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                                <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                    {{ 'FISCAL_YEAR' | translate }}
+                                </mat-label>
+                                <mat-select [(value)]="selectedYear">
+                                    <mat-option *ngFor="let year of years" [value]="year.value"
+                                        [ngClass]="{'rtl-direction text-right': isRtl}">
+                                        {{year.value}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                                <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                    {{ 'REPORT_TYPE' | translate }}
+                                </mat-label>
+                                <mat-select [(value)]="selectedReport">
+                                    <mat-option *ngFor="let type of reportType" [value]="type.value"
+                                        [ngClass]="{'rtl-direction text-right': isRtl}">
+                                        {{type.name | translate}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                                <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                    {{ 'DIRECTORATE' | translate }}
+                                </mat-label>
+                                <mat-select [formControl]="directorate" multiple>
+                                    <mat-select-trigger class="customCssStyling">
+                                        {{directorate.value ? directorate.value[0] : ''}}
+                                        <span *ngIf="directorate.value?.length > 1 && directorate.value[0] != 'All'">
+                                          (+{{directorate.value.length - 1}} {{directorate.value?.length === 2 ? 'other' : 'others'}})
+                                        </span>
+                                    </mat-select-trigger>
+                                    <mat-option *ngFor="let directorate of directorateList" [value]="directorate"
+                                        (onSelectionChange)="directorateChange($event);"
+                                        [ngClass]="{'rtl-direction text-right': isRtl}">
+                                        {{directorate}}
+                                    </mat-option>
+                                    <!-- <mat-option *ngFor="let drt of directorate" [value]="drt.id"
+                                        [ngClass]="{'rtl-direction text-right': isRtl}">
+                                        {{drt.name}}
+                                    </mat-option> -->
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                            <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                                <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                    {{ 'DEPARTMENT' | translate }}
+                                </mat-label>
+                                <mat-select [(value)]="selectedDepartment" [formControl]="departmentData" multiple>
+                                    <mat-select-trigger>
+                                        {{departmentData.value ? departmentData.value[0] : ''}}
+                                        <span *ngIf="departmentData.value?.length > 1 && departmentData.value[0] != 'All'">
+                                            (+{{departmentData.value.length - 1}} {{departmentData.value?.length === 2 ? 'other' :
+                                            'others'}})
+                                        </span>
+                                    </mat-select-trigger>
+                                    <mat-option *ngFor="let department of departmentList" [value]="department"
+                                        (onSelectionChange)="departmentChange($event);"
+                                        [ngClass]="{'rtl-direction text-right': isRtl}">
+                                        {{department}}
+                                    </mat-option>
+                                    <!-- <mat-option *ngFor="let dep of department" [value]="dep.id"
+                                        [ngClass]="{'rtl-direction text-right': isRtl}">
+                                        {{dep.name}}
+                                    </mat-option> -->
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-sm-12 col-lg-3 col-xl-2 search-btn-block">
+                            <button class="search-btn b-blue c-white" [ngClass]="isRtl ? 'float-right mr-2' : ''"
+                                mat-raised-button (click)="search()">
+                                {{ 'SEARCH' | translate }}
+                            </button>
+                        </div>
+                    </div>
+            </div>
+            <div class="col-12 mt-4" *ngIf="dataSource && dataSource.data.length > 0">
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+                        <span class="font-weight-bold mr-3">{{'FISCAL_YEAR' | translate}} : {{this.searchedYear}}</span>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-8 col-lg-9 col-xl-9">
+                        <span class="font-weight-bold">{{'REPORT_TYPE' | translate}} : {{this.searchedReportName}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-2" *ngIf="dataSource && dataSource.data.length > 0">
+                <mat-table [dataSource]="dataSource">
+                    <ng-container *ngFor="let column of displayedColumns; let i = index" matColumnDef="{{ column }}">
+                        <mat-header-cell *matHeaderCellDef [ngClass]="column == 'total' ? 'w-30' :'w-70'">{{ column |
+                            uppercase | translate }}
+                        </mat-header-cell>
+                        <mat-cell *matCellDef="let row ;let i = index" [ngClass]="column == 'total' ? ' w-30' : 'w-70'">
+                            {{ row[column] }}</mat-cell>
+                    </ng-container>
+                    <mat-header-row mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                    <ng-container matColumnDef="groupHeader">
+                        <mat-cell colspan="999" *matCellDef="let group" style="cursor: pointer;">
+                            <mat-icon *ngIf="group.expanded">expand_less</mat-icon>
+                            <mat-icon *ngIf="!group.expanded">expand_more</mat-icon>
+                            <strong> {{group[groupByColumns[group.level-1]]}}
+                                - {{'TOTAL' | translate}} : {{group.totalCounts}}
+                            </strong>
+                        </mat-cell>
+                    </ng-container>
+                    <mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup"
+                        (click)="groupHeaderClick(row)"> </mat-row>
+                </mat-table>
+            </div>
+            <div class="col-12 mt-4" *ngIf="dataSource && dataSource.data.length > 0">
+                <div class="row">
+                    <div class="w-70">
+                        <p class="w-100 font-weight-bold text-right pr-4"> {{ 'TOTAL_OBSERVATIONS' | translate }}:</p>
+                    </div>
+                    <div class="w-30">
+                        {{totalObservations}}
+                    </div>
+                </div>
+            </div>
+          <div class='col-12 mt-4 ' *ngIf="dataSource && dataSource.data.length > 0">
+        <button id="btn2" class="b-blue c-white" [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'"
+                mat-raised-button (click)="msExcel()" matTooltip="{{ 'MS Excel تحويل الملاحظات المحددة إلى' }}">
+                {{ 'EXPORT_TO_MS_EXCEL' | translate }}
+            </button>
+            <button id="btn3" class="b-blue c-white  mr-2" [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'"
+                mat-raised-button matTooltip="{{ 'EXPORT_MS_WORD_DEC' | translate }}" (click)="msWord()">
+                {{ 'EXPORT_TO_MS_WORD' | translate }}
+            </button>              
+            </div> 
+            <div class="row center-block" *ngIf="!dataSource && !isLoading">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">trending_up</mat-icon>
+                    <span class="center-text search-report">{{ 'PLEASE_SEARCH_REPORT' | translate }}</span>
+                </div>
+            </div>
+            <div class="row center-block" *ngIf="dataSource && dataSource.data.length == 0 && !isLoading">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">cloud_queue</mat-icon>
+                    <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+                </div>
+            </div>
+        </div>
+    </mat-card>
+</div>

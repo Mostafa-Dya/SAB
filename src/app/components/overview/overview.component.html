@@ -1,0 +1,84 @@
+<div [ngClass]="{'rtl-direction' : isRtl}">
+    <div #topElement class="dialog-heading-div" class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+      <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">
+        {{ 'OVERVIEWSHEET' | translate }}
+      </span>
+    </div>
+    <mat-dialog-content class="mat-typography hide-x" [ngClass]="{'text-right': isRtl}">
+        <div class="row mt-0">
+            <div class="col-12">
+                <div>
+                    <span class="font-weight-bold page-sub-title ">ID: </span><span class="mr-5">{{observation.obsSeq}}</span> 
+                </div>
+            </div>
+            <div class="col-12">
+                <div [ngClass]="{'text-right': isRtl}" style="display: flex;margin-bottom: -10px;">
+                    <span class="font-weight-bold page-sub-title">{{'OBSERVATION_TITLE' | translate}}: </span>
+                    <p style="direction: rtl;"class="value-css">{{observation.obsTitle}}</p>
+                </div>
+                <div [ngClass]="{'text-right': isRtl}">
+                    <span class="font-weight-bold page-sub-title">{{'DEPARTMENTS' | translate}}: </span>
+                    <span class="mr-5">{{observation.departmentName}}</span>
+                </div>
+                <div [ngClass]="{'text-right': isRtl}">
+                    <span class="font-weight-bold page-sub-title">{{'NEW_REPEATED_REPORTS' | translate}}: </span>
+                    <span>{{observation.obsType}}</span>
+                </div>
+            </div>
+        </div>
+      <div class="row mt-4">
+        <div class="col-12">
+        <div class="cycle-description  mb-3" *ngIf="observation.sabQuestionText">
+          <p  class="page-sub-title text-right">ويطلب الديوان</p>  
+          <p class="rtl-direction text-justify" [innerHTML]="observation.sabQuestionText.reportContent | safeHtml"  tabindex="0"></p>
+        </div>
+        <mat-divider *ngIf="observation.sabQuestionText"></mat-divider>
+
+        <div class="cycle-description my-3" *ngIf="observation.irDetails">
+            <p  class="page-sub-title text-right">تفيد الشركة</p>  
+            <p class="rtl-direction text-justify" [innerHTML]="observation.irDetails.reportContent | safeHtml"></p>
+          </div>
+          <mat-divider *ngIf="observation.irDetails"></mat-divider>
+
+          <div class="cycle-description my-3" *ngIf="observation.sabCommentary">
+            <p  class="page-sub-title text-right">ويعقب الديوان</p>  
+            <p class="rtl-direction text-justify" [innerHTML]="observation.sabCommentary.reportContent | safeHtml"></p>
+          </div>
+          <mat-divider *ngIf="observation.sabCommentary"></mat-divider>
+
+          <div class="cycle-description my-3" *ngIf="observation.sa1rDetails">
+            <p  class="page-sub-title text-right">التحديث نصف السنوي الأول</p>  
+            <p class="rtl-direction text-justify" [innerHTML]="observation.sa1rDetails.reportContent | safeHtml"></p>
+            <p  class="page-sub-title text-right">التصنيف</p> 
+            <p class="rtl-direction text-justify">{{ observation.sa1rDetails.entityClassCombinedText }}</p>
+        </div>
+          <mat-divider *ngIf="observation.sa1rDetails"></mat-divider>
+
+          <div class="cycle-description my-3" *ngIf="observation.sa2rDetails">
+            <p  class="page-sub-title text-right">التحديث نصف السنوي الثاني</p>  
+            <p class="rtl-direction text-justify" [innerHTML]="observation.sa2rDetails.reportContent | safeHtml"></p>
+            <p  class="page-sub-title text-right">التصنيف</p> 
+            <p class="rtl-direction text-justify">{{ observation.sa2rDetails.entityClassCombinedText }}</p>
+        </div>
+          <mat-divider *ngIf="observation.sa2rDetails"></mat-divider>
+
+        </div>
+      </div>
+      <div class="mt-2">
+        <ckeditor [config]="config" [(ngModel)]="model.editorData" [editor]="Editor" (change)="change(model.editorData)">
+        </ckeditor>
+      </div>
+      <div class="mt-3">
+      </div>
+     
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+          <button mat-raised-button mat-dialog-close>{{ 'CLOSE' | translate }}</button>
+          <button mat-raised-button class="b-blue c-white" (click)="onExport()"
+              [ngClass]="{'ml-0 mr-2' : isRtl}">
+            {{ 'EXPORT_MSWORD' | translate }}
+          </button>
+          <button mat-raised-button class="b-blue c-white"  (click)="onSendMail()"  [ngClass]="{'ml-0 mr-2' : isRtl}"> {{ 'SENDTOEMAIL' | translate }} </button>
+          <button mat-raised-button class="b-blue c-white"  (click)="onSave()" [ngClass]="{'ml-0 mr-2' : isRtl}">  {{ 'SAVE' | translate }} </button>
+      </mat-dialog-actions>
+  </div>

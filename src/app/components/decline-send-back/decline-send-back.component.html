@@ -1,0 +1,52 @@
+<div [ngClass]="{ 'rtl-direction': isRtl }">
+  <div
+    class="dialog-heading-div"
+    [ngClass]="{ 'text-right': isRtl }"
+    appDraggableDialog
+  >
+    <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">
+      {{ "DECLINE" | translate }}
+    </span>
+  </div>
+
+  <mat-dialog-content
+    class="mat-typography"
+    [ngClass]="{ 'text-right': isRtl }"
+  >
+    <div class="mt-3">
+      <label class="page-sub-title">
+        {{ "COMMENT" | translate }}
+        <span class="text-danger">*</span> :
+      </label>
+    </div>
+
+    <div class="rtl-direction h-120">
+      <mat-form-field class="w-100 text-right border-textarea">
+        <textarea
+          matInput
+          [(ngModel)]="comment"
+          #message
+          maxlength="256"
+        ></textarea>
+        <mat-hint align="end">
+          {{ message.value.trim().length }} / 256
+        </mat-hint>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>
+      {{ "CLOSE" | translate }}
+    </button>
+    <button
+      mat-raised-button
+      class="b-blue c-white"
+      (click)="onSend()"
+      [ngClass]="{ 'ml-0 mr-2': isRtl }"
+      [disabled]="comment.trim().length === 0"
+    >
+      {{ "SEND" | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

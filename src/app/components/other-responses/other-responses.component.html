@@ -1,0 +1,46 @@
+<div [ngClass]="{'rtl-direction' : isRtl}" >
+    <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+        <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">{{ 'OTHER_RESPONSES' | translate }}</span>
+    </div>
+    <mat-dialog-content class="mat-typography" [ngClass]="{'text-right': isRtl}">
+        <mat-tab-group *ngIf="!isRtl">
+            <mat-tab *ngFor="let dipartment of dipartmentData">
+                <ng-template mat-tab-label>{{dipartment.departmentName}} </ng-template>
+                <!-- <div>
+                    <mat-tab-group>
+                        <mat-tab *ngFor="let manager of dipartment.managers">
+                            <ng-template mat-tab-label>{{manager.name}} </ng-template>
+                            <div class="comment-box text-right rtl-direction">
+                                <p class="mt-2" [innerHTML]="manager.comment | safeHtml"></p>
+                            </div>
+                        </mat-tab>
+                    </mat-tab-group>
+                </div> -->
+                <div class="comment-box text-right rtl-direction">
+                    <p class="mt-2" [innerHTML]="dipartment.obsResponse | safeHtml"></p>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+        <mat-tab-group *ngIf="isRtl" dir="rtl">
+            <mat-tab *ngFor="let dipartment of dipartmentData">
+                <ng-template mat-tab-label>{{dipartment.departmentName}} </ng-template>
+                <!-- <div>
+                    <mat-tab-group>
+                        <mat-tab *ngFor="let manager of dipartment.managers">
+                            <ng-template mat-tab-label>{{manager.name}} </ng-template>
+                            <div class="comment-box">
+                                <p class="mt-2" [innerHTML]="manager.comment | safeHtml"></p>
+                            </div>
+                        </mat-tab>
+                    </mat-tab-group>
+                </div> -->
+                <div class="comment-box">
+                    <p class="mt-2" [innerHTML]="dipartment.obsResponse | safeHtml"></p>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-raised-button mat-dialog-close>{{ 'CLOSE' | translate }}</button>
+    </mat-dialog-actions>
+</div>

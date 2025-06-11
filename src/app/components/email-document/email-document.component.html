@@ -1,0 +1,81 @@
+<div [ngClass]="{'rtl-direction' : isRtl}" >
+    <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+        <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">{{ 'EMAIL_AS_ATTACHMENT' | translate }}</span>
+    </div>
+    <mat-dialog-content class="mat-typography hide-x" [ngClass]="{'text-right': isRtl}">
+        <div class="row mt-3">
+            <div class="col-2 mt-25">
+                {{'TO' | translate}}:
+            </div>
+            <div class="col-10">
+                <mat-form-field class="w-100">
+                    <mat-chip-list #chipList aria-label="Fruit selection">
+                        <mat-chip *ngFor="let t of to" [selectable]="selectable" [removable]="removable"
+                            (removed)="remove(t)">
+                            {{t.userName}}
+                            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                        </mat-chip>
+                        <input  type="text" matInput #toInput [formControl]="toCtrl" [matAutocomplete]="auto" [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (ngModelChange)="onChange($event.target)" (matChipInputTokenEnd)="add($event)">
+                    </mat-chip-list>
+                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+                        <div *ngIf="(toInput.value.length >= 3)">
+                        <mat-option *ngFor="let to of (filteredData  | async)" [value]="to">
+                          {{to.userName}} - {{to.userMail}}
+                        </mat-option>
+                        </div>
+                    </mat-autocomplete>
+                </mat-form-field>
+            </div>
+            <div class="col-2 mt-25">
+                {{'Cc' | translate}}:
+            </div>
+            <div class="col-10">
+                <mat-form-field class="w-100">
+                    <mat-chip-list #chipListCC aria-label="Fruit selection">
+                        <mat-chip *ngFor="let t of cc" [selectable]="selectable" [removable]="removable"
+                            (removed)="removeCC(t)">
+                            {{t.userName}}
+                            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                        </mat-chip>
+                        <input #ccInput [formControl]="ccCtrl" [matAutocomplete]="autocc" [matChipInputFor]="chipListCC"
+                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="addCC($event)" (ngModelChange)="onChangeToCC($event.target)">
+                    </mat-chip-list>
+                    <mat-autocomplete #autocc="matAutocomplete" (optionSelected)="selectedCC($event)">
+                        <div *ngIf="(ccInput.value.length >= 3)">
+                        <mat-option *ngFor="let to of (filteredCC | async)" [value]="to">
+                            {{to.userName}} -  {{to.userMail}}
+                        </mat-option>
+                        </div>
+                        <mat-option *ngIf="!filteredCC">
+                            {{'NO_RECORD_FOUND' | translate}}
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+            </div>
+            <div class="col-2 mt-15">
+                {{'SUBJECT' | translate}}:
+            </div>
+            <div class="col-10">
+                <mat-form-field class="w-100">
+                    <input matInput [(ngModel)]="subject">
+                </mat-form-field>
+            </div>
+            <div class="col-2" >
+                {{'ATTACHMENT' | translate}}:
+            </div>
+            <div class="col-10">
+                <span class="attachment">{{attachmentSheetName}}</span>
+            </div>
+            <div class="col-12 mt-2 w-100">
+                <ckeditor [config]="config" [(ngModel)]="model.editorData" [editor]="Editor"></ckeditor>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-raised-button mat-dialog-close>{{ 'CLOSE' | translate }}</button>
+        <button mat-raised-button class="b-blue c-white" [ngClass]="{'ml-0 mr-2' : isRtl}" (click)="sendMail()"
+            [disabled]="to.length == 0 || subject.trim() == ''">
+            {{ 'SEND' | translate }}</button>
+    </mat-dialog-actions>
+</div>

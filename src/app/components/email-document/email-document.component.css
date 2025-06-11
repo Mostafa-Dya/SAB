@@ -1,0 +1,21 @@
+.dialog-heading-div {
+    padding: 15px 0 15px 0px;
+    margin: 0 -24px 0 -24px;
+    background: #3253ab;
+    color: #ffffff;
+}
+
+.mt-25 {
+    margin-top: 25px;
+}
+
+.mt-15 {
+    margin-top: 15px;
+}
+
+.attachment {
+    background: #3f51b5;
+    color: #fff;
+    font-size: 14px;
+    padding: 0 5px;
+  }

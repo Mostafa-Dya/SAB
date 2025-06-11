@@ -1,0 +1,84 @@
+<div class="container-flud">
+  <mat-card class="main-card">
+    <div class="row">
+      <div class="col-12" [ngClass]="{'text-right': isRtl}">
+        <mat-icon class="bread-page-heading-icon">flip_to_back</mat-icon>
+        <span class="page-heading">{{ 'EXTRACT_OBSERVATION' | translate }}</span>
+      </div>
+    </div>
+    <div class="row" *ngIf="!isLoading && (exractionReport | json) != '{}'">
+      <div class="col-12 p-0 mt-2">
+        <mat-divider></mat-divider>
+      </div>
+      <div class="col-12 observation-card-div rtl-direction">
+        <mat-card *ngFor="let observationCard of observationList;" class="observation-card"
+          (click)="onSelectObs(observationCard)" matBadge={{observationCard.obsSequence}}
+          [ngClass]="{'badge-selected': observationCard.obsId == selectedObservation.obsId}">
+          <mat-card-header class="observation-card-header">
+            <mat-card-title class="observation-card-title" [ngClass]="{'rtl-direction': !isRtl}"
+              matTooltip="{{ observationCard.obsTitle }}" matTooltipPosition="above" matTooltipClass="obs-card-tooltip">
+              {{observationCard.obsTitle.substr(0, 50)}} {{observationCard.obsTitle.length > 50 ? '...' : ''}}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="obs-type">
+            <p class="obs-type-text" [ngClass]="{'rtl-direction': !isRtl}">
+              {{observationCard.obsType | translate}}
+            </p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div class="col-12 p-0">
+        <mat-divider></mat-divider>
+      </div>
+      <div class="col-12 mt-3 mb-2">
+        <div class="d-flex justify-content-center">
+          <button [ngClass]="isRtl ? 'ml-2' : 'mr-2'" mat-flat-button class="b-blue c-white" (click)="onExtractAll()">
+            {{ 'EXTRACT_ALL' | translate }}
+          </button>
+          <button mat-flat-button class="b-blue c-white" (click)="onDiscardAll()">
+            {{ 'DISCARD_AND_RESTART_EXTRACTION' | translate }}
+          </button>
+        </div>
+      </div>
+      <div class="col-12 col-sm-12 col-lg-4 col-xl-3 mt-2" *ngIf="reportToBeGenerated=='KNPC Response Report'">
+        <mat-label class="titleLabel">{{ 'OBSERVATION_TITLE' | translate }} :</mat-label>
+      </div>
+      <div class="col-12 col-sm-12 col-lg-8 col-xl-9 mt-2" *ngIf="reportToBeGenerated=='KNPC Response Report'">
+        <mat-form-field class="w-100" [ngClass]="isRtl ? 'text-right' : 'rtl-direction'">
+          <input matInput [(ngModel)]="obsTitle">
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-12 col-lg-4 col-xl-3 mt-2" [ngClass]="isRtl ? 'pl-0' : 'pr-0'"
+        *ngIf="reportToBeGenerated=='KNPC Response Report'">
+        <mat-label class="titleLabel">{{ 'NEW_REPEATED' | translate }} :</mat-label>
+      </div>
+      <div class="col-12 col-sm-12 col-lg-8 col-xl-9 mt-2" *ngIf="reportToBeGenerated=='KNPC Response Report'"
+        [ngClass]="{'text-right': isRtl}">
+        <mat-form-field [ngClass]="{'text-right': isRtl}">
+          <!-- <input matInput [(ngModel)]="obsType" disabled> -->
+          <input matInput value="{{ obsType | translate }}" disabled>
+        </mat-form-field>
+        <mat-icon class="sync-icon" (click)="changeObservationType()">sync_alt</mat-icon>
+        <button class="save-btn" mat-flat-button class="b-blue c-white" (click)="updateObservation()">
+          {{ 'SAVE' | translate }}</button>
+      </div>
+      <div class="col-12 mb-2">
+        <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}" (click)="onExapnd()">
+          {{ 'EXPAND' | translate }}</button>
+      </div>
+      <div class="col-12">
+        <div class="observation-content initial-report">
+          <span [innerHTML]="obsContent | safeHtml"></span>
+          <span *ngIf="reportToBeGenerated == 'SAB Quarterly Report Q1'" [innerHTML]="sabResponse | safeHtml"></span>
+          <span *ngIf="reportToBeGenerated == 'SAB Quarterly Report Q1'" [innerHTML]="diwanReply | safeHtml"></span>
+        </div>
+      </div>
+    </div>
+    <div class="row center-block" *ngIf="!isLoading && (exractionReport | json) == '{}'">
+      <div class="center mt-5">
+        <mat-icon class="center-icon">cloud_queue</mat-icon>
+        <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+      </div>
+    </div>
+  </mat-card>
+</div>

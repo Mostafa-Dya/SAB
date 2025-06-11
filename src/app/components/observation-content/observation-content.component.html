@@ -1,0 +1,18 @@
+<div [ngClass]="{'rtl-direction' : isRtl}">
+    <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+        <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">{{ 'OBSERVATION_DETAILS' | translate }}</span>
+    </div>
+    <mat-dialog-content class="mat-typography hide-x" [ngClass]="{'text-right': isRtl}">
+      <div class="row mt-4">
+        <div class="col-12">
+          <p class="page-sub-title">{{'SABREQUEST' |translate}} :</p>  
+          <p class="rtl-direction text-justify" *ngIf="responseData.sabRequest" [innerHTML]="responseData.sabRequest | safeHtml"></p>
+          <p class="page-sub-title">{{'SABCOMMENTARY' |translate}} :</p>  
+          <p class="rtl-direction text-justify sab-commentary" *ngIf="responseData.sabCommentary" [innerHTML]="responseData.sabCommentary | safeHtml"></p>
+        </div>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-raised-button mat-dialog-close>{{ 'CLOSE' | translate }}</button>
+    </mat-dialog-actions>
+</div>

@@ -1,0 +1,231 @@
+<div class="container-flud" (window:resize)="onResize($event)">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+                <mat-icon class="bread-page-heading-icon">search</mat-icon>
+                <span class="page-heading">{{ 'SEARCH_OBSERVATIONS' | translate }}</span>
+            </div>
+
+
+            <div class="col-12 col-sm-6 col-lg-6 col-xl-8">
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-lg-3 col-xl-4">
+                        <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                            <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                {{ 'OBSERVATION_TITLE' | translate }}
+                            </mat-label>
+                            <input matInput [(ngModel)]="obsTitle">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3 col-xl-4">
+                        <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                            <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                {{ 'OBERVATION_CONTENT' | translate }}
+                            </mat-label>
+                            <input matInput [(ngModel)]="obsContent">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                        <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                            <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                {{ 'FISCAL_YEAR' | translate }}
+                            </mat-label>
+                            <mat-select [(value)]="selectedYear">
+                                <mat-option *ngFor="let year of years" [value]="year.value"
+                                    [ngClass]="{'rtl-direction text-right': isRtl}">
+                                    {{year.value}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                        <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                            <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                {{ 'NEW_REPEATED' | translate }}
+                            </mat-label>
+                            <mat-select [(value)]="selectedClassification">
+                                <mat-option *ngFor="let classification of classifications"
+                                    [value]="classification.value" [ngClass]="{'rtl-direction text-right': isRtl}">
+                                    {{classification.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div> 
+
+            <div class="col-12 col-sm-6 col-lg-3 col-xl-2"
+                *ngIf="(isAdmin || !(userJobTitle == 'DCEO' || userJobTitle == 'CEO'|| userJobTitle == 'MGR' || userJobTitle == 'TL' || userJobTitle == 'SENG' || userJobTitle == 'ENG')) && isDirectorateVisible">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'DIRECTORATE' | translate }}
+                    </mat-label>
+                    <mat-select [formControl]="directorateData" multiple>
+                        <mat-select-trigger class="customCssStyling">
+                            {{directorateData.value ? directorateData.value[0] : ''}}
+                            <span *ngIf="directorateData.value?.length > 1 && directorateData.value[0] != 'All'">
+                              (+{{directorateData.value.length - 1}} {{directorateData.value?.length === 2 ? 'other' : 'others'}})
+                            </span>
+                        </mat-select-trigger>
+                        <mat-option *ngFor="let directorate of directorateList" [value]="directorate"
+                            (onSelectionChange)="directorateChange($event);"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{directorate}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3 col-xl-2"
+                *ngIf="(isAdmin || !(userJobTitle == 'MGR' || userJobTitle == 'TL' || userJobTitle == 'SENG' || userJobTitle == 'ENG')) && isDepartmentVisible">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'DEPARTMENT' | translate }}
+                    </mat-label>
+                    <mat-select [formControl]="departmentData" multiple>
+                        <mat-select-trigger>
+                            {{departmentData.value ? departmentData.value[0] : ''}}
+                            <span *ngIf="departmentData.value?.length > 1 && departmentData.value[0] != 'All'">
+                                (+{{departmentData.value.length - 1}} {{departmentData.value?.length === 2 ? 'other' :
+                                'others'}})
+                            </span>
+                        </mat-select-trigger>
+                        <mat-option *ngFor="let department of departmentList" [value]="department"
+                            (onSelectionChange)="departmentChange($event);"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{department}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-12">
+                <button [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'" mat-raised-button class="b-blue c-white"
+                    (click)="getObsData()">
+                    {{ 'SEARCH' | translate }}
+                </button>
+                <button mat-raised-button [ngClass]="isRtl ? '' : 'float-right mr-2'" (click)="reset()">
+                    {{ 'RESET' | translate }}
+                </button>
+            </div>
+            <div class="col-12 mt-4 hide-mob" *ngIf="dataSource && dataSource.data.length > 0 && innerWidth > 991">
+                <table mat-table [dataSource]="dataSource" matSort [ngClass]="{'text-right': isRtl}">
+                    <ng-container matColumnDef="select">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            <mat-checkbox (change)="$event ? masterToggle() : null;"
+                                [checked]="selection.hasValue() && isAllSelected()"
+                                [indeterminate]="selection.hasValue() && !isAllSelected()"
+                                [aria-label]="checkboxLabel()" color="primary">
+                            </mat-checkbox>
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            <mat-checkbox (click)="$event.stopPropagation()"
+                                (change)="$event ? selection.toggle(row) : null;" [checked]="selection.isSelected(row)"
+                                [aria-label]="checkboxLabel(row)" color="primary">
+                            </mat-checkbox>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="obsSequence">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'SEQUENCE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.obsSequence}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="obsTitle">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'OBSERVATION_TITLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="{'rtl-direction': !isRtl}">
+                            {{element.obsTitle}} </td>
+                    </ng-container>
+                    <ng-container>
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'OBERVATION_CONTENT' | translate }} </th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="{'rtl-direction': !isRtl}">
+                            {{element.obsTitle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="obsType">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'NEW_REPEATED' | translate }} </th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="{'rtl-direction': !isRtl}">
+                            <span *ngIf="element.obsType == 'NEW'">جديدة</span>
+                            <span *ngIf="element.obsType != 'NEW'">متكررة</span>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="reportYear">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'FISCAL_YEAR' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.reportYear}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="department">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'DEPARTMENT' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.department}} </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="cursor: pointer;"
+                        (click)="navigateTo(row)"></tr>
+                </table>
+                <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10" hidePageSize showFirstLastButtons
+                    dir="ltr">
+                </mat-paginator> -->
+            </div>
+            <div class="col-12 mt-4 show-mob" *ngIf="dataSource && dataSource.data.length > 0 && innerWidth <= 991">
+                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}" multiTemplateDataRows>
+                    <ng-container matColumnDef="select">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let row" class="w-30">
+                            <mat-checkbox (click)="$event.stopPropagation()"
+                                (change)="$event ? selection.toggle(row) : null;" [checked]="selection.isSelected(row)"
+                                [aria-label]="checkboxLabel(row)" color="primary">
+                            </mat-checkbox>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="obsTitle">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element" class="title-td"
+                            [ngClass]="isRtl ? 'title-td-rtl' : 'rtl-direction'"> {{element.obsTitle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="expandedDetail">
+                        <td class="expanded-td" mat-cell *matCellDef="let element"
+                            [attr.colspan]="displayedColumnsMob.length">
+                            <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                                <div class="col-12 expanded-content">{{element.reportYear}}
+                                    <span [ngClass]="isRtl ? 'sequence-mob-rtl' : 'sequence-mob'">
+                                        {{ 'SEQUENCE' | translate }}: {{element.obsSequence}}</span>
+                                </div>
+                                <div class="col-12 expanded-content">
+                                    <span *ngIf="element.obsType == 'NEW'">جديدة</span>
+                                    <span *ngIf="element.obsType != 'NEW'">متكررة</span>
+                                </div>
+                                <div class="col-12 expanded-content">{{element.department}}</div>
+                            </div>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;" style="cursor: pointer;"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+                </table>
+                <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10" hidePageSize showFirstLastButtons
+                    dir="ltr">
+                </mat-paginator> -->
+            </div>
+            <div class="col-12 mt-4" *ngIf="dataSource && dataSource.data.length > 0">
+            </div>
+            <div class="col-12 mt-3" *ngIf="selection.selected.length > 0">
+                <button mat-raised-button class="b-blue c-white" [ngClass]="isRtl ? '' : 'float-right'"
+                    (click)="onExport()" matTooltip="{{ 'EXPORT_MS_WORD' | translate }}">
+                    {{ 'EXPORT_TO_MS_WORD' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="row center-block" *ngIf="!dataSource">
+            <div class="col-12" class="center mt-5">
+                <mat-icon class="center-icon">search</mat-icon>
+                <span class="center-text search-obs">{{ 'PLEASE_SEARCH_OBSERVATIONS' | translate }}</span>
+            </div>
+        </div>
+        <div class="row center-block">
+            <div class="center mt-5" *ngIf="dataSource && dataSource.data.length == 0">
+                <mat-icon class="center-icon">cloud_queue</mat-icon>
+                <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+            </div>
+        </div>
+    </mat-card>
+</div>

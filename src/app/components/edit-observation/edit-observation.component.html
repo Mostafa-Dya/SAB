@@ -1,0 +1,158 @@
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/observation-settings"
+                    matTooltip="{{ 'BACK' | translate }}">
+                    settings_applications
+                </mat-icon> -->
+                <span class="page-heading-icon pointer" routerLink="/observation-settings"
+                    matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+                <span class="page-sub-heading"> / {{ 'EDIT_OBSERVATION' | translate }}</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <mat-divider></mat-divider>
+            </div>
+            <div class="col-12 col-lg-3 left-div" *ngIf="obsSettingDetails">
+                <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+                    <label class="page-sub-title">{{ 'OBSERVATION_SEQUENCE' | translate }}:
+                        {{obsSettingDetails.obsSequence}} </label>
+                </div>
+                <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+                    <label class="page-sub-title">{{ 'OBSERVATION_TITLE' | translate }}:</label>
+                </div>
+                <div class="mt-n3 rtl-direction">
+                    <mat-form-field class="w-100 text-right border-textarea">
+                        <textarea matInput [(ngModel)]="obsSettingDetails.obsTitle" [matTextareaAutosize]=true
+                            [matAutosizeMinRows]=1 [matAutosizeMaxRows]=3></textarea>
+                    </mat-form-field>
+                </div>
+                <div class="mt-2" [ngClass]="{'text-right': isRtl}" style="margin-top: 5px !important;">
+                    <label class="page-sub-title">{{ 'NEW_REPEATED' | translate }}:</label>
+                </div>
+                <div class="data-center rtl-direction">
+                    <mat-icon class="sync-icon" (click)="changeObservationType()">sync_alt</mat-icon>
+                    <span>{{ obsSettingDetails.obsType | translate }}</span>
+                </div>
+                <div class="row mt-2" *ngIf="obsSettingDetails.reportToBeGenerated != 'KNPC Response Report'">
+                    <div class="col-12 col-lg-12" style="margin-top: 15px !important;">
+                        <label class="page-sub-title">{{ 'COMPLETION_YEAR' | translate }} <span
+                                class="required">*</span>:</label>
+
+                        <mat-form-field class="w-100" style="margin-top: -15px !important;">
+                            <mat-select [(ngModel)]="date" (selectionChange)="dateChange()">
+                                <mat-option *ngFor="let year of fiscaalYear" [value]="year.date"
+                                    (click)="checkSelected(year.date)" [ngClass]="{'rtl-direction text-right': isRtl}">
+                                    {{ year.date }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+
+                </div>
+                <ng-container *ngIf="obsSettingDetails.reportToBeGenerated != 'KNPC Response Report' " >
+                    <div class="row ">
+                        <div class="col-12 col-md-12">
+                            <label class="page-sub-title">{{ 'OBSERVATIONS_CLASSIFICATION' | translate }} :</label>
+                            <div class="div-classification w-100 pl-2" style="min-height:38px;">
+                                <span>{{ classification ? classification : '' }}</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </ng-container>
+                <ng-container
+                    *ngIf="obsSettingDetails.reportToBeGenerated != 'KNPC Response Report' && date == 'تتعلق بجهات حكومية/اخرى' ">
+                    <div class="w-100 mt-2" [ngClass]="{'text-right': isRtl}">
+                        <label class="page-sub-title">{{ 'GOVT_ENTITIES' | translate }}
+                            <span class="text-danger font-weight-bold">*</span>:</label>
+                    </div>
+                    <div class="w-100">
+                        <ng-container *ngFor="let item of entities">
+                          <div class="chip" [ngStyle]="{'margin-left':entities.length > 1 ? '6px' :''  }" [ngClass]="entities.length > 1 ? 'mt-1' : ''">
+                            <div class="chip-content"> {{item}}</div>
+                            <div class="chip-close">
+                              <svg class="chip-svg" (click)="remove(item)" focusable="false" viewBox="0 0 30 30" aria-hidden="true">
+                                <path
+                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z">
+                                </path>
+                              </svg>
+            
+                            </div>
+                          </div>
+                        </ng-container>
+                        <mat-form-field id="edit-observation" class="text-right w-78" [ngClass]="isRtl ? 'mr-2' : 'ml-2'">
+                          <input matInput [(ngModel)]="govtEntity">
+                          <button [ngClass]="govtEntity == '' ? 'cursor-disable': 'cursor-pointer'" class="left-large ml-4 edit-observation-btn" (click)="addChip(govtEntity)"
+                          [disabled]="(govtEntity == '')"><img style="width:30px;" src="assets/images/add-svg.svg" /></button>
+                        </mat-form-field>
+                        <!-- <button  style="border: none; background: transparent" [ngClass]="govtEntity == '' ? 'cursor-disable': 'cursor-pointer'" class="ml-4" (click)="addChip(govtEntity)"
+                          [disabled]="(govtEntity == '')"><img style="width:30px;" src="assets/images/add-svg.svg" /></button> -->
+            
+                      </div>
+                    <!-- <div class="w-100">
+                        <mat-form-field class="w-100 text-right">
+                            <input matInput [(ngModel)]="govtEntity">
+                        </mat-form-field>
+                    </div> -->
+                </ng-container>
+
+                <ng-container *ngIf="obsSettingDetails.reportToBeGenerated != 'KNPC Response Report' ">
+                    <div class="mt-2" [ngClass]="{'text-right': isRtl, 'mt-n22': obsSettingDetails.reportToBeGenerated != 'KNPC Response Report' && date == 'تتعلق بجهات حكومية/اخرى'}" >
+                        <label class="page-sub-title">{{ 'NATURE' | translate }}:</label>
+                    </div>
+                    <div class="mt-n3 rtl-direction">
+                        <mat-form-field class="w-100 text-right">
+                            <mat-select [(value)]="selectedNature">
+                                <mat-option *ngFor="let type of natureType" [value]="type.value"
+                                    class="rtl-direction text-right">
+                                    {{type.value}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <ng-container *ngIf="selectedNature == 'اخرى'">
+                        <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+                            <label class="page-sub-title">{{ 'OTHER_NATURE' | translate }}:</label>
+                        </div>
+                        <div class="mt-n3">
+                            <mat-form-field class="w-100 text-right">
+                                <input matInput [(ngModel)]="otherNature">
+                            </mat-form-field>
+                        </div>
+                    </ng-container>
+                </ng-container>
+                <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+                    <label class="page-sub-title rtl-direction">{{ 'SERIOUS_NOTES' | translate }}:</label>
+                </div>
+                <div class="mt-n3 rtl-direction">
+                    <mat-form-field class="w-100 text-right border-textarea">
+
+                        <mat-select [(value)]="obsSettingDetails.seriousNotes">
+                            <mat-option *ngFor="let option of seriousNotesOptions" [value]="option.value"
+                                class="rtl-direction text-right">
+                                {{option.value}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div [ngClass]="obsSettingDetails.reportToBeGenerated == 'KNPC Response Report' ? 'mt-2':'mt-n2'">
+                    <button mat-raised-button class="b-blue c-white" (click)="onSubmit()"
+                        [ngClass]="isRtl? '':'float-right mb-2'" [disabled]="((obsSettingDetails.obsTitle.length === 0 || obsSettingDetails.obsTitle.trim() == '') || obsSettingDetails.obsTitle == '')
+                        || ((selectedDateString == 'تتعلق بجهات حكومية/اخرى' && !isDateFieldSelected) || (obsSettingDetails.reportToBeGenerated != 'KNPC Response Report' && date == 'تتعلق بجهات حكومية/اخرى' && entities.length == 0))
+                        ">{{ 'SUBMIT' | translate }}
+                    </button>
+                </div>
+            </div>
+            <div class="col-12 col-lg-9 left-div" dir="ltr" *ngIf="obsSettingDetails">
+                <div class="rtl-direction text-right mt-3">
+                    <p class="initial-report" [innerHTML]="obsSettingDetails.obsContent | safeHtml"></p>
+                    <p class="initial-report"  *ngIf="obsSettingDetails.sabResponse" [innerHTML]="obsSettingDetails.sabResponse | safeHtml"></p>
+                </div>
+            </div>
+        </div>
+    </mat-card>
+</div>

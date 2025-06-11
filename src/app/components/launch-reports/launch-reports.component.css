@@ -1,0 +1,38 @@
+.file-info {
+  font-weight: 500;
+  color: #7e7e7e;
+}
+
+.dialog-heading-div {
+  padding: 15px 0 15px 0px;
+  margin: 0 -24px 0 -24px;
+  background: #3253ab;
+  color: #ffffff;
+}
+
+.close {
+  float: right;
+  margin-top: 4px;
+  margin-right: 10px;
+  font-size: 14px;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.close-rtl {
+  margin-top: 4px;
+  margin-left: 10px;
+  font-size: 14px;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+.cancel-btn{
+  cursor: pointer;
+}
+
+@media(max-width: 575px) {
+  .extract-redio-group {
+    display: flex;
+    flex-direction: column;
+  }
+}

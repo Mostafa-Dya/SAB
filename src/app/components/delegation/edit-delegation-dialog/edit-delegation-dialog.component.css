@@ -1,0 +1,38 @@
+
+.dialog-heading-div {
+    padding: 15px 0 15px 0px;
+    margin: 0 -24px 0 -24px;
+    background: #3253ab;
+    color: #ffffff;
+}
+.mat-dialog-content.custom-height{
+    height:170px;
+}
+.h-120{
+    min-height: 120px;
+}
+
+.w-75 {
+    width: 75%;
+}
+.w-95 {
+width: 95.5%;
+}
+
+.cursor-not-allowed {
+    cursor: not-allowed;
+}
+
+.ml-6 {
+    margin-left: 4rem  !important;
+}
+
+.ml-02 {
+    margin-left: 0.2rem!important;
+}
+
+.to-date-error {
+    position: relative;
+    bottom: 12px;
+}
+

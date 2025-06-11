@@ -1,0 +1,218 @@
+.show-mob {
+    display: none;
+  }
+  
+  .dialog-heading-div {
+    padding: 15px 0 15px 0px;
+    margin: 0 -24px 0 -24px;
+    background: #3253ab;
+    color: #ffffff;
+  }
+  
+  .cancel-btn {
+    margin: -2px 5px 0 5px;
+    cursor: pointer;
+  }
+  
+  .table-container {
+    height: 300px;
+    overflow: auto;
+  }
+  
+  tr.mat-header-row {
+    height: unset;
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: rgba(0, 0, 0, .12);
+  }
+  
+  .mat-header-cell {
+    font-size: 14px;
+    font-weight: 600;
+    color: unset;
+  }
+  
+  table {
+    width: 100%;
+  }
+  
+  th.mat-header-cell:first-of-type,
+  td.mat-cell:first-of-type,
+  td.mat-footer-cell:first-of-type {
+    padding-left: 10px !important;
+  }
+  
+  th.mat-header-cell:last-of-type,
+  td.mat-cell:last-of-type,
+  td.mat-footer-cell:last-of-type {
+    padding-right: 10px !important;
+  }
+  
+  th.mat-header-cell,
+  td.mat-cell,
+  td.mat-footer-cell {
+    padding: 10px !important;
+  }
+  
+  .expanded-td {
+    border-bottom: 1px solid rgba(0, 0, 0, .12) !important;
+  }
+  
+  .title-td {
+    font-weight: 600;
+    display: inline-block;
+    /* width: 400px; */
+    width: 340px;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    margin: 10px 0 0 0;
+  }
+  
+  .expanded-content {
+    display: inline-block;
+    width: 400px;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+  }
+  
+  .delete-mob {
+    position: absolute;
+    right: 10px;
+  }
+  
+  .note {
+    height: unset !important;
+    font-weight: bold;
+  }
+  
+  .div-classification {
+    display: inline-flex;
+    background: #dee2e6;
+    padding: 2px;
+    width: calc(100% - 205px);
+    /* margin-left: 10px; */
+  }
+  .sendBackReason {
+    font-weight: bold;
+    color:red;
+  }
+  .div-sendBackReason {
+    display: inline-flex;
+    padding: 2px;
+    /* margin-left: 10px; */
+  }
+  .label-sendBackReason {
+    font-weight: bold;
+    color:red;
+    padding-left: 0px;
+  }
+  .c-weight{
+    width: calc(100% - 69px);
+  }
+  
+  @media(max-width: 767px) {
+    .hide-mob {
+      display: none;
+    }
+  
+    .show-mob {
+      display: block;
+    }
+  
+    tr.mat-header-row {
+      height: unset;
+      border-top: unset;
+    }
+  
+    th.mat-header-cell,
+    td.mat-cell,
+    td.mat-footer-cell {
+      border-bottom: unset;
+    }
+  
+    th.mat-header-cell,
+    td.mat-cell,
+    td.mat-footer-cell {
+      padding: unset !important;
+    }
+  
+    tr.mat-row, tr.mat-footer-row {
+      height: 30px !important;
+    }
+  }
+  
+  @media(max-width: 575px) {
+    .title-td {
+      /* width: 200px; */
+      width: 140px;
+    }
+  
+    .expanded-content {
+      width: 200px;
+    }
+  }
+  
+  /* chip */
+  .chip{
+    display: inline-flex;
+    flex-direction: row;
+    background-color: #e5e5e5;
+    border: none;
+    cursor: default;
+    /* height: 36px; */
+    outline: none;
+    padding: 0;
+    font-size: 14px;
+    color: #333333;
+    font-family:"Open Sans", sans-serif;
+    white-space: nowrap;
+    align-items: center;
+    border-radius: 16px;
+    vertical-align: middle;
+    text-decoration: none;
+    justify-content: center;
+  }
+  
+  .chip-content{
+    cursor: inherit;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    white-space: nowrap;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .chip-svg{
+     color: #999999;
+    cursor: pointer;
+    height: auto;
+    margin: 4px 4px 0 -8px;
+  fill: currentColor;
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    font-size: 24px;
+    transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .chip-svg:hover{
+    color: #666666;
+  }
+  
+  .cursor-pointer {
+    cursor: pointer;
+  }
+  
+  .cursor-disable {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .cycle-description{
+    background-color: #d5d9ec;
+    box-shadow: 0 0rem 1rem rgba(0,0,0,0.15), inset 0 -1px 0 rgba(255,255,255,0.15);
+    border-radius: 5px;
+    padding: 10px;
+}

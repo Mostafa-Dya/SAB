@@ -1,0 +1,90 @@
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+                <mat-icon class="bread-page-heading-icon">upload_file</mat-icon>
+                <span class="page-heading">{{ 'UPLOAD_REPORTS' | translate }}</span>
+            </div>
+            <!-- <div class="col-12 mt-5" *ngIf="!isLoading">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-12 col-md-10 col-lg-8">
+                        <div class="row"> -->
+            <div class="col-12 mb-3" *ngIf="!isFileSelected" [ngClass]="{'text-right': isRtl}">
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <mat-card>
+                            <mat-card-content>
+                                <p class="font-weight-bold text-danger">
+                                    {{ 'PLEASE_SELECT_A_FILE_TO_UPLOAD' | translate }}
+                                </p>
+                            </mat-card-content>
+                        </mat-card>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'FISCAL_YEAR' | translate }}
+                    </mat-label>
+                    <mat-select [(value)]="selectedYear">
+                        <mat-option *ngFor="let year of years" [value]="year.value"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{year.value}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'REPORT_TYPE' | translate }}
+                    </mat-label>
+                    <mat-select [(value)]="selectedReport">
+                        <mat-option *ngFor="let type of reportType" [value]="type.value"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{type.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-12 mt-2 hide-mob" [ngClass]="{'text-right': isRtl}">
+                <label class="page-sub-title">{{ 'SELECT_FILE_UPLOAD' | translate }}:</label>
+                <button [ngClass]="isRtl ? 'mr-2' : 'ml-2'" mat-raised-button class="b-blue c-white"
+                    onclick="document.getElementById('files').click()">
+                    {{ 'CLICK_TO_UPLOAD' | translate }}</button>
+                <input #userFile id="files" style="display:none" type="file" (change)="onFileSelected($event)">
+                <span class="page-sub-title d-inline-flex" [ngClass]="isRtl ? 'mr-2' : 'ml-2'"
+                    *ngIf="selectedFile && selectedFile.name">{{selectedFile.name}}
+                    <mat-icon class="cancel-btn" (click)="clearSelectedFile()">cancel</mat-icon>
+                </span>
+                <span class="page-sub-title" [ngClass]="isRtl ? 'mr-2' : 'ml-2'" *ngIf="!selectedFile">
+                    {{ 'NO_FILE_SELECTED' | translate }}</span>
+            </div>
+            <div class="col-12 mt-2 show-mob" [ngClass]="{'text-right': isRtl}">
+                <label class="page-sub-title">{{ 'SELECT_FILE_UPLOAD' | translate }}:</label>
+            </div>
+            <div class="col-12 mt-2 show-mob" [ngClass]="{'text-right': isRtl}">
+                <button mat-raised-button class="b-blue c-white" onclick="document.getElementById('files').click()">
+                    {{ 'CLICK_TO_UPLOAD' | translate }}</button>
+                <input #userFile id="files" style="display:none" type="file" (change)="onFileSelected($event)">
+                <span class="page-sub-title d-inline-flex" [ngClass]="isRtl ? 'mr-2' : 'ml-2'"
+                    *ngIf="selectedFile && selectedFile.name">{{selectedFile.name}}
+                    <mat-icon class="cancel-btn" (click)="clearSelectedFile()">cancel</mat-icon>
+                </span>
+                <span class="page-sub-title" [ngClass]="isRtl ? 'mr-2' : 'ml-2'" *ngIf="!selectedFile">
+                    {{ 'NO_FILE_SELECTED' | translate }}</span>
+            </div>
+            <div class="col-12 col-sm-12 col-lg-7 col-xl-6 mt-2">
+                <button [ngClass]="isRtl ? 'float-left' : 'float-right'" mat-raised-button class="b-blue c-white"
+                    (click)="onUploadReport()">
+                    {{ 'UPLOAD' | translate }}
+                </button>
+            </div>
+            <!-- <div class="col-12" *ngIf="isLoading" class="loading-indicator">
+                <mat-progress-spinner color="primary" mode="indeterminate">
+                </mat-progress-spinner>
+            </div> -->
+        </div>
+    </mat-card>
+</div>

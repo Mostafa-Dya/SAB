@@ -1,0 +1,50 @@
+<div class="container-flud">
+   <mat-card class="main-card">
+      <div class="row">
+         <div class="col-6 mb-3" [ngClass]="{'text-right': isRtl}">
+            <mat-icon class="bread-page-heading-icon">perm_contact_calendar</mat-icon>
+            <span class="page-heading">{{ 'G&PACONTACT' | translate }}</span>
+         </div>
+         <div class="col-6 mb-3" [ngClass]="{'text-right': isRtl}">
+            <button mat-raised-button class="b-blue c-white float-right" [ngClass]="{'ml-0 mr-2' : isRtl}"
+            (click)="openGpaMemberDetails()">
+            {{ 'G&PA_MEMBER_DETAILS' | translate }}</button>
+         </div>
+      </div>
+      <div class="row" [ngClass]="{'text-right': isRtl}">
+         <div class="col-12 hide-mob gpa-contact-table" *ngIf="dataSource && dataSource.data.length > 0">
+            <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}">
+               <ng-container matColumnDef="department">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'DEPARTMENT' | translate }} </th>
+                  <td mat-cell *matCellDef="let element" class="escalation-setting-td"> {{ element.departmentName}} </td>
+               </ng-container>
+               <ng-container matColumnDef="concernedMember">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'CONCERNED_G&PA_MEMBER' | translate }} </th>
+                  <td mat-cell *matCellDef="let element">
+                     <mat-form-field class="concered" >                       
+                        <mat-select [(ngModel)]="element.loginId"  class="example-right-align" (ngModelChange)="updateConcernedMember(element)">
+                           <mat-option [value]="data.loginId" *ngFor="let data of conceredMembers">{{data.userName}}</mat-option>
+                         </mat-select>
+                     </mat-form-field>
+                  </td>
+               </ng-container>
+
+               <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          <!--  <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="0"  hidePageSize
+               showFirstLastButtons dir="ltr">
+            </mat-paginator> -->
+         </div>
+
+      </div>
+      <div class="row center-block" *ngIf="!dataSource || (dataSource && dataSource.data.length == 0)">
+         <div class="center mt-5">
+            <mat-icon class="center-icon">cloud_queue</mat-icon>
+            <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+         </div>
+      </div>
+   </mat-card>
+</div>

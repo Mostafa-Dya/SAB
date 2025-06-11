@@ -1,0 +1,46 @@
+<div [ngClass]="{'rtl-direction' : isRtl}" >
+   <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+       <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">{{  this.data.dialogHeader | translate }}</span>
+   </div>
+   <mat-dialog-content class="mat-typography hide-x" [ngClass]="{'text-right': isRtl}">
+           <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}" class="w-100 mt-4 mb-4">
+               <ng-container matColumnDef="userName">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'NAME' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"> {{ element.userName}} </td>
+               </ng-container>
+               <ng-container matColumnDef="userMail">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'EMAIL' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"> 
+                 <!--  <mat-form-field class="" *ngIf="this.data.dialogHeader != 'OBSERVATION_CONTACT'">
+                       <input matInput [(ngModel)]="element.userMail" type="text" class="example-right-align">
+                    </mat-form-field>
+                    <span *ngIf="this.data.dialogHeader == 'OBSERVATION_CONTACT'">
+                       {{ element.userMail}} 
+                    </span> -->
+                    {{ element.userMail}}
+               </td>
+               </ng-container>
+               <ng-container matColumnDef="extensionNo">
+                  <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                     {{ 'PHONE' | translate }} </th>
+                  <td mat-cell *matCellDef="let element" class="escalation-setting-td">
+                     <mat-form-field class="phone-input" *ngIf="this.data.dialogHeader != 'OBSERVATION_CONTACT'">
+                        <input matInput [(ngModel)]="element.extensionNo" type="text" >
+                     </mat-form-field>
+                     <span *ngIf="this.data.dialogHeader == 'OBSERVATION_CONTACT'">
+                       {{ element.extensionNo}} 
+                    </span>
+                  </td>
+               </ng-container>
+               <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+   </mat-dialog-content>
+   <mat-dialog-actions align="end">
+       <button mat-raised-button mat-dialog-close>{{ 'CLOSE' | translate }}</button>
+       <button mat-raised-button class="b-blue c-white" [ngClass]="{'ml-0 mr-2' : isRtl}" (click)="save()" *ngIf="this.data.dialogHeader != 'OBSERVATION_CONTACT'">
+           {{ 'Save' | translate }}</button>
+   </mat-dialog-actions>
+</div>

@@ -1,0 +1,105 @@
+<div class="container-flud">
+	<mat-card class="main-card">
+		<div class="row">
+			<div class="col-12 mb-5" [ngClass]="{'text-right': isRtl}">
+				<mat-icon class="bread-page-heading-icon">file_upload</mat-icon>
+				<span class="page-heading">{{ 'LAUNCH_REPORTS' | translate }}</span>
+			</div>
+			<!-- <div class="col-12 col-lg-8 col-xl-6 mb-3" *ngIf="!isFileSelected" [ngClass]="{'text-right': isRtl}">
+				<mat-card>
+					<mat-card-content>
+						<p class="font-weight-bold text-danger">
+							{{ 'PLEASE_SELECT_A_FILE' | translate }}
+						</p>
+					</mat-card-content>
+				</mat-card>
+			</div> -->
+			<div class="col-12">
+				<div class="row">
+					<div class="col-12 col-lg-8 col-xl-6">
+						<mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+							<mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+								{{ 'REPORT_TO_BE_GENERATED' | translate }}
+							</mat-label>
+							<mat-select [(value)]="selectedReport" (selectionChange)="reportChange()">
+								<mat-option *ngFor="let report of reports" [value]="report.value"
+									[ngClass]="{'rtl-direction text-right': isRtl}">
+									{{report.name | translate}}
+								</mat-option>
+							</mat-select>
+						</mat-form-field>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 mb-3" *ngIf="selectedReport && selectedReport == 'SAB Quarterly Report Q3'">
+				<button mat-raised-button class="text-wrap b-blue c-white" [ngClass]="{'float-right' : isRtl}"
+					(click)="directReport()">
+					{{ 'DIRECT_REPORT' | translate }}</button>
+			</div>
+			<div class="col-12 mb-3" *ngIf="selectedReport && selectedReport != 'KNPC Response Report' && selectedReport != 'SAB Commentary Report' ">
+				<button mat-raised-button class="text-wrap b-blue c-white" [ngClass]="{'float-right' : isRtl}"
+					(click)="changeDepartment()">
+					{{ 'CHANGE_DEPARTMENT_BEFOR_LAUNCH' | translate }}</button>
+			</div>
+			<!-- *ngIf="!isComparisionCompleted" -->
+			<ng-container >
+				<div class="col-12" [ngClass]="{'text-right': isRtl}"
+					*ngIf="selectedReport && (selectedReport == 'KNPC Response Report' || selectedReport == 'SAB Commentary Report')">
+					<mat-radio-group [(ngModel)]="selectedOption" class="extract-redio-group">
+						<mat-radio-button value="default" color="primary" [ngClass]="isRtl ? 'ml-2' : 'mr-2'">
+							{{ 'EXTRACT_BY_DEFAULT_KEYWORD' | translate }}
+						</mat-radio-button>
+						<mat-radio-button value="delimiter" color="primary">
+							{{ 'EXTRACT_BY_A_DELIMITER' | translate }}
+						</mat-radio-button>
+					</mat-radio-group>
+				</div>
+				<div class="col-12 mt-3 file-info" [ngClass]="{'text-right': isRtl}"
+					*ngIf="selectedReport && (selectedReport == 'KNPC Response Report' || selectedReport == 'SAB Commentary Report')">
+					<span *ngIf="selectedOption == 'default'">
+						<span *ngIf="selectedReport == 'KNPC Response Report'">
+							{{ 'PLEASE_UPLOAD_SAB_REPORT_DEFAULT' | translate }}
+						</span>
+						<span *ngIf="selectedReport == 'SAB Commentary Report'">
+							{{ 'PLEASE_UPLOAD_SAB_REPORT_DEFAULT_Q1' | translate }}
+						</span>
+					</span>
+					<span *ngIf="selectedOption != 'default'">
+						<span *ngIf="selectedReport == 'KNPC Response Report'">
+							{{ 'PLEASE_UPLOAD_SAB_REPORT_DELIMITER' | translate }}
+						</span>
+						<span *ngIf="selectedReport == 'SAB Commentary Report'">
+							{{ 'PLEASE_UPLOAD_SAB_REPORT_DELIMITER_Q1' | translate }}
+						</span>
+					</span>
+				</div>
+				<div class="col-12 mt-4" [ngClass]="{'text-right': isRtl}"
+					*ngIf="selectedReport && (selectedReport == 'KNPC Response Report' || selectedReport == 'SAB Commentary Report')">
+					<!-- <input #userFile type="file" (change)="onFileSelected($event)"> -->
+					<button mat-raised-button class="b-blue c-white" onclick="document.getElementById('files').click()">
+						{{ 'ATTACH_FILE' | translate }}</button>
+					<input #userFile id="files" style="display:none" type="file" (change)="onFileSelected($event)"
+						accept="application/msword,
+						application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+					<span class="page-sub-title d-inline-flex" [ngClass]="isRtl ? 'mr-2' : 'ml-2'"
+						*ngIf="selectedFile && selectedFile.name">{{selectedFile.name}}
+						<mat-icon class="cancel-btn" (click)="clearSelectedFile()">cancel</mat-icon>
+					</span>
+					<span class="page-sub-title" [ngClass]="isRtl ? 'mr-2' : 'ml-2'" *ngIf="!selectedFile">
+						{{ 'NO_FILE_SELECTED' | translate }}</span>
+					<p class="font-weight-bold text-danger mt-2" *ngIf="!isFileSelected">
+						{{ 'PLEASE_SELECT_A_FILE' | translate }}
+					</p>
+					<p class="font-weight-bold text-danger mt-2" *ngIf="isFileError">
+						{{ errorMessage | translate }}
+					</p>
+				</div>
+			</ng-container>
+			<div class="col-12 col-lg-8 col-xl-6 mt-4">
+				<button [ngClass]="{'float-right' : !isRtl}" class="b-blue c-white" mat-raised-button
+					(click)="onComplete()">{{'COMPLETE' | translate }}
+				</button>
+			</div>
+		</div>
+	</mat-card>
+</div>

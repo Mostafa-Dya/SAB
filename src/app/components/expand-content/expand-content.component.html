@@ -1,0 +1,3 @@
+<mat-dialog-content class="mat-typography mat-dialog-obs" [ngClass]="{'rtl-direction': isRtl}">
+    <div class="initial-report" [innerHTML]="observation.obsContent | safeHtml"></div>
+</mat-dialog-content>

@@ -1,0 +1,127 @@
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 mb-4" [ngClass]="{'text-right': isRtl}">
+                <mat-icon class="bread-page-heading-icon">settings</mat-icon>
+                <span class="page-heading">{{ 'SETTINGS' | translate }}</span>
+            </div>
+            <!-- <div class="col-12">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-12 col-md-10 col-lg-8">
+                        <div class="row"> -->
+                            <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                        {{ 'FISCAL_YEAR' | translate }}
+                                    </mat-label>
+                                    <mat-select [(value)]="selectedYear">
+                                        <mat-option *ngFor="let year of years" [value]="year.value"
+                                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                                            {{year.value}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12 col-sm-2">                                
+                                <button class="hide-mob b-blue c-white" mat-raised-button [ngClass]="{'float-right': isRtl}"
+                                    (click)="getSettingInfo()">
+                                    {{ 'SUBMIT' | translate }}
+                                </button>
+                                <button class="show-mob b-blue c-white" [ngClass]="isRtl ? 'float-left' : 'float-right'" mat-raised-button
+                                    (click)="getSettingInfo()">
+                                    {{ 'SUBMIT' | translate }}
+                                </button>
+                            </div>
+                            <div class="col-12 mt-3 hide-mob" *ngIf="dataSource && dataSource.data.length > 0">
+                                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}">
+                                    <ng-container matColumnDef="year">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                                            {{ 'YEAR' | translate }} </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.year}} </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="letter">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                                            {{ 'LETTER' | translate }} </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.letter}} </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="obsClassification">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                                            {{ 'OBSERVATION_CLASSIFICATION' | translate }} </th>
+                                        <td mat-cell *matCellDef="let element">
+                                            <span *ngIf="!isSelectedCurrentYear">
+                                                {{element.obsClassification}}
+                                            </span>
+                                            <span *ngIf="isSelectedCurrentYear">
+                                                <mat-form-field class="rtl-direction text-right">
+                                                    <input matInput [(ngModel)]="element.obsClassification">
+                                                </mat-form-field>
+                                            </span>
+                                        </td>
+                                    </ng-container>
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                                        style="cursor: pointer;"></tr>
+                                </table>
+                            </div>
+                            <div class="col-12 mt-3 show-mob" *ngIf="dataSource && dataSource.data.length > 0">
+                                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}"
+                                    multiTemplateDataRows>
+                                    <ng-container matColumnDef="year">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"></th>
+                                        <td mat-cell *matCellDef="let element" class="title-td w-150"> {{element.year}}
+                                        </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="letter">
+                                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"></th>
+                                        <td mat-cell *matCellDef="let element" class="title-td"> {{element.letter}}
+                                        </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="expandedDetail">
+                                        <td class="expanded-td" mat-cell *matCellDef="let element"
+                                            [attr.colspan]="displayedColumnsMob.length">
+                                            <div class="row">
+                                                <div class="col-12" *ngIf="!isSelectedCurrentYear">
+                                                    {{element.obsClassification}}
+                                                </div>
+                                                <div class="col-12" *ngIf="isSelectedCurrentYear">
+                                                    <mat-form-field class="rtl-direction text-right">
+                                                        <input matInput [(ngModel)]="element.obsClassification">
+                                                    </mat-form-field>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </ng-container>
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;"
+                                        style="cursor: pointer;"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+                                </table>
+                            </div>
+                            <div class="col-12 mt-3" *ngIf="isSelectedCurrentYear && !isLoading && dataSource && dataSource.data.length > 0">
+                                <button  [ngClass]="{'float-right': !isRtl}" mat-raised-button class="b-blue c-white"
+                                    (click)="updateSettingInfo()">{{ 'UPDATE' | translate }}
+                                </button>
+                            </div>
+                        <!-- </div>
+                    </div>
+                </div>
+            </div> -->
+            <div class="row center-block" *ngIf="!dataSource && !isLoading">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">settings</mat-icon>
+                    <span class="center-text search-settings">{{ 'PLEASE_SEARCH_SETTINGS' | translate }}</span>
+                </div>
+            </div>
+            <div class="row center-block" *ngIf="dataSource && dataSource.data.length == 0 && !isLoading">
+                <div class="center mt-5">
+                    <mat-icon class="center-icon">cloud_queue</mat-icon>
+                    <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+                </div>
+            </div>
+            <div class="col-12" *ngIf="isLoading" class="loading-indicator">
+                <mat-progress-spinner color="primary" mode="indeterminate">
+                </mat-progress-spinner>
+            </div>
+        </div>
+    </mat-card>
+</div>

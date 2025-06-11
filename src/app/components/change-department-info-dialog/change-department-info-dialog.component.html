@@ -1,0 +1,53 @@
+<!-- root div just toggles rtl class -->
+<div [class.rtl-direction]="(isRtl$ | async) ?? false">
+  <!-- ─────────────── HEADER (draggable) ─────────────── -->
+  <div
+    class="dialog-heading-div"
+    [class.text-right]="(isRtl$ | async) ?? false"
+    appDraggableDialog
+  >
+    <span
+      class="page-title"
+      [class.mr-4]="!!(isRtl$ | async)"
+      [class.ml-4]="!(isRtl$ | async)"
+    >
+      {{ "CHANGED_DEPARTMENTS" | translate }}
+    </span>
+  </div>
+
+  <!-- ─────────────── BODY ─────────────── -->
+  <mat-dialog-content
+    class="mat-typography"
+    [class.text-right]="(isRtl$ | async) ?? false"
+  >
+    <!-- heading -->
+    <h3 class="mt-3 font-weight-bold">
+      {{ "OBSERVATION_DEPARTMENTS_ARE_CHANGED_AS_BELOW" | translate }}.
+    </h3>
+
+    <!-- ordered list of departments -->
+    <ol class="mt-3">
+      <li *ngFor="let dep of data" class="font-weight-500 mb-1">
+        {{ dep.departmentName }}
+      </li>
+    </ol>
+
+    <!-- yellow note -->
+    <h3 class="mt-3 font-weight-bold" style="background: yellow">
+      {{ "NOTE" | translate }}
+      -
+      {{
+        "THIS_WILL_BE_REFLECTED_WHEN_OBSERVATION_LAUNCHED_IN_THE_NEXT_CYCLES"
+          | translate
+      }}
+      .
+    </h3>
+  </mat-dialog-content>
+
+  <!-- ─────────────── FOOTER ─────────────── -->
+  <mat-dialog-actions align="end">
+    <button mat-raised-button class="b-blue c-white" mat-dialog-close>
+      {{ "OK" | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

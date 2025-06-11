@@ -1,0 +1,119 @@
+/* ──────────── Controls / icons ──────────── */
+.add-left-div {
+  top: 50%;
+  position: absolute;
+  cursor: pointer;
+
+  .mat-icon {
+    height: 50px !important;
+  }
+}
+
+.add-left-icon {
+  background: #3f51b5;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  text-align: center;
+  padding: 13px;
+  color: #fff;
+}
+
+.bt-position {
+  margin-left: 20px;
+  position: relative;
+  right: 10px;
+  z-index: 1;
+}
+
+/* ───────────── Tabs / editor panes ───────────── */
+.tab-div {
+  border: 1px solid black;
+  height: 288px;
+
+  > .mat-tab-group {
+    height: 285px;
+  }
+}
+
+.tab-content-div {
+  margin: 10px;
+}
+
+.tab-year-div {
+  padding: 10px;
+  background: #d9d9d9;
+  margin: 25px;
+}
+
+/* ───────────── Chips & classifications ───────────── */
+.div-classification {
+  display: inline-flex;
+  background: #dee2e6;
+  padding: 2px;
+  width: 115px;
+  margin-left: 10px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  background: #e1e1e1;
+  border-radius: 16px;
+  height: 24px;
+  padding: 0 6px;
+
+  .chip-content {
+    line-height: 24px;
+  }
+
+  .chip-close {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding-left: 4px;
+
+    .chip-svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.w-150-c {
+  width: calc(100% - 100px);
+}
+
+.sendBackReason {
+  font-weight: 700;
+  color: red;
+}
+
+/* ───────────── Mobile tweaks ───────────── */
+.show-mobile {
+  display: none;
+}
+
+.hide-mobile {
+  display: block;
+}
+
+@media (max-width: 991px) {
+  .hide-mobile {
+    display: none;
+  }
+  .show-mobile {
+    display: block;
+  }
+  .add-left-div {
+    position: unset;
+    margin-left: 45%;
+  }
+}
+
+/* ───────────── Spinner overlay ───────────── */
+.spinner-container {
+  width: 100%;
+  text-align: center;
+  margin-top: 5rem;
+}

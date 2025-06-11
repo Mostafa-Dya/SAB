@@ -1,0 +1,15 @@
+.dialog-heading-div {
+  padding: 15px 0 15px 0px;
+  margin: 0 -24px 0 -24px;
+  background: #3253ab;
+  color: #ffffff;
+}
+
+.mat-header-cell {
+  font-size: 14px;
+  font-weight: 600;
+  color: unset;
+}
+th.mat-header-cell, td.mat-cell, td.mat-footer-cell {
+  padding: 10px !important;
+}

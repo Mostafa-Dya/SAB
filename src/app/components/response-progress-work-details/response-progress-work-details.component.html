@@ -1,0 +1,918 @@
+<div class="container-flud response-progress-work-item-detail">
+  <mat-card class="main-card">
+    <div class="row">
+      <div class="col-8 col-sm-8 col-m-6 col-l-6 col-lg-6 col-xl-6 hide-mobile" [ngClass]="{'text-right': isRtl}">
+          <span class="page-heading-icon pointer" routerLink="/response-progress" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+
+        <span class="page-sub-heading"> / {{ 'RESPONSE_PROGRESS_WORK_ITEM' | translate }}</span>
+      </div>
+      <div class="col-4 col-sm-4 col-m-6 col-l-6 col-lg-6 col-xl-6 hide-mobile">
+        <span [ngClass]="{'float-right': !isRtl}">
+          <button mat-raised-button class="w-70 b-blue c-white"
+            matTooltip="{{ 'SEND_A_MANUAL_REMINDER_TO_THE_PERSON' | translate }}" (click)="sendReminder()"
+            *ngIf="isSendReminderEnabled && stepUnqName != 'GPA-Pending-Extraction'"> {{ 'SEND_REMINDER' |
+            translate }}
+          </button>
+          <!-- <button mat-mini-fab class="b-blue c-white ml-2" aria-label="Example icon button with a menu icon"
+          *ngIf="isReviewEnabled"
+          (click)="onReviewed()" matTooltip="{{ 'REVIEWED' | translate }}">
+            <mat-icon *ngIf="workItem.reviewed == 'yes'">check</mat-icon>
+            <mat-icon *ngIf="workItem.reviewed  != 'yes'">close</mat-icon>
+          </button> -->
+        <button mat-mini-fab class="b-blue c-white ml-2" aria-label="Example icon button with a menu icon"
+        (click)="prevObservation(workItem)" matTooltip="{{ 'PREV_OBSERVATION' | translate }}"  
+        [disabled]="!selectedList || selectedIndex == 0">
+          <mat-icon>keyboard_arrow_left</mat-icon>
+        </button>
+        <button mat-mini-fab class="b-blue c-white ml-2" aria-label="Example icon button with a menu icon"  
+        (click)="nextObservation(workItem)" matTooltip="{{ 'NEXT_OBSERVATION' | translate }}" [disabled]="!selectedList || selectedIndex == selectedList?.length - 1">
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+        
+          <button mat-mini-fab class="b-blue c-white ml-2" aria-label="Example icon button with a menu icon"  *ngIf="isAdmin"
+          (click)="onShowOverview(workItem)" matTooltip="{{ 'OVERVIEW' | translate }}">
+            <mat-icon>assignment</mat-icon>
+          </button>  
+        
+          <button mat-mini-fab class="b-blue c-white ml-2" aria-label="Example icon button with a menu icon"  
+          *ngIf="(workItem.obsCategory === 'Normal' || workItem.obsCategory === 'Committee' || workItem.obsCategory === 'Special Nature') && workItem.stepUniqueName!='GPA-ASSIGN'"
+          (click)="onShowContactPerson()" matTooltip="{{ 'CONTACT' | translate }}">
+            <mat-icon>perm_contact_calendar</mat-icon>
+          </button> 
+          <button mat-mini-fab class="b-blue c-white ml-2" aria-label="Example icon button with a menu icon"
+            (click)="getWorkItemInfo()" matTooltip="{{ 'RELOAD' | translate }}">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </span>
+      </div>
+      <div class="col-12 show-mobile" [ngClass]="{'text-right': isRtl}">
+        <!-- <mat-icon class="page-heading-icon pointer" routerLink="/response-progress"
+          matTooltip="{{ 'BACK' | translate }}">refresh</mat-icon> -->
+          <span class="page-heading-icon pointer" routerLink="/response-progress" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
+        <span class="page-sub-heading"> / {{ 'RESPONSE_PROGRESS_WORK_ITEM' | translate }}</span>
+      </div>
+      <div class="col-10 show-mobile" [ngClass]="{'float-right': !isRtl}">
+        <span class="">
+          <button mat-raised-button class="w-70 b-blue c-white"
+            matTooltip="{{ 'SEND_A_MANUAL_REMINDER_TO_THE_PERSON' | translate }}" (click)="sendReminder()"
+            *ngIf="isAdmin && isSendReminderEnabled"> {{ 'SEND_REMINDER' | translate }}
+          </button>
+        </span>
+      </div>
+      <div class="col-2 show-mobile">
+        <button mat-mini-fab class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+          aria-label="Example icon button with a menu icon" (click)="getWorkItemInfo()"
+          matTooltip="{{ 'RELOAD' | translate }}">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="row" *ngIf="!isLoading && workItem.obsTitle != ''">
+      <div class="col-12" style="display: flex;margin-bottom: -10px;" [ngClass]="{'text-right': isRtl}">
+        <label class="page-sub-title mb-0 min-w-140 mr-2">{{ 'OBSERVATION_TITLE' | translate }}:</label>
+        <p style="direction: rtl;">{{workItem.obsTitle}}</p>
+      </div>
+      <div class="col-8" [ngClass]="{'text-right': isRtl}">
+        <label class="page-sub-title mb-0 min-w-140 mr-2">{{ 'SEQUENCE_ID' | translate }}:</label>
+        <span>{{workItem.obsSeq}}</span>
+      </div>
+      <div class="col-4 d-flex justify-content-end" [ngClass]="{'text-right': isRtl}">
+        <label class="page-sub-title mb-0" *ngIf="isSendReminderLabelEnabled">{{ 'REMINDER_COUNT' | translate }}:</label>
+        &nbsp;&nbsp;&nbsp;
+        <span *ngIf="isSendReminderLabelEnabled"> <a href="javascript:;" title="{{ 'REMINDER_HISTORY' | translate }}"
+            (click)="openReminderCountHistoryModel()"> {{workItem.reminderCount || 0}} </a>
+        </span>
+      </div>
+      <div class="col-4 col-sm-3 show-mobile" [ngClass]="{'text-right': isRtl}">
+        <label class="page-sub-title mb-0">{{ 'REPORT_NAME' | translate }}:</label>
+      </div>
+      <div class="col-8 col-sm-9 show-mobile" [ngClass]="{'text-right': isRtl}">
+        <span>{{workItem.reportName}}</span>
+      </div>
+      <div class="col-4 col-sm-3 show-mobile" [ngClass]="{'text-right': isRtl}">
+        <label class="page-sub-title mb-0">{{ 'DEPARTMENT' | translate }}:</label>
+      </div>
+      <div class="col-8 col-sm-9 show-mobile" [ngClass]="{'text-right': isRtl}">
+        <span>{{workItem.departmentName}}
+          <mat-icon  role="img" class="float-right ml-2" style="color:#3253ab; cursor: pointer;" 
+          matTooltip="{{ 'WORKING_DEPARTMENTS' | translate }}"
+          *ngIf="workItem.assignedDepartmentNames && workItem.assignedDepartmentNames != ''"
+            (click)="openWorkingDepartmentOfObservation()">ballot</mat-icon>
+        </span>
+      </div>
+      <div class="col-6 hide-mobile" [ngClass]="{'text-right': isRtl}">
+        <label class="page-sub-title mb-0 min-w-140 mr-2">{{ 'REPORT_NAME' | translate }}:</label>
+        <span>{{workItem.reportName}}</span>
+      </div>
+      <div class="col-6 hide-mobile d-flex justify-content-end" [ngClass]="{'text-right': isRtl}">
+            <label class="page-sub-title mb-0">{{ 'DEPARTMENT' | translate }}:</label>
+            <span class="ml-2">{{workItem.departmentName}}            
+              <mat-icon  role="img" class="float-right ml-2" style="color:#3253ab; cursor: pointer;"
+              matTooltip="{{ 'WORKING_DEPARTMENTS' | translate }}"
+              *ngIf="workItem.assignedDepartmentNames && workItem.assignedDepartmentNames != ''"
+               (click)="openWorkingDepartmentOfObservation()">ballot</mat-icon>
+           </span>
+        </div>
+        <div class="col-8 hide-mobile"  [ngClass]="{'text-right': isRtl}">
+          <label class="page-sub-title mb-0 min-w-140 mr-2">{{ 'NEW_REPEATED_REPORTS' | translate }}:</label>
+          <span>{{workItem.obsType | translate}}</span>
+        </div>
+     <!-- added by venkat -->
+      <div class="col-4 d-flex justify-content-end" *ngIf="isAdmin" [ngClass]="{'text-right': isRtl}" >
+          <label class="sendBackReason mb-0">{{ 'SEND_BACK_COUNT' | translate }}:</label>
+          &nbsp;&nbsp;&nbsp;
+          <span class="sendBackReason"> <a href="javascript:;" title="{{ 'SEND_BACK_COUNT' | translate }}"
+              (click)="openGPASenBackHistoryModel()"> {{workItem.gpaSendBackCount || 0}} </a>
+          </span>
+        </div>
+        <div class="col-12  hide-mobile  d-flex justify-content-end mb-1" *ngIf="isAdmin && isReviewEnabled && reportCycle !== 'SAB Commentary Report'" [ngClass]="{'text-right': isRtl}">
+          <!-- <label class="page-sub-title mb-0">{{ 'REPORT_TYPE' | translate }}:</label>
+        </div>
+        <div class="col-4 col-sm-9 hide-mobile" [ngClass]="{'text-right': isRtl}"> -->
+          <label class="page-sub-title mb-0">{{ 'G&PAREVIEWED' | translate }}:</label>
+          <span class="ml-2" style="float: right;">
+            <mat-checkbox *ngIf="isReviewEnabled" class="example-margin" color="primary" 
+              [checked]="workItem.reviewed  === 'yes'" (change)="onReviewed($event)"></mat-checkbox>
+          </span>
+        </div>
+  
+      <div class="col-12">
+        <mat-divider></mat-divider>
+      </div>
+      <div class="col-12 col-lg-3 left-div">
+        <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+          <label class="page-sub-title">{{ 'DEPARTMENT_RECEIVED_DATE' | translate }}:</label>
+        </div>
+        <div class="data-center">
+          <span>{{ workItem.receievedDate  ? (workItem.receievedDate | date:'dd/MM/YYYY hh:mm a') : ''}}</span>
+          <!-- <span>{{workItem.receievedDate}}</span> -->
+        </div>
+        <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+          <label class="page-sub-title">{{ 'STATUS' | translate }}:</label>
+        </div>
+        <div class="data-center">
+          <span>{{workItem.status}}</span>
+        </div>
+        <div class="mt-2" [ngClass]="{'text-right': isRtl}" *ngIf="workItem.status != 'Process Complete'">
+          <label class="page-sub-title">{{ 'CALL_DATE' | translate }}:</label>
+        </div>
+        <div class="data-center" *ngIf="workItem.status != 'Process Complete'">
+          <span>{{workItem.callDate | date:'dd/MM/YYYY'}}</span>
+        </div>
+        <!--
+        <div class="mt-2" [ngClass]="{'text-right': isRtl}" *ngIf="workItem.status != 'Process Complete'">
+          <label class="page-sub-title">{{ 'LAST_COMMENT' | translate }}:</label>
+        </div>
+        <div *ngIf="workItem.status != 'Process Complete'">
+          <mat-form-field class="w-100 text-right border-textarea action-comment">
+            <textarea matInput [(ngModel)]="workItem.actionComment" [matTextareaAutosize]=true [matAutosizeMinRows]=2
+              [matAutosizeMaxRows]=2 readonly></textarea>
+          </mat-form-field>
+        </div>
+      -->
+        <ng-container
+          *ngIf="isAdmin && workItem.reportCycle != 'KNPC Response Report' && workItem.reportCycle != 'SAB Commentary Report'">
+          <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+            <label class="page-sub-title">{{ 'COMPLETION_YEAR' | translate }}:</label>
+          </div>
+          <div class="data-center" >
+            <span *ngIf="isDateFieldSelected">{{ workItem.completionYear}}</span>
+            <span *ngIf="!isDateFieldSelected">{{ workItem.completionYear }}</span>
+          </div>
+          <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+            <label class="page-sub-title">{{ 'OBSERVATION_CLASSIFICATION' | translate }}:</label>
+          </div>
+          <div class="data-center" >
+            <span>{{ workItem.classification }}</span>
+          </div>
+
+          <div class="mt-2" [ngClass]="{'text-right': isRtl}" *ngIf="workItem.hasOwnProperty('govtEntity') && workItem.govtEntity">
+            <label class="page-sub-title">{{ 'GOVT_ENTITIES' | translate }}:</label>
+          </div>
+          <div class="data-center" *ngIf="workItem.hasOwnProperty('govtEntity') && workItem.govtEntity">
+            <span>{{ workItem?.govtEntity?.replaceAll(",",", ") }}</span>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="isAdmin">
+          <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+            <label class="page-sub-title">{{ 'G&PA_NOTES_TRAIL' | translate }}:</label>
+          </div>
+          <div class="data-notes" [ngClass]="{'text-right': isRtl}">
+            <div *ngFor="let obsNote of workItem.observationNotes; let i = index">
+              <div>
+                <span>
+                  <!--
+                  <label
+                    class="font-weight-bold mb-0">{{i+1}})&nbsp;{{obsNote.addedDate}}&nbsp;by&nbsp;{{obsNote.addedBy}}&nbsp;({{obsNote.departmentName}}):</label>&nbsp;
+                  {{obsNote.notes}}
+                -->
+                  <p class="font-weight-bold mb-0">
+                    {{i+1}}) {{obsNote.addedDate}} by {{obsNote.addedBy}} ({{obsNote.departmentName}}): <span class="font-weight-normal">{{obsNote.notes}}   </span>
+                   </p>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-9 pr-0">
+              <div class="rtl-direction">
+                <mat-form-field class="w-100 text-right border-textarea b-t-0">
+                  <textarea matInput [(ngModel)]="gandpaNotes" [matTextareaAutosize]=true [matAutosizeMinRows]=1
+                    [disabled]="stepUnqName == 'GPA-Pending-Extraction'" [matAutosizeMaxRows]=2></textarea>
+                </mat-form-field>
+              </div>              
+            </div>
+            <div class="col-md-3 align-center ">
+              <button mat-mini-fab class="b-blue c-white ml-2 align-center"
+              (click)="onSend()" [ngClass]="isRtl? '':'float-right mb-0'"
+              [disabled]="(gandpaNotes.length === 0 || gandpaNotes.trim() == '') || gandpaNotes == '' || stepUnqName == 'GPA-Pending-Extraction' "
+              matTooltip="{{ 'ADDG&PANOTE' | translate }}">
+              <mat-icon>add</mat-icon>
+             </button>
+              <!-- <button mat-raised-button class="b-blue c-white" (click)="onSend()" [ngClass]="isRtl? '':'float-right mb-2'"
+              [disabled]="(gandpaNotes.length === 0 || gandpaNotes.trim() == '') || gandpaNotes == '' || stepUnqName == 'GPA-Pending-Extraction' ">
+              {{ 'SEND' | translate }}</button> -->
+            </div>
+          </div>
+          <!-- <div class="mt-n2"> -->
+            <!-- <button mat-raised-button class="b-blue c-white" (click)="onSend()" [ngClass]="isRtl? '':'float-right mb-2'"
+              [disabled]="(gandpaNotes.length === 0 || gandpaNotes.trim() == '') || gandpaNotes == '' || stepUnqName == 'GPA-Pending-Extraction' ">
+              {{ 'SEND' | translate }}</button> -->
+          <!-- </div> -->
+        </ng-container>
+        <ng-container *ngIf="isAdmin">
+          <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+            <label class="page-sub-title rtl-direction pb-0 pt-0 mt-0 mb-0">{{ 'SERIOUS_NOTES' | translate }}:</label>
+          </div>
+          <div class="row">
+            <div class="col-md-8 pr-0">
+          <div class="rtl-direction">
+            <mat-form-field class="w-100 text-right">
+              <!-- <textarea matInput [(ngModel)]="seriousNotes" [matTextareaAutosize]=true
+                [matAutosizeMaxRows]=5></textarea> -->
+              <mat-select [(value)]="seriousNotes" [disabled]="stepUnqName == 'GPA-Pending-Extraction'">
+                <mat-option *ngFor="let option of seriousNotesOptions" [value]="option.value"
+                  class="rtl-direction text-right">
+                  {{option.value}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+          <div class="col-md-4 align-center">
+            <!--
+            <button mat-raised-button class="b-blue c-white" (click)="onSaveSeriousNotes()"
+              [ngClass]="isRtl? '':'float-right mb-2'"
+              [disabled]="(seriousNotes.length === 0 || seriousNotes.trim() == '') || seriousNotes == '' || stepUnqName == 'GPA-Pending-Extraction'">
+              {{ 'SAVE' | translate }}</button> -->
+              <button mat-raised-button class="w-100 b-blue c-white align-button" (click)="onSaveSeriousNotes()"
+              [ngClass]="isRtl? '':'float-right mb-2'" style="width : 70px !important"
+              [disabled]="(seriousNotes.length === 0 || seriousNotes.trim() == '') || seriousNotes == '' || stepUnqName == 'GPA-Pending-Extraction'">
+              {{ 'SAVE' | translate }}</button> 
+          </div> 
+        </div>
+        </ng-container>
+        <ng-container *ngIf="!isAdmin">
+          <div class="mt-2" [ngClass]="{'text-right': isRtl}">
+            <label class="page-sub-title rtl-direction">{{ 'SERIOUS_NOTES' | translate }}:</label>
+          </div>
+          <div class="data-center">
+            <span>{{seriousNotes}}</span>
+          </div>
+        </ng-container>
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" (click)="onApproveBehalf()"
+            matTooltip="{{ 'APPROVE_ON_BEHALF_DES' | translate }}" matTooltipPosition="above" 
+            *ngIf="workItem.isapproveOnBehalfEnabled && !isSpecialCondition">
+            
+            {{ 'APPROVE_ON_BEHALF' | translate }}</button>
+        </div>
+     <!-- added by venkat 2023-2024-sa2
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-updateRespB c-white" matTooltip="{{ 'RESPOND_ON_BEHALF_DES' | translate }}"
+            matTooltipPosition="above" (click)="onUpdateResponseByAdmin()" *ngIf="isAdmin">
+            Update Response</button>
+        </div>
+                -->
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" matTooltip="{{ 'RESPOND_ON_BEHALF_DES' | translate }}"
+            matTooltipPosition="above" (click)="onRespondOnBehalf()" *ngIf="workItem.isrespondOnBehalfEnabled && !isSpecialCondition">
+            {{ 'RESPOND_ON_BEHALF' | translate }}</button>
+        </div>
+        
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" (click)="onReAssignStaff()"
+            matTooltip="{{ 'RE_ASSIGN_STAFF_DES' | translate }}" matTooltipPosition="above"
+            *ngIf="(!isAdmin && workItem.isreAssignStaffEnabled && !isSpecialCondition) || ( isAdmin && adminReAssignEnabled && workItem.isreAssignStaffEnabled && !isSpecialCondition)">
+            {{ 'RE_ASSIGN_STAFF' | translate }}</button>
+        </div>
+        <div class="mt-2" *ngIf="obsCategory != 'Special Nature'">
+          <button mat-raised-button class="w-100 b-blue c-white" (click)="onReAssignToExecutive()"
+            matTooltip="{{ 'RE_ASSIGN_EXECUTIVE_DES' | translate }}" matTooltipPosition="above"
+            *ngIf="(!isAdmin && workItem.isreAssignExecEnabled && !isSpecialCondition) || (isAdmin && adminReAssignEnabled && workItem.isreAssignExecEnabled && !isSpecialCondition)">
+            {{ 'RE_ASSIGN_EXECUTIVE' | translate }}</button>
+        </div>
+        <div class="mt-2" *ngIf="obsCategory == 'Special Nature'">
+          <button mat-raised-button class="w-100 b-blue c-white" (click)="onReAssignToExecutive()"
+            matTooltip="{{ 'RE_ASSIGN_EXECUTIVE_DES' | translate }}" matTooltipPosition="above"
+            *ngIf="(!isAdmin &&  workItem.isreAssignExecEnabled && !isSpecialNatureSpecialCondition) || (isAdmin &&  workItem.isreAssignExecEnabled && !isSpecialNatureSpecialCondition &&  adminReAssignEnabled)">
+            {{ 'RE_ASSIGN_EXECUTIVE' | translate }}</button>
+        </div>
+        <!-- <div class="mt-2">
+                    <button mat-raised-button class="w-100 b-blue c-white" (click)="onReAssignToCommitte()"
+                        matTooltip="{{ 'RE_ASSIGN_COMMITTEE_DES' | translate }}" matTooltipPosition="above"
+                        *ngIf="workItem.isreAssignCommitteeEnabled && !isSpecialCondition">
+                        {{ 'RE_ASSIGN_COMMITTEE' | translate }}</button>
+                </div> -->
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" (click)="onReAssignToCommitteeHead()"
+            matTooltip="{{ 'RE_ASSIGN_COMMITTEE_HEAD_DES' | translate }}" matTooltipPosition="above"
+            *ngIf="(!isAdmin && workItem.isreAssignCmtHeadEnabled && !isSpecialCondition) || (isAdmin &&  workItem.isreAssignCmtHeadEnabled && !isSpecialCondition &&  adminReAssignEnabled)">
+            {{ 'RE_ASSIGN_COMMITTEE_HEAD' | translate }}</button>
+        </div>
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" (click)="onReAssignToCommitteeFormatter()"
+            matTooltip="{{ 'RE_ASSIGN_COMMITTEE_FORMATTER_DES' | translate }}" matTooltipPosition="above"
+            *ngIf="(!isAdmin && workItem.isreAssignCmtFormatterEnabled && !isSpecialCondition)|| (isAdmin && adminReAssignEnabled && workItem.isreAssignCmtFormatterEnabled && !isSpecialCondition)  ">
+            {{ 'RE_ASSIGN_COMMITTEE_FORMATTER' | translate }}</button>
+        </div>
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white"
+            matTooltip="{{ 'ADD_DEPARTMENT_DES' | translate }}" matTooltipPosition="above" (click)="onShareDept()"
+            *ngIf="workItem.isshareEnabled && !isSpecialCondition"
+            >
+            
+            {{ 'ADD_DEPARTMENT' | translate }}</button>
+        </div>
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white"
+            matTooltip="{{ 'REASSIGN_DEPARTMENT_DES' | translate }}" matTooltipPosition="above"
+            (click)="onTransferDept()" 
+            *ngIf="workItem.istransferEnabled && !isSpecialCondition">
+            
+            {{ 'REASSIGN_DEPARTMENT' | translate }}</button>
+        </div>
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" matTooltip="{{ 'RESPOND_ON_BEHALF_DES' | translate }}"
+            matTooltipPosition="above" (click)="onRespondOnBehalf()"
+            *ngIf="workItem.respondOnBehalf && !isSpecialCondition">
+            {{ 'RESPOND_ON_BEHALF' | translate }}</button>
+        </div>
+        <div class="mt-2" *ngIf="obsCategory != 'Special Nature'">
+          <button mat-raised-button class="w-100 b-blue c-white" matTooltip="{{ 'CANCEL_DES' | translate }}"
+            matTooltipPosition="above" (click)="onCancel()" *ngIf="workItem.iscancleEnabled">
+            {{ 'CANCEL' | translate }}</button>
+        </div>
+        <!--  && !isSpecialCondition   && !isSpecialNatureSpecialCondition-->
+        <div class="mt-2" *ngIf="obsCategory == 'Special Nature'">
+          <button mat-raised-button class="w-100 b-blue c-white" matTooltip="{{ 'CANCEL_DES' | translate }}"
+            matTooltipPosition="above" (click)="onCancel()"
+            *ngIf="workItem.iscancleEnabled">
+            {{ 'CANCEL' | translate }}</button>
+        </div>
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" matTooltip="{{ 'REMOVE_DEPARTMENT_DES' | translate }}"
+            matTooltipPosition="above" (click)="onRemove()" *ngIf="workItem.isremoveEnabled && !isSpecialCondition">
+            {{ 'REMOVE_DEPARTMENT' | translate }}</button>
+        </div>
+
+        <!-- Remove Observation after Decline by Manager-->
+        <div class="mt-2" *ngIf="workItem.isremoveWorkItemEnabled">
+          <button mat-raised-button class="w-100 b-blue c-white" matTooltip="{{ 'REMOVE_DEPARTMENT_DES' | translate }}"
+            matTooltipPosition="above" (click)="onRemoveDepartment()">
+            {{ 'REMOVE_DEPARTMENT' | translate }}</button>
+        </div>
+
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" matTooltip="{{ 'EDIT_RESPONSE_DES' | translate }}"
+            matTooltipPosition="above" (click)="onEditResponse()"
+            *ngIf="workItem.iseditResponseEnabled && !isSpecialCondition">
+            {{ 'EDIT_RESPONSE' | translate }}</button>
+        </div>
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white"
+            matTooltip="{{ 'CHANGE_TO_COMMITTEE_DES' | translate }}" matTooltipPosition="above"
+            (click)="onChangeToCommittee()" *ngIf="workItem.ischangeToCommitteeEnabled">
+            {{ 'CHANGE_TO_COMMITTEE' | translate }}</button>
+        </div>
+      <!-- added by venkat -->
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" (click)="cancelSendBack()"
+            matTooltip="{{ 'CANCEL_SEND_BACK_DSC' | translate }}" matTooltipPosition="above" 
+            *ngIf="workItem.cancelSendBackEnabled">
+            {{ 'CANCEL_SEND_BACK' | translate }}</button>
+        </div>  
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" (click)="onRecall()"
+            matTooltip="{{ 'RECALL_DEC' | translate }}" matTooltipPosition="above" 
+            *ngIf="workItem.isrecallEnabled">
+            {{ 'RECALL' | translate }}</button>
+        </div>
+        <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" matTooltip="{{ 'EMAIL_AS_ATTACHMENT_DES' | translate }}"
+            matTooltipPosition="above" (click)="onEmailDocument()">
+            {{ 'EMAIL_AS_ATTACHMENT' | translate }}</button>
+        </div>
+        <!-- <div class="mt-2">
+          <button mat-raised-button class="w-100 b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+          matTooltip="{{ 'SEND_REMINDER' | translate }}" *ngIf="isAdmin && isSendReminderEnabled" (click)="sendReminder()"> {{ 'SEND_REMINDER' | translate }}
+        </button>
+        </div> -->
+      </div>
+      <div class="col-12 col-lg-9" dir="ltr">
+        <mat-tab-group class="mat-tab-right" *ngIf="!isRtl" (selectedTabChange)="tabClick()">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon">description</mat-icon>
+              {{ 'INITIAL_DETAILS' | translate }} -->
+
+              <div matTooltip= "{{ 'INITIAL_DETAILS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">description</mat-icon> </div>
+                <div><span> {{ 'INITIAL_DETAILS' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div>
+              <mat-tab-group class="mat-tab-right-details">
+                <mat-tab *ngFor="let initialData of workItem.irDetails;let index = index">
+                  <ng-template mat-tab-label>
+                    <!-- {{initialData.reportName}} -->
+                    <label matTooltip= "{{ initialData.reportName == 'Observation' ?' الملاحظة' : initialData.reportName == 'SAB Request' ?'طلب الديوان':'الرد الأولي' }}"   matTooltipClass="f-s-14" 
+                    
+                    class="pointer"> {{initialData.reportName}} </label>
+                   </ng-template>
+                  <div class="row m-0">
+                    <div class="col-12 mt-1" *ngIf="initialData.reportName == 'Observation'">
+                      <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                        (click)="onExapnd(initialData.reportContent)">
+                        {{ 'EXPAND' | translate }}</button>
+                    </div>
+                    <div class="col-12 mt-2" style="    min-height: 36px;" *ngIf="initialData.hasAttachments">
+                      <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                        (click)="viewAttachmentForCycles(initialData)" >
+                        {{ 'ATTACHMENT(S)' | translate }}</button>
+                    </div>
+                  <!-- venkat  <div class="col-12 rtl-direction text-right mt-2">
+                      <p class="initial-report" [innerHTML]="initialData.reportContent | safeHtml"></p>
+                    </div> -->
+                    <div class="col-12 rtl-direction text-right mt-2">
+                      <p id="intialResponseFont" *ngIf="initialData.reportName === 'Initial Response'; else notIRId"
+                      class="initial-report initial-response-font"
+                         [innerHTML]="initialData.reportContent | safeHtml">
+                      </p>
+                      <ng-template #notIRId>
+                        <p  class="initial-report initial-response-font" [innerHTML]="initialData.reportContent | safeHtml"></p>
+                      </ng-template>
+                    </div>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+          </mat-tab>
+          <mat-tab *ngIf="workItem.finalDetailsEnabled">
+            <ng-template mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon">text_snippet</mat-icon>
+              {{ 'FINAL_DETAILS' | translate }} -->
+              <div matTooltip= "{{ 'FINAL_DETAILS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">description</mat-icon> </div>
+                <div><span> {{ 'FINAL_DETAILS' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div>
+              <mat-tab-group class="mat-tab-right-details">
+                <mat-tab *ngFor="let finalData of workItem.frDetails;let index = index">
+
+                  <ng-template mat-tab-label>
+                    
+                    <!-- {{finalData.reportName == 'Final Observation' ? 'Commentary Observation' : finalData.reportName}}  -->
+                    <label matTooltip= "{{ finalData.reportName == 'Observation' ? 'الملاحظة' : finalData.reportName == 'SAB Commentary' ?'تعقيب الديوان': finalData.reportName == 'Semi-Annual 1' ? 'الرد النصف سنوي الأول' :  finalData.reportName != 'Q1 Response' && finalData.reportName != 'Q2 Response' && finalData.reportName != 'Q3 Response' && finalData.reportName != 'Q4 Response' ? 'الرد النصف سنوي الثاني':'' }}" class="pointer"  matTooltipClass="f-s-14"> 
+                      {{finalData.reportName}} </label>
+                  </ng-template>
+
+                  <div class="row m-0">
+                    <div class="col-12 mt-1" *ngIf="finalData.reportName == 'Final Observation' || finalData.reportName == 'Observation'">
+                      <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                        (click)="onExapnd(finalData.reportContent)">
+                        {{ 'EXPAND' | translate }}</button>
+                    </div>
+                    
+                    <div class="col-12 mt-2" style="    min-height: 36px;" *ngIf="finalData.hasAttachments ">
+                      <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                      matTooltip="{{ 'VIEW_RESPONSE_ATTACHMENTS' | translate }}"
+                        (click)="viewAttachmentForCycles(finalData)">
+                        {{ 'ATTACHMENT(S)' | translate }}</button>
+                    </div>
+                 <!--commnted by venkat   
+                 <div class="col-12 rtl-direction text-right"
+                      [ngClass]="{'mt-2': finalData.reportName != 'Final Observation'  || finalData.reportName == 'Observation'}">
+                      <p class="initial-report" [innerHTML]="finalData.reportContent | safeHtml">
+                      </p>
+                      <p class="initial-report" *ngIf="finalData.sabResponse" [innerHTML]="finalData.sabResponse | safeHtml">
+                      </p>
+                    </div> -->
+                    <div class="col-12 rtl-direction text-right"
+                      [ngClass]="{'mt-2': finalData.reportName != 'Final Observation'  || finalData.reportName == 'Observation'}">
+                   
+                      <p id="intialResponseFont" *ngIf="finalData.reportName === 'Semi-Annual 1' || finalData.reportName === 'Semi-Annual 2'; else notIRId"
+                      class="initial-report initial-response-font"[innerHTML]="finalData.reportContent | safeHtml"> </p>                                     
+                      <ng-template #notIRId>
+                        <p class="initial-report" [innerHTML]="finalData.reportContent | safeHtml">
+                        </p>
+                        <p class="initial-report" *ngIf="finalData.sabResponse" [innerHTML]="finalData.sabResponse | safeHtml">
+                        </p>
+                      </ng-template>
+                    </div>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+          </mat-tab>
+          <mat-tab *ngIf="workItem.stepUniqueName != 'G&PA Park' && workItem.stepUniqueName != 'G&PAApprove-EditResponse'">
+            <ng-template mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon">reply</mat-icon>
+              {{ 'RESPONSE' | translate }} -->
+              
+              <div matTooltip="{{ 'RESPONSE_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">reply</mat-icon> </div>
+                <div><span> {{ 'IPR' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div class="rtl-direction text-right">
+              <div class="col-12 mt-2" style="    min-height: 36px;" *ngIf=" workItem.hasAttachments">
+                <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                  (click)="viewAttachment(obsId)"matTooltip="{{ 'VIEW_RESPONSE_ATTACHMENTS' | translate }}"
+                  >
+                  {{ 'ATTACHMENT(S)' | translate }}</button>
+              </div>
+              <div class="col-12 mt-2">
+                <p class="initial-report"  id="intialResponseFont" [innerHTML]="workItem.response | safeHtml"></p>
+              </div>              
+            </div>
+          </mat-tab>
+          <mat-tab >
+            <ng-template (click)="onClickComment();$event.preventDefault()" mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon">chat</mat-icon>
+              {{ 'COMMENTS' | translate }} -->
+              <div matTooltip="{{ 'COMMENTS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">chat</mat-icon> </div>
+                <div ><span> {{ 'COMMENTS' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div class="commentsContainer">
+              <!-- <h1> Obseration Comments</h1> -->
+              <mat-accordion multi>
+              <!-- added by venkat-->
+                <div class="add-comment-section" *ngIf="workItem.isaddCommentEnabled">
+                  <button mat-mini-fab class="b-blue c-white ml-2" (click)="addGPAComment()" 
+                  matTooltip="{{ 'ADD_COMMENT' | translate }}">
+                  <mat-icon>add_comment</mat-icon>
+                </button>
+                </div> 
+                <section *ngFor="let cmnt of workItem.comments; let i = index;">
+                  <mat-expansion-panel [expanded]="cmnt.isExpanded">
+                    <mat-expansion-panel-header (click)="cmnt.isExpanded = !cmnt.isExpanded" class="mat-header text-right"
+                      [ngClass]="{'rtl-direction': cmnt.isArabic}">
+                      <mat-panel-title class="mat-p-title">
+                        {{cmnt.comment}} 
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="comments" style="direction:ltr">
+                      <div class="comment">
+                        <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'SENDER' | translate }}:</label>
+                          <input class="w-100" readonly type="text" [(ngModel)]="cmnt.sender">
+                        </div>
+                        <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'SENT_TO' | translate }}:</label>
+                          <input class="w-100" readonly type="text" [(ngModel)]="cmnt.sentTo">
+                        </div>
+                        <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'STEP_NAME' | translate }}:</label>
+                          <input class="w-100" readonly type="text" [(ngModel)]="cmnt.stepName">
+                        </div>
+                        <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'DATE' | translate }}:</label>
+                          <input class="w-100" readonly type="text"
+                            value="{{cmnt.commentDate | date:'dd/MM/YYYY hh:mm a'}}">
+                        </div>
+                     <!--   <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'COMMENT' | translate }}:</label>
+                          <p class="commentText w-100" style="text-align:right; display: inline-block;">
+                            {{cmnt.comment}}
+                          </p>
+                        </div>
+                      -->
+                      </div>
+                    </div>
+                  </mat-expansion-panel>
+                </section>
+              </mat-accordion>
+            </div>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon">history</mat-icon>
+              {{ 'HISTORY' | translate }} -->
+              <div matTooltip="{{ 'HISTORY_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">history</mat-icon> </div>
+                <div><span> {{ 'HISTORY' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div>
+              <!-- <h1>Observation History</h1> -->
+              <div *ngIf="workItem.reportCycle != 'KNPC Response Report'">
+                <button class="search-btn b-blue c-white my-2 float-right" mat-raised-button (click)="onPastHistory()">
+                  {{ 'PAST_HISTORY' | translate }}
+                </button>
+              </div>
+              <!-- <div >
+                <button class="search-btn b-blue c-white my-2" mat-raised-button (click)="onPastHistory()">
+                  {{ 'PAST_HISTORY' | translate }}
+                </button>
+              </div> -->
+              <table mat-table [dataSource]="workItem.historyList">
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'SEQ' | translate }} </th>
+                  <td mat-cell *matCellDef="let index = index"> {{index + 1}} </td>
+                </ng-container>
+                <ng-container matColumnDef="historyDate">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'RECEIVED_DATE' | translate }} </th>
+                  <td mat-cell *matCellDef="let element">
+                    {{element.historyDate | date:'dd/MM/YYYY hh:mm a'}}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="stepName">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'STEP_NAME' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"> {{element.stepName}} </td>
+                </ng-container>
+                <ng-container matColumnDef="responseTaken">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'RSPONSE_TAKEN' | translate }} </th>
+                  <!-- <td mat-cell *matCellDef="let element" [ngClass]="element.responseTaken.includes('OnBehalf') ? 'text-danger' : ''"> {{element.responseTaken}} </td> -->
+                  <td mat-cell *matCellDef="let element"
+                    [ngClass]="element.responseTaken.includes('Approve On Behalf') ? 'text-danger font-weight-500' : ''">
+                    {{element.responseTaken}}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="from">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'FROM' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"> {{element.from}} </td>
+                </ng-container>
+                <ng-container matColumnDef="to">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'TO' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"> {{element.to}} </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="histortTableColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: histortTableColumns;"></tr>
+              </table>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+        <mat-tab-group class="mat-tab-right" dir="rtl" *ngIf="isRtl" (selectedTabChange)="tabClick()">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon">description</mat-icon>
+              {{ 'INITIAL_DETAILS' | translate }} -->
+
+              <div matTooltip= "{{ 'INITIAL_DETAILS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">description</mat-icon> </div>
+                <div><span> {{ 'INITIAL_DETAILS' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div>
+              <mat-tab-group class="mat-tab-right-details">
+                <mat-tab *ngFor="let initialData of workItem.irDetails;let index = index">
+                  <ng-template mat-tab-label>
+                    <!-- {{initialData.reportName}} -->
+                    <label matTooltip= "{{ initialData.reportName == 'Observation' ?' الملاحظة' : initialData.reportName == 'SAB Request' ?'طلب الديوان':'الرد الأولي' }}"   matTooltipClass="f-s-14"
+                    class="pointer"> {{initialData.reportName}} </label>
+                   </ng-template>
+                  <div class="row m-0">
+                    <div class="col-12 mt-1" *ngIf="initialData.reportName == 'Observation'">
+                      <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                        (click)="onExapnd(initialData.reportContent)">
+                        {{ 'EXPAND' | translate }}</button>
+                    </div>
+                    <div class="col-12 mt-2" style="    min-height: 36px;" *ngIf="initialData.hasAttachments">
+                      <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                      (click)="viewAttachmentForCycles(initialData)" matTooltip="{{ 'VIEW_RESPONSE_ATTACHMENTS' | translate }}">
+                        {{ 'ATTACHMENT(S)' | translate }}</button>
+                    </div>
+                  <!-- venkat  <div class="col-12 rtl-direction text-right"
+                      [ngClass]="{'mt-2': initialData.reportName != 'Observation'}">
+                      <p class="initial-report" [innerHTML]="initialData.reportContent | safeHtml"></p>
+                    </div> -->
+                    <div class="col-12 rtl-direction text-right" [ngClass]="{'mt-2': initialData.reportName != 'Observation'}">
+                      <p id="intialResponseFont" *ngIf="initialData.reportName === 'Initial Response'; else notIRId"                    
+                         class="initial-report initial-response-font"
+                         [innerHTML]="initialData.reportContent | safeHtml">
+                      </p>
+                      <ng-template #notIRId>
+                        <p  class="initial-report initial-response-font" [innerHTML]="initialData.reportContent | safeHtml"></p>
+                      </ng-template>
+                    </div>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon">text_snippet</mat-icon>
+              {{ 'FINAL_DETAILS' | translate }} -->
+              <div matTooltip= "{{ 'FINAL_DETAILS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">description</mat-icon> </div>
+                <div><span> {{ 'FINAL_DETAILS' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div>
+              <mat-tab-group class="mat-tab-right-details">
+                <mat-tab *ngFor="let finalData of workItem.frDetails;let index = index">
+                  <ng-template mat-tab-label>
+                    <!-- {{finalData.reportName}} -->
+                    <label matTooltip= "{{ finalData.reportName == 'Observation' ? 'الملاحظة' : finalData.reportName == 'SAB Commentary' ?'تعقيب الديوان': finalData.reportName == 'Semi-Annual 1' ? 'الرد النصف سنوي الأول' :finalData.reportName != 'Q1 Response' && finalData.reportName != 'Q2 Response' && finalData.reportName != 'Q3 Response' && finalData.reportName != 'Q4 Response' ? 'الرد النصف سنوي الثاني':'' }}" class="pointer"  matTooltipClass="f-s-14"> 
+                      {{finalData.reportName}} </label>
+                   </ng-template>
+                  <div class="row m-0">
+                    <div class="col-12 mt-1" *ngIf="finalData.reportName == 'Final Observation'  || finalData.reportName == 'Observation'">
+                      <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                        (click)="onExapnd(finalData.reportContent)">
+                        {{ 'EXPAND' | translate }}</button>
+                    </div>
+                    <div class="col-12 mt-2" style="    min-height: 36px;" *ngIf="finalData.hasAttachments">
+                      <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                        (click)="viewAttachmentForCycles(finalData)" matTooltip="{{ 'VIEW_RESPONSE_ATTACHMENTS' | translate }}">
+                        {{ 'ATTACHMENT(S)' | translate }}</button>
+                    </div>
+                    <div class="col-12 rtl-direction text-right"
+                      [ngClass]="{'mt-2': finalData.reportName != 'Final Observation'  || finalData.reportName == 'Observation'}">
+                    <!--venkat <p class="initial-report" [innerHTML]="finalData.reportContent | safeHtml"> </p>--> 
+   <p id="intialResponseFont" *ngIf="finalData.reportName === 'Semi-Annual 1' ||  finalData.reportName === 'Semi-Annual 2'; else notIRId"
+   class="initial-report initial-response-font" [innerHTML]="finalData.reportContent | safeHtml">
+                      </p>
+     <ng-template #notIRId>
+     <p  class="initial-report initial-response-font" [innerHTML]="finalData.reportContent | safeHtml"></p>
+     </ng-template>            
+                      
+                    </div>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+            <!-- <div>
+                                        <mat-tab-group class="mat-tab-right-details">
+                                            <mat-tab *ngFor="let finalData of workItem.frDetails">
+                                                <ng-template mat-tab-label>{{finalData.reportName}} </ng-template>
+                                                <div class="rtl-direction text-right mt-3">
+                                                    <p [innerHTML]="finalData.reportContent | safeHtml"></p>
+                                                </div>
+                                            </mat-tab>
+                                        </mat-tab-group>
+                                    </div> -->
+          </mat-tab>
+          <mat-tab *ngIf="workItem.stepUniqueName != 'G&PA Park' && workItem.stepUniqueName != 'G&PAApprove-EditResponse'">
+            <ng-template mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon-rtl">reply</mat-icon>
+              {{ 'RESPONSE' | translate }} -->
+              <div matTooltip="{{ 'RESPONSE_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">reply</mat-icon> </div>
+                <div><span> {{ 'IPR' | translate }}</span></div>
+              </div>
+            </ng-template>
+            
+
+            <div class="col-12 mt-2" 
+            *ngIf="workItem.hasAttachments">
+              <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+              (click)="viewAttachment(obsId)" matTooltip="{{ 'VIEW_RESPONSE_ATTACHMENTS' | translate }}">
+                {{ 'ATTACHMENT(S)' | translate }}</button>
+            </div>
+            <!-- <div class="col-12 rtl-direction text-right">
+              <div class="rtl-direction text-right mt-3 w-100">
+                <p class="initial-report" [innerHTML]="workItem.response | safeHtml"></p>
+              </div>
+            </div> -->
+
+            <div class="col-12 rtl-direction text-right mt-2"
+                     >
+                      <p class="initial-report"  id="intialResponseFont" [innerHTML]="workItem.response | safeHtml"></p>
+              </div>
+          </mat-tab>
+          <mat-tab>
+            <ng-template  (click)="onClickComment();$event.preventDefault()" mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon-rtl">chat</mat-icon>
+              {{ 'COMMENTS' | translate }} -->
+              <div matTooltip="{{ 'COMMENTS_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">chat</mat-icon> </div>
+                <div><span> {{ 'COMMENTS' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div class="commentsContainer">
+              <!-- <h1> Obseration Comments</h1> -->
+              <mat-accordion multi>
+                <!--
+                <div class="add-comment-section">
+                  <button mat-mini-fab class="b-blue c-white ml-2" (click)="sentComment()" 
+                  matTooltip="{{ 'ADD_COMMENT' | translate }}">
+                  <mat-icon>add_comment</mat-icon>
+                </button>
+                </div> -->
+                <section *ngFor="let cmnt of workItem.comments; let i = index;">
+                  <mat-expansion-panel [expanded]="cmnt.isExpanded">
+                    <mat-expansion-panel-header (click)="cmnt.isExpanded = !cmnt.isExpanded" class="mat-header text-right">
+                      <mat-panel-title class="mat-p-title">
+                        {{cmnt.comment}}
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="comments text-right">
+                      <div class="comment">
+                        <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'SENDER' | translate }}:</label>
+                          <input class="w-100" readonly type="text" [(ngModel)]="cmnt.sender">
+                        </div>
+                        <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'SENT_TO' | translate }}:</label>
+                          <input class="w-100" readonly type="text" [(ngModel)]="cmnt.sentTo">
+                        </div>
+                        <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'STEP_NAME' | translate }}:</label>
+                          <input class="w-100" readonly type="text" [(ngModel)]="cmnt.stepName">
+                        </div>
+                        <div class="form-group comment-div">
+                          <label class="mt-2">{{ 'DATE' | translate }}:</label>
+                          <input class="w-100" readonly type="text"
+                            value="{{cmnt.commentDate | date:'dd/MM/YYYY hh:mm a'}}">
+                        </div>
+                      </div>
+                    </div>
+                  </mat-expansion-panel>
+                </section>
+              </mat-accordion>
+            </div>
+          </mat-tab>
+          <mat-tab aria-label=HISTORY>
+            <ng-template mat-tab-label>
+              <!-- <mat-icon class="sab-tab-icon-rtl">history</mat-icon>
+              {{ 'HISTORY' | translate }} -->
+              <div matTooltip="{{ 'HISTORY_TOOLTIP' | translate }}"   matTooltipClass="f-s-14" class="d-content">
+                <div> <mat-icon class="sab-tab-icon">history</mat-icon> </div>
+                <div><span> {{ 'HISTORY' | translate }}</span></div>
+              </div>
+            </ng-template>
+            <div>
+              <!-- <h1>Observation History</h1> -->
+              <div *ngIf="workItem.reportCycle != 'KNPC Response Report'">
+                <button class="search-btn b-blue c-white my-2 float-right" mat-raised-button (click)="onPastHistory()">
+                  {{ 'PAST_HISTORY' | translate }}
+                </button>
+              </div>
+              <table mat-table [dataSource]="workItem.historyList">
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'SEQ' | translate }} </th>
+                  <td mat-cell *matCellDef="let index = index"> {{index + 1}} </td>
+                </ng-container>
+                <ng-container matColumnDef="historyDate">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'RECEIVED_DATE' | translate }} </th>
+                  <td mat-cell *matCellDef="let element">
+                    {{element.historyDate | date:'dd/MM/YYYY hh:mm a'}}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="stepName">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'STEP_NAME' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"> {{element.stepName}} </td>
+                </ng-container>
+                <ng-container matColumnDef="responseTaken">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'RSPONSE_TAKEN' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"
+                    [ngClass]="element.responseTaken.includes('Approve On Behalf') ? 'text-danger font-weight-500' : ''">
+                    {{element.responseTaken}}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="from">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'FROM' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"> {{element.from}} </td>
+                </ng-container>
+                <ng-container matColumnDef="to">
+                  <th mat-header-cell *matHeaderCellDef> {{ 'TO' | translate }} </th>
+                  <td mat-cell *matCellDef="let element"> {{element.to}} </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="histortTableColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: histortTableColumns;"></tr>
+              </table>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </div>
+    <!-- <div class="row">
+            <div class="col-12" *ngIf="isLoading || isDialogLoading" class="loading-indicator">
+                <mat-progress-spinner color="primary" mode="indeterminate">
+                </mat-progress-spinner>
+            </div>
+        </div> -->
+    <div class="row center-block" *ngIf="!isLoading && workItem.obsTitle == ''">
+      <div class="center mt-5">
+        <mat-icon class="center-icon">cloud_queue</mat-icon>
+        <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+      </div>
+    </div>
+  </mat-card>
+</div>

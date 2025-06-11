@@ -1,0 +1,59 @@
+/* src/app/archive-response-notes/archive-response-notes.component.scss */
+.dialog-heading-div {
+  padding: 15px 0;
+  margin: 0 -24px;
+  background: #3253ab;
+  color: #fff;
+  cursor: move;
+}
+
+.table-container {
+  max-height: 300px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+}
+
+tr.mat-header-row {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-header-cell {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+th.mat-header-cell:first-child,
+td.mat-cell:first-child {
+  padding-left: 10px !important;
+}
+th.mat-header-cell:last-child,
+td.mat-cell:last-child {
+  padding-right: 10px !important;
+}
+th.mat-header-cell,
+td.mat-cell {
+  padding: 10px !important;
+}
+
+.center {
+  text-align: center;
+}
+.center-icon {
+  font-size: 48px;
+  color: rgba(0, 0, 0, 0.3);
+}
+.center-text {
+  display: block;
+  margin-top: 8px;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 767px) {
+  .table-container {
+    max-height: none;
+  }
+}

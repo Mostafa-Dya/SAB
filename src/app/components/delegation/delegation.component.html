@@ -1,0 +1,302 @@
+<div class="container-flud" (window:resize)="onResize($event)" >
+  <mat-card class="main-card">
+    <div class="row">
+      <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+        <mat-icon class="bread-page-heading-icon">supervisor_account</mat-icon>
+        <span class="page-heading">{{ 'DELEGATION' | translate }}</span>
+      </div>
+      <div class="col-12 delegation-tabs" *ngIf="!isLoading">
+        <mat-tab-group class="mat-tab-right" (selectedTabChange)="onTabChange($event)"
+          [selectedIndex]="selectedTab == 'self' ? 0 : 1">
+          <mat-tab *ngIf="!isAdmin">
+            <ng-template mat-tab-label>
+              <mat-icon class="sab-tab-icon">call_missed_outgoing</mat-icon>
+              {{ 'SELF_DELEGATION' | translate }}
+            </ng-template>
+            <div class="col-12 mt-2" *ngIf="!isLoading">
+              <form [formGroup]="addDelegateUserForm" (ngSubmit)="addDelegateUser()">
+                <div class="row">
+                  <div class="col-12 col-lg-4 col-xl-3">
+                    <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'DELEGATE_TO' | translate }}
+                      </mat-label>
+                      <input type="text" matInput formControlName="delegateUser" [matAutocomplete]="auto">
+                      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+                        <mat-option *ngFor="let user of filteredUser | async" [value]="user"
+                          [ngClass]="{'rtl-direction text-right': isRtl}">
+                          {{user.userName}} ({{user.loginId}})
+                        </mat-option>
+                      </mat-autocomplete>
+                      <mat-error *ngIf="errorHandling('delegateUser', 'required')">
+                        <strong>{{'DELEGATE_TO' | translate}}</strong> {{'IS_REQUIRED' | translate}}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                   <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'FROM' | translate }}
+                      </mat-label>
+                      <input matInput [matDatepicker]="from" [min]="minDate" formControlName="from"
+                        (dateChange)="changeFrom($event)">
+                      <mat-datepicker-toggle matSuffix [for]="from"></mat-datepicker-toggle>
+                      <mat-datepicker #from></mat-datepicker>
+                      <mat-error *ngIf="errorHandling('from', 'required')">
+                        <strong>{{'FROM_DATE' | translate}}</strong> {{'IS_REQUIRED' | translate}}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                    <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'TO' | translate }}
+                      </mat-label>
+                      <input matInput [matDatepicker]="to"  (dateChange)="changeTo()" formControlName="to" [disabled]="isToDisable"
+                        [min]="minToDate">
+                      <mat-datepicker-toggle matSuffix [for]="to"></mat-datepicker-toggle>
+                      <mat-datepicker #to></mat-datepicker>
+                      <mat-error *ngIf="errorHandling('to', 'required') &&  msg == ''">
+                        <strong>{{'TO_DATE' | translate}}</strong> {{'IS_REQUIRED' | translate}}
+                      </mat-error>
+                    </mat-form-field>
+                    <mat-error class="to-date-error" *ngIf="msg != ''">
+                      <strong >{{'TO_DATE' | translate}}</strong><span>{{msg}}</span><strong >{{'FROM_DATE' | translate}}</strong>
+                    </mat-error>
+                  </div>
+                  <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                    <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'Reason' | translate }}
+                      </mat-label>
+                      <!-- <input matInput formControlName="reason"> -->
+
+                      <textarea matInput formControlName="reason" [matTextareaAutosize]=true [matAutosizeMinRows]=1
+                        [matAutosizeMaxRows]=1 #message maxlength="100"></textarea>
+                      <mat-hint align="end">{{message.value.trim().length}} / 100</mat-hint>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-12 col-lg-2">
+                    <button class="search-btn b-blue aa c-white" [disabled]="isButtonDisabled" mat-raised-button [ngClass]="{'float-right': isRtl}">
+                      {{ 'ADD' | translate }}
+                    </button>
+                    <button class="search-btn-mob b-blue bb c-white" [ngClass]="isRtl ? 'float-left' : 'float-right'"
+                      mat-raised-button>
+                      {{ 'ADD' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="sab-tab-icon">reply</mat-icon>
+              {{ 'DELEGATION_TO_OTHERS' | translate }}
+            </ng-template>
+            <div class="col-12 mt-2" *ngIf="!isLoading">
+              <form [formGroup]="addToDelegateForm" (ngSubmit)="addDelegateToOthers()">
+                <div class="row">
+                  <div class="col-12 col-lg-4 col-xl-3">
+                    <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'DELEGATE_FROM' | translate }}
+                      </mat-label>
+                      <input #searchInput type="text" matInput formControlName="userData"
+                        (ngModelChange)="getUserDataForAdmin($event.target)" [matAutocomplete]="auto1"
+                        (change)="checkFromUser($event.target)">
+                      <mat-autocomplete #auto1="matAutocomplete" [displayWith]="displayFn"
+                        (optionSelected)="selectedUser()">
+                        <div *ngIf="(isAdmin && searchInput.value.length >= 3) || !isAdmin">
+                          <mat-option *ngFor="let users of filteredUserData | async" [value]="users"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{users.userName}} ({{users.loginId}})
+                          </mat-option>
+                        </div>
+                      </mat-autocomplete>
+                      <mat-error *ngIf="errorHandling('delegateUser', 'required')">
+                        <strong>{{ 'DELEGATE_FROM' | translate }}</strong> {{'IS_REQUIRED' | translate}}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-12 col-lg-4 col-xl-3">
+                    <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'DELEGATE_TO' | translate }}
+                      </mat-label>
+                      <input type="text" matInput formControlName="delegateUserData" [matAutocomplete]="auto2">
+                      <mat-autocomplete #auto2="matAutocomplete" [displayWith]="displayFn">
+                        <mat-option *ngFor="let users of filteredDelegateData | async" [value]="users"
+                          [ngClass]="{'rtl-direction text-right': isRtl}">
+                          {{users.userName}} ({{users.loginId}})
+                        </mat-option>
+                      </mat-autocomplete>
+                      <mat-error *ngIf="errorHandling('delegateUser', 'required')">
+                        <strong> {{ 'DELEGATE_TO' | translate }}</strong> {{'IS_REQUIRED' | translate}}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                    <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'FROM' | translate }}
+                      </mat-label>
+                      <input matInput [matDatepicker]="from" [min]="minDate" formControlName="from"
+                        (dateChange)="changeFrom($event)">
+                      <mat-datepicker-toggle matSuffix [for]="from"></mat-datepicker-toggle>
+                      <mat-datepicker #from></mat-datepicker>
+                      <mat-error *ngIf="errorHandling('from', 'required')">
+                        <strong>{{'FROM_DATE' | translate}}</strong> {{'IS_REQUIRED' | translate}}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                    <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'TO' | translate }}
+                      </mat-label>
+                      <input matInput [matDatepicker]="to"  (dateChange)="changeTo()" formControlName="to" [disabled]="isToDisable"
+                        [min]="minToDate">
+                      <mat-datepicker-toggle matSuffix [for]="to"></mat-datepicker-toggle>
+                      <mat-datepicker #to></mat-datepicker>
+                      <mat-error *ngIf="errorHandling('to', 'required') && msg == ''">
+                        <strong>{{'TO_DATE' | translate}}</strong> {{'IS_REQUIRED' | translate}}
+                      </mat-error>
+                    </mat-form-field>
+                    <mat-error class="to-date-error" *ngIf="msg != ''">
+                      <strong >{{'TO_DATE' | translate}}</strong><span>{{msg}}</span><strong >{{'FROM_DATE' | translate}}</strong>
+                    </mat-error>
+                  </div>
+                  <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                    <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                      <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'Reason' | translate }}
+                      </mat-label>
+                      <!-- <input matInput formControlName="reason"> -->
+                      <textarea matInput formControlName="reason" [matTextareaAutosize]=true [matAutosizeMinRows]=1
+                        [matAutosizeMaxRows]=1 #message maxlength="100"></textarea>
+                      <mat-hint align="end">{{message.value.trim().length}} / 100</mat-hint>
+                    </mat-form-field>
+                  </div>
+                  <!-- <div class="col-12 col-lg-2">
+                                        <button class="search-btn b-blue c-white mt-3" mat-raised-button
+                                            [ngClass]="{'float-right': isRtl}" >
+                                            {{ 'ADD' | translate }}
+                                        </button>
+                                        <button class="search-btn-mob b-blue c-white mt-3"
+                                            [ngClass]="isRtl ? 'float-left' : 'float-right'" mat-raised-button >
+                                            {{ 'ADD' | translate }}
+                                        </button>
+                                    </div> -->
+                  <div class="col-12">
+                    <button [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'" mat-raised-button 
+                      class="b-blue c-white mt-2">
+                      {{ 'ADD' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+      <div class="col-12 mt-4 hide-mob" *ngIf="dataSource && dataSource.data.length > 0 && innerWidth > 991">
+        <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}">
+          <ng-container matColumnDef="delegateFrom">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+              {{ 'DELEGATE_FROM' | translate }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.fromUserName}} </td>
+          </ng-container>
+          <ng-container matColumnDef="user">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+              {{ 'DELEGATE_TO' | translate }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.toUserName}} </td>
+          </ng-container>
+          <ng-container matColumnDef="from">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+              {{ 'FROM' | translate }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.delegationFrom | date:'dd/MM/YYYY'}} </td>
+          </ng-container>
+          <ng-container matColumnDef="to">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+              {{ 'TO' | translate }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.delegationTo | date:'dd/MM/YYYY'}} </td>
+          </ng-container>
+          <ng-container matColumnDef="reason">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+              {{ 'REASON' | translate }} </th>
+            <td mat-cell *matCellDef="let element">
+              {{element.delegationReason}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="addedBy">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+              {{ 'ADDED_BY' | translate }} </th>
+            <td mat-cell *matCellDef="let element">
+              <!-- {{element.createDate | date:'dd/MM/YYYY'}} -->
+              {{element.addedByUserName}}
+            </td>
+          </ng-container>
+          <!-- <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'STATUS' | translate }} </th>
+                        <td mat-cell *matCellDef="let element">
+                            <span *ngIf="element.active">Active</span>
+                            <span *ngIf="!element.active">Inactive</span>
+                        </td>
+                    </ng-container> -->
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">{{'ACTION' |translate}}</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-icon  matTooltip="{{ 'EDIT_DELEGATION' | translate }}" class="cursor-pointer" (click)="editDelegation(element)">edit</mat-icon>
+              <mat-icon  matTooltip="{{ 'DELETE_DELEGATION' | translate }}" class="text-danger cursor-pointer" (click)="deleteDelegation(element)">delete</mat-icon>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="0" hidePageSize
+          showFirstLastButtons dir="ltr">
+        </mat-paginator>
+      </div>
+      <div class="col-12 mt-4 show-mob" *ngIf="dataSource && dataSource.data.length > 0 && innerWidth <= 991">
+        <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}" multiTemplateDataRows>
+          <ng-container matColumnDef="delegateFrom">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element" class="title-td">
+              {{element.fromUserName}}
+              <mat-icon class="text-danger delete-mob" (click)="deleteDelegation(element)">delete
+              </mat-icon>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="expandedDetail">
+            <td class="expanded-td" mat-cell *matCellDef="let element" [attr.colspan]="displayedColumnsMob.length">
+              <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                <div class="col-12 expanded-content">{{element.delegationFrom | date:'dd/MM/YYYY'}} -
+                  {{element.delegationTo | date:'dd/MM/YYYY'}}
+                </div>
+                <div class="col-12 expanded-content">{{element.toUserName}}</div>
+                <!-- <div class="col-12 expanded-content">
+                                    <span *ngIf="element.active">InActive</span>
+                                    <span *ngIf="!element.active">Inactive</span>
+                                </div> -->
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;" style="cursor: pointer;"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+        </table>
+        <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageIndex]="0" hidePageSize
+          showFirstLastButtons dir="ltr">
+        </mat-paginator>
+      </div>
+    </div>
+    <div class="row center-block" *ngIf="!dataSource || (dataSource && dataSource.data.length == 0) && !isLoading">
+      <div class="center mt-5">
+        <mat-icon class="center-icon">cloud_queue</mat-icon>
+        <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+      </div>
+    </div>
+  </mat-card>
+</div>
