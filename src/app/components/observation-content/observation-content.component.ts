@@ -26,7 +26,7 @@ export interface Entities {
 @Component({
   selector: 'app-observation-content',
   templateUrl: './observation-content.component.html',
-  styleUrls: ['./observation-content.component.css']
+  styleUrls: ['./observation-content.component.scss']
 })
 export class ObservationContentComponent implements OnInit {
   isRtl: any;

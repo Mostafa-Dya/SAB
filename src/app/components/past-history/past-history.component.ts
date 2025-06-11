@@ -11,7 +11,7 @@ export interface HistoryData {
 @Component({
   selector: 'app-past-history',
   templateUrl: './past-history.component.html',
-  styleUrls: ['./past-history.component.css']
+  styleUrls: ['./past-history.component.scss']
 })
 export class PastHistoryComponent implements OnInit {
   histortTableColumns: string[] = ['id', 'historyDate', 'stepName', 'responseTaken', 'from', 'to'];

@@ -7,7 +7,7 @@ import { MatSort } from '@angular/material/sort';
 @Component({
   selector: 'app-g&pa-member-details',
   templateUrl: './g&pa-member-details.component.html',
-  styleUrls: ['./g&pa-member-details.component.css']
+  styleUrls: ['./g&pa-member-details.component.scss']
 })
 export class GPAMemberDetailsComponent implements OnInit {
   isRtl: any;

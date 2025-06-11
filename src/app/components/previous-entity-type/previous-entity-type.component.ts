@@ -5,7 +5,7 @@ import { SharedVariableService } from '../../services/shared-variable.service';
 @Component({
   selector: 'app-previous-entity-type',
   templateUrl: './previous-entity-type.component.html',
-  styleUrls: ['./previous-entity-type.component.css']
+  styleUrls: ['./previous-entity-type.component.scss']
 })
 export class PreviousEntityTypeComponent implements OnInit {
   

@@ -25,7 +25,7 @@ export interface Entities {
 @Component({
   selector: 'app-send-response',
   templateUrl: './send-response.component.html',
-  styleUrls: ['./send-response.component.css']
+  styleUrls: ['./send-response.component.scss']
 })
 export class SendResponseComponent implements OnInit {
   public Editor = ClassicEditor;

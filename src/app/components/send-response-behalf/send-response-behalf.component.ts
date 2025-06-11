@@ -26,7 +26,7 @@ export interface Entities {
 @Component({
   selector: 'app-send-response-behalf',
   templateUrl: './send-response-behalf.component.html',
-  styleUrls: ['./send-response-behalf.component.css']
+  styleUrls: ['./send-response-behalf.component.scss']
 })
 export class SendResponseBehalfComponent implements OnInit {
   public Editor = ClassicEditor;

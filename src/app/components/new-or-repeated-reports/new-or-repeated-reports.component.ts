@@ -33,7 +33,7 @@ export interface NewOrRepeated {
 @Component({
   selector: 'app-new-or-repeated-reports',
   templateUrl: './new-or-repeated-reports.component.html',
-  styleUrls: ['./new-or-repeated-reports.component.css']
+  styleUrls: ['./new-or-repeated-reports.component.scss']
 })
 export class NewOrRepeatedReportsComponent implements OnInit {
   isRtl: any;

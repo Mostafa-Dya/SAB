@@ -42,7 +42,7 @@ export interface ObservationData {
 @Component({
   selector: 'app-search-observations',
   templateUrl: './search-observations.component.html',
-  styleUrls: ['./search-observations.component.css']
+  styleUrls: ['./search-observations.component.scss']
 })
 export class SearchObservationsComponent implements OnInit {
   isRtl: any;

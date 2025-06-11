@@ -6,7 +6,7 @@ import { SharedVariableService } from '../../../services/shared-variable.service
 @Component({
   selector: 'dialog-elements-example-dialog',
   templateUrl: './information-dialog.component.html',
-  styleUrls: ['./information-dialog.component.css']
+  styleUrls: ['./information-dialog.component.scss']
 })
 export class InformationDialog {
   isRtl: any;

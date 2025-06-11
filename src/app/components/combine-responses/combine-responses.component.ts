@@ -62,7 +62,7 @@ type SpecialYear = (typeof SPECIAL_YEARS)[number];
 @Component({
   selector: 'app-combine-responses',
   templateUrl: './combine-responses.component.html',
-  styleUrls: ['./combine-responses.component.css'],
+  styleUrls: ['./combine-responses.component.scss'],
   standalone: true,
   imports: [SharedModule, CKEditorModule],
 })
