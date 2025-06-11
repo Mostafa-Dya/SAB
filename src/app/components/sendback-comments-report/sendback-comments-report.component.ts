@@ -61,7 +61,7 @@ export interface DateTable {
 @Component({
   selector: 'app-sendback-comments-report',
   templateUrl: './sendback-comments-report.component.html',
-  styleUrls: ['./sendback-comments-report.component.css']
+  styleUrls: ['./sendback-comments-report.component.scss']
 })
 
 export class SendBackCommentsReportComponent implements OnInit {

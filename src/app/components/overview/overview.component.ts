@@ -13,7 +13,7 @@ import * as ClassicEditor from '../../../../public/assets/js/ck-editor-plugin/ck
 @Component({
   selector: 'app-overview',
   templateUrl: './overview.component.html',
-  styleUrls: ['./overview.component.css']
+  styleUrls: ['./overview.component.scss']
 })
 export class OverviewComponent implements OnInit,AfterViewInit  {
   @ViewChild('topElement') topElement: ElementRef;

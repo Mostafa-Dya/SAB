@@ -11,7 +11,7 @@ import { CoreService } from 'src/app/services/core.service';
 @Component({
   selector: 'app-select-supervisor',
   templateUrl: './select-supervisor.component.html',
-  styleUrls: ['./select-supervisor.component.css']
+  styleUrls: ['./select-supervisor.component.scss']
 })
 export class SelectSupervisorComponent implements OnInit {
   isRtl: any;

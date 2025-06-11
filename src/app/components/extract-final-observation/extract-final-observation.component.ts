@@ -7,7 +7,7 @@ import { SharedVariableService } from 'src/app/services/shared-variable.service'
 @Component({
   selector: 'app-extract-final-observation',
   templateUrl: './extract-final-observation.component.html',
-  styleUrls: ['./extract-final-observation.component.css']
+  styleUrls: ['./extract-final-observation.component.scss']
 })
 export class ExtractFinalObservationComponent implements OnInit {
   isRtl: any;

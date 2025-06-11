@@ -26,7 +26,7 @@ export interface Entities {
 @Component({
   selector: 'app-update-response-admin',
   templateUrl: './update-response-admin.component.html',
-  styleUrls: ['./update-response-admin.component.css']
+  styleUrls: ['./update-response-admin.component.scss']
 })
 export class UpdateResponseAdminComponent implements OnInit {
 	

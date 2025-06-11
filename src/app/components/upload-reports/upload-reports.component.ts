@@ -16,7 +16,7 @@ export interface ReportType {
 @Component({
   selector: 'app-upload-reports',
   templateUrl: './upload-reports.component.html',
-  styleUrls: ['./upload-reports.component.css']
+  styleUrls: ['./upload-reports.component.scss']
 })
 export class UploadReportsComponent implements OnInit {
   isRtl: any;

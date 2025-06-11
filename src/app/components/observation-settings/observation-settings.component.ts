@@ -19,7 +19,7 @@ export interface ObservationSettingsData {
 @Component({
   selector: 'app-observation-settings',
   templateUrl: './observation-settings.component.html',
-  styleUrls: ['./observation-settings.component.css']
+  styleUrls: ['./observation-settings.component.scss']
 })
 export class ObservationSettingsComponent implements OnInit {
   dataSource: MatTableDataSource<ObservationSettingsData>;

@@ -38,7 +38,7 @@ let ELEMENT_DATA:  committeeData[] = [
 @Component({
   selector: 'app-pending-observations-report',
   templateUrl: './pending-observations-report.component.html',
-  styleUrls: ['./pending-observations-report.component.css']
+  styleUrls: ['./pending-observations-report.component.scss']
 })
 export class PendingObservationsReportComponent implements OnInit {
  

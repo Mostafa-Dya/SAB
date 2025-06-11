@@ -11,7 +11,7 @@ import { ExpandContentComponent } from '../../expand-content/expand-content.comp
 @Component({
   selector: 'app-observation-details',
   templateUrl: './observation-details.component.html',
-  styleUrls: ['./observation-details.component.css'],
+  styleUrls: ['./observation-details.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
 export class ObservationDetailsReportComponent implements OnInit {

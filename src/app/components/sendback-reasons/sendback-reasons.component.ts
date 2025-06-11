@@ -15,7 +15,7 @@ export interface SendBackReason {
 @Component({
   selector: 'app-sendback-reasons',
   templateUrl: './sendback-reasons.component.html',
-  styleUrls: ['./sendback-reasons.component.css']
+  styleUrls: ['./sendback-reasons.component.scss']
 })
 export class SendBackReasonsComponent implements OnInit {
   histortTableColumns: string[] = ['id', 'sentFrom', 'sentTo','rejectedDate','rejectReason'];

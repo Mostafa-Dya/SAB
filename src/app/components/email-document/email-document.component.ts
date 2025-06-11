@@ -14,7 +14,7 @@ import { CoreService } from 'src/app/services/core.service';
 @Component({
   selector: 'app-email-document',
   templateUrl: './email-document.component.html',
-  styleUrls: ['./email-document.component.css']
+  styleUrls: ['./email-document.component.scss']
 })
 export class EmailDocumentComponent implements OnInit {
   isRtl: any;

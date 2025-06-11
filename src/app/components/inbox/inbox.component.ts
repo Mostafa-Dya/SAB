@@ -44,7 +44,7 @@ export interface PeriodicElement {
 @Component({
   selector: 'app-inbox',
   templateUrl: './inbox.component.html',
-  styleUrls: ['./inbox.component.css']
+  styleUrls: ['./inbox.component.scss']
 })
 export class InboxComponent implements OnInit {
   displayedColumns: string[] = ['select', 'type', 'obsSeq', 'obsTitle', 'receievedDate', 'reportName', 'deptName', 'sentToMultipleDept', 'responseStatus'];

@@ -25,7 +25,7 @@ export interface ReportData {
 @Component({
   selector: 'app-search-reports',
   templateUrl: './search-reports.component.html',
-  styleUrls: ['./search-reports.component.css']
+  styleUrls: ['./search-reports.component.scss']
 })
 export class SearchReportsComponent implements OnInit {
   isRtl: any;
