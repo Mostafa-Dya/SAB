@@ -130,6 +130,11 @@
   width: 35px;
 }
 
+/** Minimum width utilities */
+.min-w-160 {
+  min-width: 160px;
+}
+
 .rtl-direction th.mat-header-cell {
   text-align: right !important;
 }
