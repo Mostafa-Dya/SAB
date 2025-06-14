@@ -113,6 +113,12 @@ export class DelegationComponent implements OnInit, OnDestroy {
     reason: FormControl<string | null>;
   }>;
 
+  /** Convenience accessor for the delegateUserData control */
+  get delegateUserDataControl(): FormControl<Users | null> {
+    return this.addToDelegateForm.get('delegateUserData') as FormControl<Users | null>;
+  }
+
+
   /** Holds the user info from localStorage */
   userInformation: any;
   loginId: string | undefined;
