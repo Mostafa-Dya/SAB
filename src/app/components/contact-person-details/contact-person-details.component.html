@@ -1,17 +1,17 @@
-<div [ngClass]="{ 'rtl-direction': isRtl }">
+<div [ngClass]="{ 'rtl-direction': isRtl() }">
   <div
     class="dialog-heading-div"
-    [ngClass]="{ 'text-right': isRtl }"
+    [ngClass]="{ 'text-right': isRtl() }"
     appDraggableDialog
   >
-    <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">
+    <span class="page-title" [ngClass]="isRtl() ? 'mr-4' : 'ml-4'">
       {{ data.dialogHeader | translate }}
     </span>
   </div>
 
   <mat-dialog-content
     class="mat-typography hide-x mt-4"
-    [ngClass]="{ 'text-right': isRtl }"
+    [ngClass]="{ 'text-right': isRtl() }"
   >
     <!-- If no records present -->
     <div class="w-half" *ngIf="dataSource && dataSource.data.length === 0">
@@ -25,14 +25,14 @@
       <table
         mat-table
         [dataSource]="dataSource"
-        [ngClass]="{ 'text-right': isRtl }"
+        [ngClass]="{ 'text-right': isRtl() }"
       >
         <!-- DEPARTMENT -->
         <ng-container matColumnDef="department">
           <th
             mat-header-cell
             *matHeaderCellDef
-            [ngClass]="{ 'text-right': isRtl }"
+        [ngClass]="{ 'text-right': isRtl() }"
           >
             {{ "Handled Department" | translate }}
           </th>
@@ -46,7 +46,7 @@
           <th
             mat-header-cell
             *matHeaderCellDef
-            [ngClass]="{ 'text-right': isRtl }"
+            [ngClass]="{ 'text-right': isRtl() }"
           >
             {{ "Name" | translate }}
           </th>
@@ -60,7 +60,7 @@
           <th
             mat-header-cell
             *matHeaderCellDef
-            [ngClass]="{ 'text-right': isRtl }"
+            [ngClass]="{ 'text-right': isRtl() }"
           >
             {{ "Email" | translate }}
           </th>
@@ -74,7 +74,7 @@
           <th
             mat-header-cell
             *matHeaderCellDef
-            [ngClass]="{ 'text-right': isRtl }"
+            [ngClass]="{ 'text-right': isRtl() }"
           >
             {{ "Phone Number" | translate }}
           </th>
