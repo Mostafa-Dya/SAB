@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
@@ -8,7 +7,6 @@ import * as moment from 'moment';
 import { CoreService } from 'src/app/services/core.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { DelegationMessagesService } from '../../services/delegation-messages.service';
 import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 export const MY_FORMATS = {
@@ -23,20 +21,9 @@ export const MY_FORMATS = {
   }
 };
 @Component({
-  standalone: true,
   selector: 'app-edit-delegation-dialog',
   templateUrl: './edit-delegation-dialog.component.html',
-  styleUrls: ['./edit-delegation-dialog.component.scss'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatButtonModule,
-  ],
+  styleUrls: ['./edit-delegation-dialog.component.css'],
   providers: [
     {
       provide: DateAdapter,
@@ -58,14 +45,10 @@ export class EditDelegationDialogComponent implements OnInit {
   updateData: any;
   isButtonDisabled = false;
   msg: any = '';
-  constructor(private sharedVariableService: SharedVariableService,
-    private fb: FormBuilder,
-    private coreService: CoreService,
+  constructor(private sharedVariableService: SharedVariableService, private fb: FormBuilder, private coreService: CoreService,
     private _loading: LoadingService,
     private notification: NzNotificationService,
-    private msgService: DelegationMessagesService,
-    public dialogRef: MatDialogRef<EditDelegationDialogComponent>,
-    private ref: ChangeDetectorRef,
+    public dialogRef: MatDialogRef<EditDelegationDialogComponent>, private ref: ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   ngOnInit(): void {
@@ -138,9 +121,9 @@ export class EditDelegationDialogComponent implements OnInit {
       this._loading.setLoading(false, url);
       this.dialogRef.close({ 'event': response }); 
       this.notification.create(
-        'success',
-        'Success',
-        this.msgService.updateSuccess
+        "success",
+        "Success",
+        "Delegation edited successfully"
       );
      
     }, error => {
@@ -148,7 +131,7 @@ export class EditDelegationDialogComponent implements OnInit {
       
       this.isLoading = false;
       this._loading.setLoading(false, url);
-      this.notification.create('error', 'Error', this.msgService.updateError);
+      this.notification.create('error', 'Error', "Failed to update delegation");
       console.log('error :', error);
     });
   }
