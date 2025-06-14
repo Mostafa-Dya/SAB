@@ -1,142 +1,203 @@
-import { I } from '@angular/cdk/keycodes';
-import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
-import { SabMember } from 'src/app/models/sab-member';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { DraggableDialogDirective } from '../../shared/directives/draggable-dialog.directive';
+import { SabMember } from '../../models/sab-member.model';
+import { SharedModule } from '../../shared/modules/shared.module';
 
 @Component({
   selector: 'app-assign-to-executive',
+  standalone: true,
   templateUrl: './assign-to-executive.component.html',
-  styleUrls: ['./assign-to-executive.component.css']
+  styleUrls: ['./assign-to-executive.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SharedModule, DraggableDialogDirective],
 })
-export class AssignToExecutiveComponent implements OnInit {
-  displayedColumns: string[] = ['select', 'loginId', 'userName', 'departmentName', 'cmntButton'];
-  displayedColumnsMob: string[] = ['select', 'loginId'];
-  isGeneralCmntEnabled: boolean = true;
-  selectedExecutive: SabMember[] = [];
-  groupComment: String = '';
-  liveItems: number;
-  public managersDS = new MatTableDataSource<SabMember>();
-  public dceosDS = new MatTableDataSource<SabMember>();
-  isRtl: any;
-  dialougeType: String = '';
-  activeParticipants: number;
-  isAssignButtonEnabled: boolean = true;
-  executiveData:any;
-  constructor(
-    public dialogRef: MatDialogRef<AssignToExecutiveComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private sharedVariableService: SharedVariableService
-  ) {
-    this.executiveData = data;
-    this.dialougeType = this.executiveData.dialougeType;
-    this.activeParticipants = this.executiveData.activeParticipants;
-    dialogRef.disableClose = true;
+export class AssignToExecutiveComponent {
+  /* ------------------ injections ------------------ */
+  private readonly shared = inject(SharedVariableService);
+  private readonly dialogRef =
+    inject<MatDialogRef<AssignToExecutiveComponent>>(MatDialogRef);
+  private readonly data = inject<any>(MAT_DIALOG_DATA);
+
+  /* ------------------ RTL signal ------------------ */
+  readonly isRtl = toSignal(this.shared.isRtl$, { initialValue: false });
+
+  /* ------------------ dialog context -------------- */
+  readonly dialougeType: 'Assign' | 'ReAssign' = this.data.dialougeType;
+  private readonly activeParticipants: number =
+    this.data.activeParticipants ?? 0;
+  private readonly liveItems: number = this.data.execUsers?.liveItems ?? 0;
+  readonly hideManagerTab: boolean = !!this.data.isManagerTabHide;
+
+  /* ------------------ data-sources ----------------- */
+  readonly dceosDS = new MatTableDataSource<SabMember>(
+    (this.data.execUsers.dceos ?? []) as SabMember[]
+  );
+  readonly managersDS = new MatTableDataSource<SabMember>(
+    (this.data.execUsers.managers ?? []) as SabMember[]
+  );
+
+  /* ------------------ state signals --------------- */
+  /** true → show general-comment textarea; false → per-row comments */
+  readonly isGeneralCmntEnabled = signal<boolean>(true);
+
+  /** array of currently selected executives */
+  private readonly _selectedExecs = signal<SabMember[]>([]);
+
+  /** expose length for header badge */
+  readonly selectedCount = computed(() => this._selectedExecs().length);
+
+  /** group-level comment textarea */
+  groupComment = '';
+
+  /* ------ displayed-columns (desktop / mobile) ---- */
+  readonly displayedColumns = signal<string[]>([
+    'select',
+    'loginId',
+    'userName',
+    'departmentName',
+    'cmntButton',
+  ]);
+  readonly displayedColumnsMob = ['select', 'loginId'] as const;
+
+  /* -------------- assign-button disabled -------------- */
+  readonly assignDisabled = computed(() =>
+    this.isAssignButtonDisabled(
+      this.dialougeType,
+      this.liveItems,
+      this.activeParticipants,
+      this.selectedCount()
+    )
+  );
+
+  /* ==================== ctor ==================== */
+  constructor() {
+    /* keep MatTableDataSource filtering reactive */
+    this.dceosDS.filterPredicate = this.defaultFilter;
+    this.managersDS.filterPredicate = this.defaultFilter;
+
+    this.dialogRef.disableClose = true;
   }
 
-  ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-    this.managersDS.data = this.executiveData.execUsers.managers;
-    this.dceosDS.data = this.executiveData.execUsers.dceos;
-    this.liveItems = this.executiveData.execUsers.liveItems;
+  /* ================= filter helpers =============== */
+  filterManagers(event: Event): void {
+    const v = (event.target as HTMLInputElement).value;
+    this.managersDS.filter = v.trim().toLowerCase();
+  }
+  filterDCEO(event: Event): void {
+    const v = (event.target as HTMLInputElement).value;
+    this.dceosDS.filter = v.trim().toLowerCase();
+  }
+  private defaultFilter(data: SabMember, filter: string): boolean {
+    return (
+      (data.loginId + data.userName + data.departmentName)
+        .toLowerCase()
+        .indexOf(filter) !== -1
+    );
   }
 
-  filterManagers(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.managersDS.filter = filterValue.trim().toLowerCase();
+  /* =============== comment-mode toggles ============== */
+  enableRowComments(): void {
+    this.isGeneralCmntEnabled.set(false);
+    this.displayedColumns.set([
+      'select',
+      'loginId',
+      'userName',
+      'departmentName',
+      'cmntText',
+    ]);
+  }
+  enableGeneralComment(): void {
+    this.isGeneralCmntEnabled.set(true);
+    this.displayedColumns.set([
+      'select',
+      'loginId',
+      'userName',
+      'departmentName',
+      'cmntButton',
+    ]);
   }
 
-  filterDCEO(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dceosDS.filter = filterValue.trim().toLowerCase();
-  }
-
-  removeTableComments() {
-    this.isGeneralCmntEnabled = true;
-    this.displayedColumns = ['select', 'loginId', 'userName', 'departmentName', 'cmntButton'];
-  }
-
-  addTableComments() {
-    this.isGeneralCmntEnabled = false;
-    this.displayedColumns = ['select', 'loginId', 'userName', 'departmentName', 'cmntText'];
-  }
-
-  onExecutiveSelection(sabMember: SabMember) {
-    if (sabMember.checked) {
-      this.selectedExecutive.push(sabMember);
+  /* =============== row checkbox toggle =============== */
+  onExecutiveSelection(row: SabMember): void {
+    row.checked = !row.checked;
+    const sel = [...this._selectedExecs()];
+    if (row.checked) {
+      sel.push(row);
     } else {
-      this.selectedExecutive.forEach((item, index) => {
-        if (item.loginId === sabMember.loginId) this.selectedExecutive.splice(index, 1);
-      });
+      const idx = sel.findIndex((e) => e.loginId === row.loginId);
+      if (idx !== -1) sel.splice(idx, 1);
     }
-    if(this.dialougeType =='ReAssign' && this.selectedExecutive.length != 0){
-      if(this.liveItems==2){
-        if(this.selectedExecutive.length == 2){
-          this.isAssignButtonEnabled  = true;
-          }else if(this.selectedExecutive.length ==1){
-           this.isAssignButtonEnabled  = false;
-          }else{
-           this.isAssignButtonEnabled  = true;
-          }
-      }
-      else{
-      if(this.activeParticipants == 1 && this.selectedExecutive.length <= 2){
-      this.isAssignButtonEnabled  = false;
-      }else if(this.activeParticipants == 1 && this.selectedExecutive.length ==1){
-       this.isAssignButtonEnabled  = false;
-      }else if(this.activeParticipants == 2 && this.selectedExecutive.length ==1){
-       this.isAssignButtonEnabled  = false;
-      }else{
-       this.isAssignButtonEnabled  = true;
-      }
-    }
-     }else if(this.dialougeType =='Assign' && this.selectedExecutive.length != 0){
-      if(this.liveItems==2){
-        if(this.selectedExecutive.length == 1){
-          this.isAssignButtonEnabled  = false;
-          }else if(this.selectedExecutive.length ==2){
-           this.isAssignButtonEnabled  = true;
-          }else{
-           this.isAssignButtonEnabled  = true;
-          }
-      }
-      else{
-       if(this.activeParticipants == 1 && this.selectedExecutive.length == 1){
-       this.isAssignButtonEnabled  = false;
-       }else if(this.activeParticipants == 0 && this.selectedExecutive.length <=2){
-        this.isAssignButtonEnabled  = false;
-       }else{
-        this.isAssignButtonEnabled  = true;
-       }
-      }
-    }
-      else{
-       this.isAssignButtonEnabled  = true;
-      }
+    this._selectedExecs.set(sel);
   }
 
-  onAddExecutiveComment(sabMember: SabMember) {
-    sabMember.comment = sabMember.comment.trim();
-    if (sabMember.checked) {
-      this.selectedExecutive.forEach((item, index) => {
-        if (item.loginId === sabMember.loginId) this.selectedExecutive.splice(index, 1);
-      });
-      this.selectedExecutive.push(sabMember);
-    } else {
-      this.selectedExecutive.forEach((item, index) => {
-        if (item.loginId === sabMember.loginId) this.selectedExecutive.splice(index, 1);
-      });
+  /* =============== textarea change on a row ========= */
+  onAddExecutiveComment(row: SabMember): void {
+    row.comment = (row.comment ?? '').trim();
+    /* ensure the row is in the selection set so comment is captured */
+    if (row.checked) {
+      this.onExecutiveSelection(row); // will toggle off, so toggle again
+      this.onExecutiveSelection(row);
     }
   }
 
+  /* ================= SEND ================= */
   onSendToExecutives(): void {
-    var _result = {
-      groupComment: this.groupComment.trim(),
-      selectedExecutives: this.selectedExecutive
-    };
-    this.dialogRef.close({ event: 'Send', data: _result });
+    this.dialogRef.close({
+      event: 'Send',
+      data: {
+        groupComment: this.groupComment.trim(),
+        selectedExecutives: this._selectedExecs(),
+      },
+    });
+  }
+
+  /* ============ legacy truth-table ============ */
+  private isAssignButtonDisabled(
+    type: 'Assign' | 'ReAssign',
+    liveItems: number,
+    activeParticipants: number,
+    selected: number
+  ): boolean {
+    /* the original component set *disabled* flag (true → button disabled)   */
+    if (selected === 0) return true;
+
+    if (type === 'ReAssign') {
+      if (liveItems === 2) {
+        return selected !== 1; // enable only when exactly one selected
+      }
+      if (activeParticipants === 1) return selected > 2;
+      if (activeParticipants === 2) return selected !== 1;
+      return true;
+    }
+
+    /* Assign */
+    if (liveItems === 2) return selected !== 1;
+
+    if (activeParticipants === 1) return selected !== 1;
+    if (activeParticipants === 0) return selected > 2;
+
+    return true;
   }
 }

@@ -1,145 +1,165 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
-import { Department } from 'src/app/models/department';
-import { StaffMemebr } from 'src/app/models/staff-member';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { StaffMemebr } from '../../models/staff-member.model';
+import { DraggableDialogDirective } from '../../shared/directives/draggable-dialog.directive';
+import { SharedModule } from '../../shared/modules/shared.module';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 
 @Component({
   selector: 'app-assign-to-staff',
+  standalone: true,
   templateUrl: './assign-to-staff.component.html',
-  styleUrls: ['./assign-to-staff.component.css']
+  styleUrls: ['./assign-to-staff.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    SharedModule,
+    DraggableDialogDirective,
+  ],
 })
-export class AssignToStaffComponent implements OnInit {
-  displayedColumns: string[] = ['select', 'loginId', 'userName', 'ecmJobTitle', 'cmntButton'];
-  displayedColumnsMob: string[] = ['select', 'loginId'];
-  isGeneralCmntEnabled: boolean = true;
-  isAssignButtonEnabled: boolean = true;
-  selectedStaff: StaffMemebr[] = [];
-  isGroupCommentsEnabled: false;
-  groupComment: string = '';
-  departmentData:Department;
-  isRtl: any;
-  dialougeType: string = '';
-  activeParticipants: number;
-  liveItems: number;
-  public tlDS = new MatTableDataSource<any>();
-  public engDS = new MatTableDataSource<any>();
-  btnValue: string;
-  isStaffTabHide = false;
-  constructor(
-    public dialogRef: MatDialogRef<AssignToStaffComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private sharedVariableService: SharedVariableService
-  ) {
-    
-    this.departmentData = data.departmentData;
-    this.dialougeType = data.dialougeType;
-    this.activeParticipants = data.activeParticipants;
-    this.liveItems =  data.departmentData.liveItems;
-    dialogRef.disableClose = true;
-    if(this.dialougeType == 'ASSIGN_STAFF') {
-      this.btnValue = 'ASSIGN';
-    } else {
-      this.btnValue = 'RE_ASSIGN';
+export class AssignToStaffComponent {
+  /* ---------------- injections ---------------- */
+  private readonly shared = inject(SharedVariableService);
+  private readonly dialogRef =
+    inject<MatDialogRef<AssignToStaffComponent>>(MatDialogRef);
+  public readonly data = inject<any>(MAT_DIALOG_DATA);
+
+  /* ---------------- rtl ----------------------- */
+  readonly isRtl = toSignal(this.shared.isRtl$, { initialValue: false });
+
+  /* ------- dialog context & DS ---------------- */
+  readonly dialougeType: 'ASSIGN_STAFF' | 'RE_ASSIGN_STAFF' =
+    this.data.dialougeType;
+  private readonly activeParticipants: number = this.data.activeParticipants ?? 0;
+  private readonly liveItems: number = this.data.departmentData?.liveItems ?? 0;
+
+  readonly tlDS = new MatTableDataSource<StaffMemebr>(
+    (this.data.departmentData.tls ?? []) as StaffMemebr[]
+  );
+  readonly engDS = new MatTableDataSource<StaffMemebr>(
+    (this.data.departmentData.engs ?? []) as StaffMemebr[]
+  );
+
+  /* ---------------- state signals ------------- */
+  readonly isGeneralCmntEnabled = signal<boolean>(true);
+  private readonly _selected = signal<StaffMemebr[]>([]);
+  readonly selectedCount = computed(() => this._selected().length);
+
+  readonly displayedColumns = signal<string[]>([
+    'select',
+    'loginId',
+    'userName',
+    'ecmJobTitle',
+    'cmntButton',
+  ]);
+  readonly displayedColumnsMob = ['select', 'loginId'] as const;
+
+  groupComment = '';
+  readonly btnLabel =
+    this.dialougeType === 'ASSIGN_STAFF' ? 'ASSIGN' : 'RE_ASSIGN';
+
+  readonly assignDisabled = computed(() =>
+    this.disableButton(
+      this.dialougeType,
+      this.liveItems,
+      this.activeParticipants,
+      this.selectedCount(),
+      this._selected().map((s) => s.divisionCode)
+    )
+  );
+
+  constructor() {
+    this.dialogRef.disableClose = true;
+  }
+
+  /* ========== selection & comment ========== */
+  onStaffSelection(row: StaffMemebr): void {
+    row.checked = !row.checked;
+    const sel = [...this._selected()];
+    row.checked ? sel.push(row) : sel.splice(sel.indexOf(row), 1);
+    this._selected.set(sel);
+  }
+
+  onAddStaffComment(row: StaffMemebr): void {
+    row.comment = (row.comment ?? '').trim();
+    if (row.checked) {
+      this.onStaffSelection(row);
+      this.onStaffSelection(row);
     }
   }
 
-  ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-    this.tlDS.data = this.departmentData.tls;
-    this.engDS.data = this.departmentData.engs;
+  /* ========== comment mode toggle ========== */
+  enableRowComments(): void {
+    this.isGeneralCmntEnabled.set(false);
+    this.displayedColumns.set([
+      'select',
+      'loginId',
+      'userName',
+      'ecmJobTitle',
+      'cmntText',
+    ]);
+  }
+  enableGeneralComment(): void {
+    this.isGeneralCmntEnabled.set(true);
+    this.displayedColumns.set([
+      'select',
+      'loginId',
+      'userName',
+      'ecmJobTitle',
+      'cmntButton',
+    ]);
   }
 
-  onStaffSelection(staffMember: StaffMemebr) {
-    if (staffMember.checked) {
-      this.selectedStaff.push(staffMember);
-    } else {
-      this.selectedStaff.forEach((item, index) => {
-        if (item.loginId === staffMember.loginId) this.selectedStaff.splice(index, 1);
-      });
-    }
-    if(this.dialougeType =='RE_ASSIGN_STAFF' && this.selectedStaff.length != 0){
-      if(this.liveItems==2){
-        if(this.selectedStaff.length == 1){
-          this.isAssignButtonEnabled  = false;
-          }else if(this.selectedStaff.length ==2){
-            this.isAssignButtonEnabled  = true;
-          }else{
-           this.isAssignButtonEnabled  = true;
-          }
-      }else{
-     if(this.activeParticipants == 1 && this.selectedStaff.length <= 2){
-     this.isAssignButtonEnabled  = false;
-     }else if(this.activeParticipants == 1 && this.selectedStaff.length ==1){
-      this.isAssignButtonEnabled  = false;
-     }else if(this.activeParticipants == 2 && this.selectedStaff.length ==1){
-      this.isAssignButtonEnabled  = false;
-     }else{
-      this.isAssignButtonEnabled  = true;
-     }
-    }
-    }else if(this.dialougeType =='ASSIGN_STAFF' && this.selectedStaff.length != 0){
-      if(this.liveItems==2){
-        if(this.selectedStaff.length == 1){
-          this.isAssignButtonEnabled  = false;
-          }else if(this.selectedStaff.length ==2){
-            this.isAssignButtonEnabled  = true;
-          }else{
-           this.isAssignButtonEnabled  = true;
-          }
-      }else{
-      if(this.activeParticipants == 1 && this.selectedStaff.length == 1){
-      this.isAssignButtonEnabled  = false;
-      }else if(this.activeParticipants == 0 && this.selectedStaff.length <=2){
-       this.isAssignButtonEnabled  = false;
-      }else{
-       this.isAssignButtonEnabled  = true;
-      }
-    }
-     }else{
-      this.isAssignButtonEnabled  = true;
-     }
-     if(this.selectedStaff.length==2){
-      let  member1 = this.selectedStaff[0];
-      let member2 = this.selectedStaff[1];  
-      if(member1.divisionCode == member2.divisionCode){
-        this.isAssignButtonEnabled  = true;
-      }   
-      }
-  }
-
-  addTableComments() {
-    this.isGeneralCmntEnabled = false;
-    this.displayedColumns = ['select', 'loginId', 'userName', 'ecmJobTitle', 'cmntText'];
-  }
-
-  removeTableComments() {
-    this.isGeneralCmntEnabled = true;
-    this.displayedColumns = ['select', 'loginId', 'userName', 'ecmJobTitle', 'cmntButton'];
-  }
-
-  onAddStaffComment(staffMember: StaffMemebr) {
-    staffMember.comment =  staffMember.comment.trim()
-    if (staffMember.checked) {
-      this.selectedStaff.forEach((item, index) => {
-        if (item.loginId === staffMember.loginId) this.selectedStaff.splice(index, 1);
-      });
-      this.selectedStaff.push(staffMember);
-    } else {
-      this.selectedStaff.forEach((item, index) => {
-        if (item.loginId === staffMember.loginId) this.selectedStaff.splice(index, 1);
-      });
-    }
-  }
-
+  /* ================= SEND ================= */
   onSendToDepartments(): void {
-    var _result = {
-      groupComment: this.groupComment.trim(),
-      selectedStaff: this.selectedStaff
-    };
-    this.dialogRef.close({ event: 'Send', data: _result });
+    this.dialogRef.close({
+      event: 'Send',
+      data: {
+        groupComment: this.groupComment.trim(),
+        selectedStaff: this._selected(),
+      },
+    });
+  }
+
+  /* ========== enable/disable logic ========== */
+  private disableButton(
+    type: 'ASSIGN_STAFF' | 'RE_ASSIGN_STAFF',
+    liveItems: number,
+    active: number,
+    sel: number,
+    divisions: number[]
+  ): boolean {
+    if (sel === 0) return true;
+    if (sel === 2 && divisions[0] === divisions[1]) return true;
+
+    const re = type === 'RE_ASSIGN_STAFF';
+
+    if (liveItems === 2) return sel !== 1;
+
+    if (active === 1) return sel > (re ? 2 : 1);
+    if (!re && active === 0) return sel > 2;
+    if (re && active === 2) return sel !== 1;
+
+    return false;
   }
 }

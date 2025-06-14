@@ -1,11 +1,21 @@
-import { Component, OnInit, Inject, ViewChild } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatAutocomplete } from '@angular/material/autocomplete';
+import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
+
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith } from 'rxjs/operators';
-declare var $: any;
+import { Observable } from 'rxjs';
+
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { DraggableDialogDirective } from '../../shared/directives/draggable-dialog.directive';
+import { SharedModule } from '../../shared/modules/shared.module';
+
 interface Committee {
   departmentCode: number;
   departmentName: string;
@@ -16,137 +26,134 @@ interface Committee {
   userName: string;
   userJobTitle: string;
 }
-
 interface CommitteeGroup {
-  jobTitle: string;
-  committee: Committee[];
-}
-
-interface FormattedGroup {
   jobTitle: string;
   committee: Committee[];
 }
 
 @Component({
   selector: 'app-assign-to-committee',
+  standalone: true,
   templateUrl: './assign-to-committee.component.html',
-  styleUrls: ['./assign-to-committee.component.css']
+  styleUrls: ['./assign-to-committee.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DraggableDialogDirective, SharedModule],
 })
-export class AssignToCommitteeComponent implements OnInit {
-  isRtl: any;
-  committeeControl = new FormControl();
-  formattedControl = new FormControl();
-  committeeGroups: any[];
-  formattedGroups: FormattedGroup[];
-  groupComment: String = '';
-  dialougeType: any;
-  selectedHeads : any;
-  selectedFormatted : any;
-  filteredOptions: Observable<any[]>;
-  formattedFilteredOptions:FormattedGroup[];
-  @ViewChild('auto') matAutocomplete: MatAutocomplete;
-  constructor(
-    public dialogRef: MatDialogRef<AssignToCommitteeComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private sharedVariableService: SharedVariableService
-  ) {
-    dialogRef.disableClose = true;
-    this.dialougeType = data.dialougeType;
+export class AssignToCommitteeComponent {
+  /* ---------------- view refs ---------------- */
+  @ViewChild('auto', { static: false })
+  private readonly auto!: MatAutocompleteTrigger;
 
-    this.committeeGroups = data.committeeusers;
-    this.committeeGroups = [
-      {
-        jobTitle: 'CEO',
-        committee: data.committeeusers.committeeHeadCEOs
-      }, {
-        jobTitle: 'DCEO',
-        committee: data.committeeusers.committeeHeadDCEOs
-      },
-       {
-        jobTitle: 'Manager',
-        committee: data.committeeusers.committeeHeadManagers
-      }, 
-      {
-        jobTitle: 'Team Leader',
-        committee: data.committeeusers.committeeHeadTls
-      }
-    ];
+  /* --------------- injected --------------- */
+  private readonly shared = inject(SharedVariableService);
+  private readonly dialogRef = inject(MatDialogRef<AssignToCommitteeComponent>);
+  private readonly data = inject<any>(MAT_DIALOG_DATA);
 
-    this.formattedGroups = [
-      {
-        jobTitle: 'CEO',
-        committee: data.committeeusers.formatterCEOs
-      }, {
-        jobTitle: 'DCEO',
-        committee: data.committeeusers.formatterDCEOs
-      }
-    ]
-  }
+  /* --------------- rtl -------------------- */
+  readonly isRtl = toSignal(this.shared.isRtl$, { initialValue: false });
 
-  ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
+  /* --------------- dialog flavour --------- */
+  readonly dialougeType: string = this.data.dialougeType;
 
+  /* --------------- form controls ---------- */
+  readonly committeeControl = new FormControl<string>('', {
+    nonNullable: true,
+  });
+  readonly formattedControl = new FormControl<string>('', {
+    nonNullable: true,
+  });
 
-    this.filteredOptions = this.committeeControl.valueChanges.pipe(
+  /* --------------- raw groups ------------- */
+  readonly committeeGroups: CommitteeGroup[] = [
+    { jobTitle: 'CEO', committee: this.data.committeeusers.committeeHeadCEOs },
+    {
+      jobTitle: 'DCEO',
+      committee: this.data.committeeusers.committeeHeadDCEOs,
+    },
+    {
+      jobTitle: 'Manager',
+      committee: this.data.committeeusers.committeeHeadManagers,
+    },
+    {
+      jobTitle: 'Team Leader',
+      committee: this.data.committeeusers.committeeHeadTls,
+    },
+  ];
+
+  readonly formattedGroups: CommitteeGroup[] = [
+    { jobTitle: 'CEO', committee: this.data.committeeusers.formatterCEOs },
+    { jobTitle: 'DCEO', committee: this.data.committeeusers.formatterDCEOs },
+  ];
+
+  /* --------------- runtime picks ---------- */
+  selectedHead?: Committee;
+  selectedFormatter?: Committee;
+
+  /* --------------- computed streams ------- */
+  readonly filteredOptions$: Observable<CommitteeGroup[]> =
+    this.committeeControl.valueChanges.pipe(
       startWith(''),
-      map(value => value ? this._filter(value) : this.committeeGroups),
+      map((value) =>
+        value ? this.filterCommittees(value) : this.committeeGroups
+      ),
+      takeUntilDestroyed()
     );
 
-
+  constructor() {
+    this.dialogRef.disableClose = true;
   }
 
-  private _filter(value: string): any[] {
-  
-    const filterValue = value.toLowerCase();
-    let isNew = true;
-    let filter = [];
-    for(let j = 0 ; j < this.committeeGroups.length ; j++){  
-      for(let i = 0 ; i < this.committeeGroups[j].committee.length ; i++){     
-        if(this.committeeGroups[j].committee[i].userName.toLowerCase().includes(filterValue) || this.committeeGroups[j].committee[i].loginId.toLowerCase().includes(filterValue) || this.committeeGroups[j].jobTitle.toLowerCase().includes(filterValue)){          
-          if(!isNew){
-            isNew = false;           
-            let index = filter.length -1;          
-            filter[index].committee.push(this.committeeGroups[j].committee[i]);
-          }else{
-            filter.push(
-              {
-                jobTitle: this.committeeGroups[j].jobTitle,
-                committee: [this.committeeGroups[j].committee[i]]
-              },
-            );
-            isNew = false;
-          }         
-        }
-        if(this.committeeGroups[j].committee.length - 1 == i){
-          isNew = true;
-        }
+  /* =================  helpers  ================= */
+
+  private filterCommittees(value: string): CommitteeGroup[] {
+    const term = value.toLowerCase();
+    const result: CommitteeGroup[] = [];
+
+    for (const grp of this.committeeGroups) {
+      const matches = grp.committee.filter(
+        (c) =>
+          c.userName.toLowerCase().includes(term) ||
+          c.loginId.toLowerCase().includes(term) ||
+          grp.jobTitle.toLowerCase().includes(term)
+      );
+      if (matches.length) {
+        result.push({ jobTitle: grp.jobTitle, committee: matches });
       }
     }
-    return filter;
+    return result;
   }
 
-  closeButton() {
-    $('.mat-autocomplete-panel.mat-autocomplete-visible').css('visibility', 'hidden');
-    $('.close-button').css('display', 'none');
-    this.committeeControl.reset('');
-    this.selectedHeads = null;
+  /** clear the selected head & reopen autocomplete */
+  clearHead(): void {
+    this.selectedHead = undefined;
+    this.committeeControl.setValue('');
+    queueMicrotask(() => this.auto?.openPanel());
   }
 
-  onSend(): void {
-    var _result = {
-      groupComment: this.groupComment.trim(),
-      selectedHeads: this.selectedHeads,
-      selectedFormatters : this.selectedFormatted
-    };
-    this.dialogRef.close({ event: 'Send', data: _result });
+  /** user picked a committee head */
+  headPicked(c: Committee): void {
+    this.selectedHead = c;
+    this.committeeControl.setValue(`${c.loginId} - ${c.userName}`);
+    // Narrow formatter list only after head chosen
   }
-  committeeChange(committee:any){
-    this.selectedHeads = committee
-    this.formattedFilteredOptions = this.formattedGroups
+
+  /** user picked a formatter */
+  formatterPicked(c: Committee): void {
+    this.selectedFormatter = c;
   }
-  committeeFormattedChange(committee:any){
-    this.selectedFormatted = committee;
+
+  /** primary action (Assign / Change / Re-Assign) */
+  submit(): void {
+    this.dialogRef.close({
+      event: 'Send',
+      data: {
+        groupComment: this.groupComment.trim(),
+        selectedHeads: this.selectedHead,
+        selectedFormatters: this.selectedFormatter,
+      },
+    });
   }
+
+  /* =============== template-bound fields =============== */
+  groupComment = '';
 }

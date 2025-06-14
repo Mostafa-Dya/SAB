@@ -1,197 +1,210 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+/* src/app/components/classification-count-report/classification-count-report.component.ts */
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { ConfigService } from 'src/app/services/config.service';
-import { CoreService } from 'src/app/services/core.service';
-import { LoadingService } from 'src/app/services/loading.service';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import { Subscription } from 'rxjs';
+import { ConfigService } from '../../services/config.service';
+import { CoreService } from '../../services/core.service';
+import { LoadingService } from '../../services/loading.service';
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { environment } from '../../../environments/environment';
+import { SharedModule } from '../../shared/modules/shared.module';
 
-export interface Years {
+interface Years {
   value: string;
 }
-
-export interface ReportType {
+interface ReportType {
   value: string;
   name: string;
 }
-
-export interface Department {
+interface Department {
   id: string;
   name: string;
 }
-
-export interface ReportData {
-  count: string;
+interface ReportData {
+  count: number;
   type: string;
 }
 
 @Component({
   selector: 'app-classification-count-report',
   templateUrl: './classification-count-report.component.html',
-  styleUrls: ['./classification-count-report.component.css']
+  styleUrls: ['./classification-count-report.component.scss'],
+  standalone: true,
+  imports: [SharedModule],
 })
+export class ClassificationCountReportComponent implements OnInit, OnDestroy {
+  /* ─────────────── View & reactive-form ─────────────── */
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  countForm!: FormGroup;
 
-export class ClassificationCountReportComponent implements OnInit {
-
-  isRtl: any;
-  dataSource: MatTableDataSource<ReportData>;
-  displayedColumns: string[] = ['count', 'type'];
-  displayedColumnsMob: string[] = ['count'];
-  selectedYear: string;
-  selectedReport: string = 'All';
-  selectedDepartment: string = '0';
-  isLoading: boolean = false;
-  mainUrl: string;
-  countForm: FormGroup;
-  fiscalYear = new FormControl();
-  types = new FormControl();
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  /* ─────────────── UI helpers ─────────────── */
+  dataSource?: MatTableDataSource<ReportData>;
+  displayedColumns = ['count', 'type'];
+  displayedColumnsMob = ['count'];
   years: Years[] = [];
+  departmentValue: Department[] = [{ id: '0', name: 'All' }];
   reportType: ReportType[] = [
-    // { value: 'KNPC Response Report', name: 'KNPC_RESPONSE_REPORT' },
     { value: 'SAB Quarterly Report Q1', name: 'SAB_QUARTERLY_REPORT_Q1' },
     { value: 'SAB Quarterly Report Q2', name: 'SAB_QUARTERLY_REPORT_Q2' },
     { value: 'SAB Quarterly Report Q3', name: 'SAB_QUARTERLY_REPORT_Q3' },
     { value: 'SAB Quarterly Report Q4', name: 'SAB_QUARTERLY_REPORT_Q4' },
     { value: 'SAB Semi-annual Report 1', name: 'SAB_SEMI_ANNUAL_REPORT_1' },
-    { value: 'SAB Semi-annual Report 2', name: 'SAB_SEMI_ANNUAL_REPORT_2' }
-  ];;
-  departmentValue: Department[] = [
-    { id: "0", name: "All" },
+    { value: 'SAB Semi-annual Report 2', name: 'SAB_SEMI_ANNUAL_REPORT_2' },
   ];
 
-  constructor(
-    private coreService: CoreService,
-    private sharedVariableService: SharedVariableService,
-    private configService: ConfigService,
-    private _loading: LoadingService,
-    private notification: NzNotificationService,
-    private fb: FormBuilder,
-  ) { }
+  /* ─────────────── State flags ─────────────── */
+  isLoading = false;
+  selectedDepartment = '0'; // bound with [(ngModel)]
+  mainUrl = environment.baseUrl;
+  private subs = new Subscription();
 
+  constructor(
+    private fb: FormBuilder,
+    private core: CoreService,
+    private loading: LoadingService,
+    private shared: SharedVariableService
+  ) {}
+
+  /* ─────────────── Lifecycle ─────────────── */
   ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-    this.countForm = this.fb.group({
-      fiscalYear: [null, [Validators.required]],
-      types: [null, [Validators.required]],
-    });
-    this.mainUrl = this.configService.baseUrl;
-    this.getYear();
-    this.getDepartmentData();
-    // this.search();
+    this.buildForm();
+    this.populateYears();
+    this.populateDepartments();
   }
 
-  public errorHandling = (control: string, error: string) => {
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
+  /* ─────────────── Form helpers ─────────────── */
+  private buildForm(): void {
+    this.countForm = this.fb.group({
+      fiscalYear: [null, Validators.required],
+      types: [null, Validators.required],
+    });
+  }
+
+  errorHandling(control: string, error: string): boolean {
     return this.countForm.controls[control].hasError(error);
   }
 
-  getYear() {
-    let url = 'uploadReportController/getReportYears';
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      response.map((data: any) => {
-        this.years.push({ value: data })
-      })
-      this.years.reverse();
-      setTimeout(() => {
-        this.selectedYear = this.years[0].value;
-        this.countForm.controls.fiscalYear.reset(this.years[0].value)
-        this.selectedReport = this.reportType[0].value
-        this.countForm.controls.types.reset(this.reportType[0].value);
-      }, 1000)
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :' , error);
-    });
+  /* ─────────────── RTL helper ─────────────── */
+  isRtl() {
+    return this.shared.isRtl$;
+  }
+  get labelClass(): string {
+    return this.isRtl() ? 'main-label-rtl' : 'main-label';
+  }
+  get isMobile(): boolean {
+    return window.innerWidth <= 991;
   }
 
-  getDepartmentData() {
-    this.departmentValue = [
-      { id: "0", name: "All" }
-    ];
-    let url = 'UserController/getsabDepartments?directorateId=0';
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
-        this.departmentValue.push({ id: key, name: response[key] })
-      })
-      this.departmentValue.sort((a, b) => {
-        let fa = a.name.toLowerCase(),
-          fb = b.name.toLowerCase();
+  /* ─────────────── Initial dropdown data ─────────────── */
+  private populateYears(): void {
+    const url = 'uploadReportController/getReportYears';
+    this.loading.setLoading(true, url);
 
-        if (fa < fb) {
-          return -1;
-        }
-        if (fa > fb) {
-          return 1;
-        }
-        return 0;
-      });
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :' , error);
+    const sub = this.core.get<string[]>(url).subscribe({
+      next: (res) => {
+        this.years = res.map((v) => ({ value: v })).reverse();
+        this.countForm.patchValue({ fiscalYear: this.years[0]?.value });
+      },
+      error: (err) => console.error(err),
+      complete: () => this.loading.setLoading(false, url),
     });
+    this.subs.add(sub);
   }
 
-  search() {
-    if (this.countForm.status == "INVALID") {
+  private populateDepartments(): void {
+    const url = 'UserController/getsabDepartments?directorateId=0';
+    this.loading.setLoading(true, url);
+
+    const sub = this.core.get<Record<string, string>>(url).subscribe({
+      next: (res) => {
+        Object.entries(res).forEach(([id, name]) =>
+          this.departmentValue.push({ id, name })
+        );
+        this.departmentValue.sort((a, b) => a.name.localeCompare(b.name));
+      },
+      error: (err) => console.error(err),
+      complete: () => this.loading.setLoading(false, url),
+    });
+    this.subs.add(sub);
+  }
+
+  /* ─────────────── Search & data mapping ─────────────── */
+  search(): void {
+    if (this.countForm.invalid) {
       return;
-    } else {
-      this.isLoading = true;
-      let url = 'settingsController/getClassicationCount?reportYear=' + this.selectedYear + '&departmentCode=' + this.selectedDepartment + '&reportCycle=' + this.selectedReport;
-      this._loading.setLoading(true, url);
-      this.coreService.get(url).subscribe(response => {
-        this.isLoading = false;
-        this._loading.setLoading(false, url);
-        // let response = {"tyepACount":0,"tyepAName":"تم الإنتهاء من إجرءاتها أو تلافيها","tyepBCount":0,"tyepBDCount":0,"tyepBDName":"تم الإنتهاء من إجرءاتها أو تلافيها","tyepBName":"تم الإنتهاء من إجرءاتها أو تلافيها","tyepCCount":0,"tyepCDCount":0,"tyepCDName":"تم الإنتهاء من إجرءاتها أو تلافيها","tyepCName":"تم الإنتهاء من إجرءاتها أو تلافيها","tyepECount":0,"tyepEDCount":0,"tyepEDName":"تم الإنتهاء من إجرءاتها أو تلافيها","tyepEName":"تم الإنتهاء من إجرءاتها أو تلافيها"}
-        let data: any = [];
-        data.push({
-          count: response.tyepACount,
-          type: response.tyepAName
-        }, {
-          count: response.tyepBCount,
-          type: response.tyepBName
-        }, {
-          count: response.tyepBDCount,
-          type: response.tyepBDName
-        }, {
-          count: response.tyepCCount,
-          type: response.tyepCName
-        }, {
-          count: response.tyepCDCount,
-          type: response.tyepCDName
-        }, {
-          count: response.tyepECount,
-          type: response.tyepEName
-        }, {
-          count: response.tyepEDCount,
-          type: response.tyepEDName
-        }, {
-          count: response.tyepACount + response.tyepBCount + response.tyepBDCount + response.tyepCCount + response.tyepCDCount + response.tyepECount + response.tyepEDCount,
-          type: "الاجمالي"
-        })
-        this.dataSource = new MatTableDataSource(data);
-      }, error => {
-        this.isLoading = false;
-        this._loading.setLoading(false, url);
-        console.log('error :' , error);
-      });
     }
+
+    const { fiscalYear, types } = this.countForm.value;
+    const url =
+      `settingsController/getClassicationCount?reportYear=${fiscalYear}` +
+      `&departmentCode=${this.selectedDepartment}&reportCycle=${types}`;
+
+    this.isLoading = true;
+    this.loading.setLoading(true, url);
+
+    const sub = this.core.get(url).subscribe({
+      next: (r: any) => {
+        const data: ReportData[] = [
+          { count: r.tyepACount, type: r.tyepAName },
+          { count: r.tyepBCount, type: r.tyepBName },
+          { count: r.tyepBDCount, type: r.tyepBDName },
+          { count: r.tyepCCount, type: r.tyepCName },
+          { count: r.tyepCDCount, type: r.tyepCDName },
+          { count: r.tyepECount, type: r.tyepEName },
+          { count: r.tyepEDCount, type: r.tyepEDName },
+          {
+            count:
+              r.tyepACount +
+              r.tyepBCount +
+              r.tyepBDCount +
+              r.tyepCCount +
+              r.tyepCDCount +
+              r.tyepECount +
+              r.tyepEDCount,
+            type: 'الاجمالي',
+          },
+        ];
+        this.dataSource = new MatTableDataSource(data);
+        setTimeout(() => {
+          if (this.paginator && this.dataSource) {
+            this.dataSource.paginator = this.paginator;
+          }
+        });
+      },
+      error: (err) => console.error(err),
+      complete: () => {
+        this.isLoading = false;
+        this.loading.setLoading(false, url);
+      },
+    });
+
+    this.subs.add(sub);
   }
 
-  exportMSExcel() {
-    let url = 'ReminderAndClassificationExportController/exportClassificationCountToExcel?reportYear=' + this.selectedYear + '&departmentCode=' + this.selectedDepartment + '&reportCycle=' + this.selectedReport;
+  /* ─────────────── Export helpers ─────────────── */
+  exportMSExcel(): void {
+    const { fiscalYear, types } = this.countForm.value;
+    const url =
+      `ReminderAndClassificationExportController` +
+      `/exportClassificationCountToExcel` +
+      `?reportYear=${fiscalYear}&departmentCode=${this.selectedDepartment}` +
+      `&reportCycle=${types}`;
     window.open(this.mainUrl + url, '_parent');
   }
 
-  exportMSWord() {
-    let url = 'ReminderAndClassificationExportController/exportClassificationCountToWord?reportYear=' + this.selectedYear + '&departmentCode=' + this.selectedDepartment + '&reportCycle=' + this.selectedReport;
+  exportMSWord(): void {
+    const { fiscalYear, types } = this.countForm.value;
+    const url =
+      `ReminderAndClassificationExportController` +
+      `/exportClassificationCountToWord` +
+      `?reportYear=${fiscalYear}&departmentCode=${this.selectedDepartment}` +
+      `&reportCycle=${types}`;
     window.open(this.mainUrl + url, '_parent');
   }
 }

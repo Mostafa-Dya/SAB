@@ -1,19 +1,39 @@
 import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
-import { CoreService } from 'src/app/services/core.service';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
-import { StaticDataService } from 'src/app/services/static-data.service';
 import { CommonModule } from '@angular/common';
-import { SharedModule } from '../../shared/modules/shared.module';
+import {
+  MatCardModule
+} from '@angular/material/card';
+import {
+  MatFormFieldModule
+} from '@angular/material/form-field';
+import {
+  MatInputModule
+} from '@angular/material/input';
+import {
+  MatSelectModule
+} from '@angular/material/select';
+import {
+  MatButtonModule
+} from '@angular/material/button';
+import {
+  MatDividerModule
+} from '@angular/material/divider';
+import {
+  MatTableModule
+} from '@angular/material/table';
+import {
+  MatIconModule
+} from '@angular/material/icon';
+import {
+  TranslateModule
+} from '@ngx-translate/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { Observable } from 'rxjs';
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { FormsModule } from '@angular/forms';
 
-export interface Years {
-  value: string;
-}
-
-export interface Cycles {
-  value: string;
-}
+export interface YearOption { value: string; }
+export interface CycleOption { value: string; }
 
 export interface ObservationData {
   cycle: string;
@@ -31,75 +51,85 @@ export interface ObservationData {
 @Component({
   selector: 'app-archive',
   standalone: true,
-  imports: [CommonModule, SharedModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatTableModule,
+    MatIconModule,
+    TranslateModule,
+  ],
   templateUrl: './archive.component.html',
   styleUrls: ['./archive.component.scss']
 })
 export class ArchiveComponent implements OnInit {
-  isRtl: any;
-  obsTitle: string;
+  isRtl$: Observable<boolean>;
 
-  years: Years[] = [];
-  selectedYear: string;
-  cycles: Cycles[] = [];
-  selectedCycle: string;
+  obsTitle = '';
+  years: YearOption[] = [
+    { value: 'Select Year' },
+    { value: '2019-2020' },
+    { value: '2020-2021' }
+  ];
+  selectedYear = this.years[0].value;
+
+  cycles: CycleOption[] = [
+    { value: 'All' },
+    { value: 'SA1' },
+    { value: 'SA2' }
+  ];
+  selectedCycle = this.cycles[0].value;
+
   observationData: ObservationData[] = [
     {
-      "cycle": "SA1",
-      "from": "S.Engineer",
-      "to": "TL",
-      "stepName": "N/A",
-      "department": "N/A",
-      "date": "2021-06-20T06:12:31Z",
-      "attachment": true,
-      "completionDate": "2021-06-20T06:12:31Z",
-      "adjustmentMadeOnBehalf": "N/A",
-      "GAndPAAttachment": "N/A"
-    }, {
-      "cycle": "SA1",
-      "from": "TL",
-      "to": "Manager",
-      "stepName": "N/A",
-      "department": "N/A",
-      "date": "2021-06-20T06:12:31Z",
-      "attachment": true,
-      "completionDate": "2021-06-20T06:12:31Z",
-      "adjustmentMadeOnBehalf": "N/A",
-      "GAndPAAttachment": "N/A"
-    }, {
-      "cycle": "SA1",
-      "from": "Manager",
-      "to": "G&PA",
-      "stepName": "N/A",
-      "department": "N/A",
-      "date": "2021-06-20T06:12:31Z",
-      "attachment": true,
-      "completionDate": "2021-06-20T06:12:31Z",
-      "adjustmentMadeOnBehalf": "ديوان المحاس بة",
-      "GAndPAAttachment": "N/A"
+      cycle: 'SA1', from: 'S.Engineer', to: 'TL', stepName: 'N/A',
+      department: 'N/A', date: '2021-06-20T06:12:31Z', attachment: true,
+      completionDate: '2021-06-20T06:12:31Z', adjustmentMadeOnBehalf: 'N/A',
+      GAndPAAttachment: 'N/A'
+    },
+    {
+      cycle: 'SA1', from: 'TL', to: 'Manager', stepName: 'N/A',
+      department: 'N/A', date: '2021-06-20T06:12:31Z', attachment: true,
+      completionDate: '2021-06-20T06:12:31Z', adjustmentMadeOnBehalf: 'N/A',
+      GAndPAAttachment: 'N/A'
+    },
+    {
+      cycle: 'SA1', from: 'Manager', to: 'G&PA', stepName: 'N/A',
+      department: 'N/A', date: '2021-06-20T06:12:31Z', attachment: true,
+      completionDate: '2021-06-20T06:12:31Z', adjustmentMadeOnBehalf: 'ديوان المحاس بة',
+      GAndPAAttachment: 'N/A'
     }
-  ]
-  dataSource: MatTableDataSource<ObservationData>;
-  displayedColumns: string[] = ['cycle', 'from', 'to', 'stepName', 'department', 'date', 'attachment', 'completionDate', 'adjustmentMadeOnBehalf', 'GAndPAAttachment'];
-  displayedColumnsTablet: string[] = ['cycle', 'from', 'to', 'department', 'date', 'attachment'];
-  displayedColumnsMob: string[] = ['cycle'];
+  ];
+
+  dataSource = new MatTableDataSource<ObservationData>(this.observationData);
+
+  displayedColumns = [
+    'cycle', 'from', 'to', 'stepName',
+    'department', 'date', 'attachment',
+    'completionDate', 'adjustmentMadeOnBehalf',
+    'GAndPAAttachment'
+  ];
+  displayedColumnsTablet = [
+    'cycle', 'from', 'to', 'department', 'date', 'attachment'
+  ];
+  displayedColumnsMob = ['cycle'];
 
   constructor(
-    private coreService: CoreService,
-    private router: Router,
-    private sharedVariableService: SharedVariableService,
-    private staticData: StaticDataService
-  ) { }
-
-  ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-    this.years = this.staticData.getYears();
-    this.cycles = this.staticData.getCycles();
-    this.selectedYear = this.years[0].value;
-    // this.selectedCycle = this.cycles[0].value;
-    this.dataSource = new MatTableDataSource(this.observationData);
+    private readonly sharedVariableService: SharedVariableService
+  ) {
+    this.isRtl$ = this.sharedVariableService.isRtl$;
   }
 
+  ngOnInit(): void {
+    // nothing else needed—async pipe will pick up RTL changes
+  }
+
+  trackByValue<T extends { value: string }>(_: number, item: T) {
+    return item.value;
+  }
 }

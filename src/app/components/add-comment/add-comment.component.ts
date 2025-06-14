@@ -1,71 +1,78 @@
-import { Component, Inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { SharedModule } from '../../shared/modules/shared.module';
-import { ObsResponse } from 'src/app/models/response.model';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
-import { DialogHeaderComponent } from '../../shared/dialog-header/dialog-header.component';
-
-
+import { Component, Inject, OnInit } from '@angular/core';
+import {
+  ReactiveFormsModule,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import {
+  MatDialogContent,
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { TranslateModule } from '@ngx-translate/core';
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { Observable } from 'rxjs';
+import { ObsResponse } from '../../models/obs-response.model';
 
 @Component({
   selector: 'app-add-comment',
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule,
-    SharedModule,
     ReactiveFormsModule,
-    DialogHeaderComponent,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    DragDropModule,
+    TranslateModule,
   ],
   templateUrl: './add-comment.component.html',
-  styleUrls: ['./add-comment.component.scss']
+  styleUrls: ['./add-comment.component.scss'],
 })
-export class AddCommentComponent {
-  isRtl = signal(false);
-  comment = this.fb.nonNullable.control('');
-  isReasonFirst: any = true;
-
-  showError: boolean;
-  userInformation: any;
-
+export class AddCommentComponent implements OnInit {
+  form!: FormGroup;
+  isAdmin = false;
+  isRtl$: Observable<any>;
   constructor(
-    public dialogRef: MatDialogRef<AddCommentComponent>,
-    @Inject(MAT_DIALOG_DATA) public responseData: ObsResponse,
-    private sharedVariableService: SharedVariableService,
-    private fb: NonNullableFormBuilder
+    private dialogRef: MatDialogRef<AddCommentComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: ObsResponse,
+    private sharedVariableService: SharedVariableService
   ) {
-    dialogRef.disableClose = true;
+    this.dialogRef.disableClose = true;
+    this.isRtl$ = this.sharedVariableService.isRtl$;
   }
 
   ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl.set(value);
-    });
+    const userInfo = JSON.parse(
+      localStorage.getItem('sabUserInformation') || '{}'
+    );
+    this.isAdmin = !!userInfo.admin;
 
-    const data: any = localStorage.getItem('sabUserInformation');
-    this.userInformation = JSON.parse(data);
-    this.isReasonFirst = false;
+    this.form = new FormGroup({
+      comment: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(this.isAdmin ? 1000 : 256),
+      ]),
+    });
+  }
+
+  get maxLen(): number {
+    return this.isAdmin ? 1000 : 256;
   }
 
   onSend(): void {
-    var _result;
-    if (this.userInformation.admin) {
-
-      _result = {
-        comment: this.comment.value.trim()
-      };
-      this.dialogRef.close({ event: 'Send', data: _result });
-    } else {
-      // if (this.comment == undefined) {
-      //   this.comment = '';
-      // }
-      _result = {
-        comment: this.comment.value.trim()
-      };
-      this.dialogRef.close({ event: 'Send', data: _result });
+    if (this.form.invalid) {
+      return;
     }
+    const result = { comment: this.form.value.comment.trim() };
+    this.dialogRef.close({ event: 'Send', data: result });
   }
-
 }

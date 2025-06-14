@@ -1,61 +1,63 @@
-<div [ngClass]="{ 'rtl-direction': isRtl() }">
-  <app-dialog-header [title]="'Add Comment'" [rtl]="isRtl()"></app-dialog-header>
+<div [class.rtl-direction]="isRtl$ | async">
+  <div
+    cdkDrag
+    cdkDragRootElement=".mat-dialog-container"
+    class="dialog-heading-div"
+    [class.text-right]="isRtl$ | async"
+  >
+    <span
+      class="page-title"
+      [class.ml-4]="!(isRtl$ | async)"
+      [class.mr-4]="isRtl$ | async"
+    >
+      Add Comment
+    </span>
+  </div>
+
   <mat-dialog-content
     class="mat-typography"
-    [ngClass]="
-      isRtl()
-        ? !userInformation.admin
-          ? 'text-right custom-height'
-          : 'text-right'
-        : !userInformation.admin
-        ? 'custom-height'
-        : ''
-    "
+    [class.custom-height]="form.get('comment')?.errors?.['maxlength']"
   >
     <div class="mt-3">
-      <label class="page-sub-title"
-        >{{ "COMMENT" | translate }}
-        <!-- <span class="text-danger" *ngIf="userInformation.admin && selectedReason.isRequired">*</span> -->
-        <span class="text-danger" *ngIf="!userInformation.admin">*</span> :
+      <label class="page-sub-title">
+        {{ 'COMMENT' | translate }}
+        <span class="text-danger">*</span>:
       </label>
     </div>
-    <div class="mt-n3 rtl-direction h-120">
-      <mat-form-field class="w-100 text-right border-textarea">
+
+    <div class="mt-n3 h-120">
+      <mat-form-field class="w-100 border-textarea">
         <textarea
           matInput
-          [formControl]="comment"
-          [matTextareaAutosize]="false"
-          [matAutosizeMinRows]="3"
-          [matAutosizeMaxRows]="5"
-          [maxlength]="userInformation.admin ? 1000 : 256"
-          style="min-height: 70px; height: 70px;"
+          formControlName="comment"
+          cdkTextareaAutosize
+          cdkAutosizeMinRows="3"
+          cdkAutosizeMaxRows="5"
         ></textarea>
-        <mat-hint align="end"
-          >{{ comment.value.trim().length }} /
-          {{ userInformation.admin ? 1000 : 256 }}</mat-hint
-        >
+        <mat-hint align="end">
+          {{ form.value.comment?.trim()?.length || 0 }} / {{ maxLen }}
+        </mat-hint>
       </mat-form-field>
     </div>
 
-    <div *ngIf="userInformation.admin" class="mt-3 pt-3">
-      <span class="font-weight-bold">{{
-        "PLEASE_NOTE_THIS_COMMENT_WILL_APPEAR_IN_THE_NOTIFICATION_EMAIL_SENT_TO_THE_DEPARTMENT"
-          | translate
-      }}</span>
+    <div *ngIf="isAdmin" class="mt-3 pt-3">
+      <span class="font-weight-bold">
+        {{ 'PLEASE_NOTE_THIS_COMMENT_WILL_APPEAR_IN_THE_NOTIFICATION_EMAIL_SENT_TO_THE_DEPARTMENT' | translate }}
+      </span>
     </div>
   </mat-dialog-content>
+
   <mat-dialog-actions align="end">
-    <button mat-raised-button mat-dialog-close>
-      {{ "CLOSE" | translate }}
+    <button mat-stroked-button mat-dialog-close>
+      {{ 'CLOSE' | translate }}
     </button>
     <button
-      mat-raised-button
-      class="b-blue c-white"
+      mat-flat-button
+      color="primary"
       (click)="onSend()"
-      [ngClass]="{ 'ml-0 mr-2': isRtl() }"
-      [disabled]="comment.value.length === 0 || comment.value.trim() == ''"
+      [disabled]="form.invalid"
     >
-      {{ "SEND" | translate }}
+      {{ 'SEND' | translate }}
     </button>
   </mat-dialog-actions>
 </div>

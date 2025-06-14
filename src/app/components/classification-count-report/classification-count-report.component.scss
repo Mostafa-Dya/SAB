@@ -1,0 +1,126 @@
+/* src/app/components/classification-count-report/classification-count-report.component.scss */
+/* ─────────────── BASE TABLE ─────────────── */
+
+table {
+  width: 100%;
+}
+
+tr.mat-header-row {
+  height: unset;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-header-cell {
+  font: 600 14px/20px Roboto, "Helvetica Neue", sans-serif;
+}
+
+th.mat-header-cell,
+td.mat-cell,
+td.mat-footer-cell {
+  padding: 10px !important;
+}
+
+/* ─────────────── SEARCH BUTTON VISIBILITY ─────────────── */
+
+.search-btn {
+  display: block;
+}
+.search-btn-mob {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .search-btn {
+    display: none;
+  }
+  .search-btn-mob {
+    display: block;
+  }
+}
+
+/* ─────────────── RESPONSIVE TABLE VISIBILITY ─────────────── */
+
+.hide-mob {
+  display: block;
+}
+.show-mob {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .hide-mob {
+    display: none;
+  }
+  .show-mob {
+    display: block;
+  }
+
+  th.mat-header-cell,
+  td.mat-cell,
+  td.mat-footer-cell {
+    border-bottom: none;
+    padding: 0 !important;
+  }
+
+  tr.mat-header-row {
+    border-top: none;
+  }
+}
+
+/* ─────────────── MOBILE EXPANSION HELPERS ─────────────── */
+
+.expanded-td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.expanded-div {
+  margin: -15px 0 10px 5%;
+}
+.expanded-div-rtl {
+  margin: -15px 0 10px 0;
+}
+
+.expanded-content {
+  width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count-mob,
+.count-mob-rtl {
+  background: #3f51b5;
+  color: #fff;
+  font-size: 10px;
+  padding: 0 5px;
+}
+
+.count-mob {
+  float: right;
+}
+.count-mob-rtl {
+  float: left;
+}
+
+@media (max-width: 575px) {
+  .count-mob {
+    float: left;
+  }
+  .count-mob-rtl {
+    float: right;
+  }
+
+  tr.mat-row {
+    height: 35px !important;
+  }
+}
+
+/* ─────────────── MISC ─────────────── */
+
+.search-report {
+  margin-left: -40px;
+}
+
+.font-weight-bold {
+  font-weight: 700;
+}

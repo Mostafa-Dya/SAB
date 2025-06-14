@@ -1,149 +1,291 @@
 <div class="container-flud">
   <mat-card class="main-card">
     <div class="row">
-      <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
-        <!-- <mat-icon class="page-heading-icon pointer" routerLink="/archived-observations"
-          matTooltip="{{ 'BACK' | translate }}">archive</mat-icon> -->
-        <span class="page-heading-icon pointer" routerLink="/archived-observations" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
-        <span class="page-sub-heading"> / {{ 'ARCHIVED_RESPONSE_DETAILS' | translate }}</span>
-      </div>
-    </div>
-    <div class="row" *ngIf="workItem">
-      <div class="col-sm-12 col-md-8" [ngClass]="{'text-right': isRtl}">
-        <div class="w-100">
-          <label class="page-sub-title min-w-160">{{ 'OBSERVATION_TITLE' | translate }}:</label>
-          <span class="ml-2" [ngClass]="{'rtl-direction': !isRtl}">{{workItem.obsTitle}}</span>
-        </div>
-        <div class="w-100">
-          <label class="page-sub-title min-w-160">{{ 'OBSERVATION_SEQUENCE' | translate }}:</label>
-          <span class="ml-2" [ngClass]="{'rtl-direction': !isRtl}">{{workItem.obsSeq || 2022}}</span>
-        </div>   
-      </div>
-      <div class="col-sm-12 col-md-4 justify-content-end d-flex" [ngClass]="{'text-right': isRtl}">
-        <span class="">
-          <button mat-raised-button class="w-70 b-blue c-white" *ngIf="isAdmin"
-            matTooltip="{{ 'G&PA_NOTES' | translate }}" (click)="showNotes()"> {{ 'G&PA_NOTES' | translate }} <span *ngIf="observationNotes && observationNotes.notes "></span>({{observationNotes.notes.length}})
-          </button>
+      <div class="col-12 mb-3" [ngClass]="{ 'text-right': isRtl }">
+        <span
+          class="page-heading-icon pointer"
+          routerLink="/archived-observations"
+          matTooltip="{{ 'BACK' | translate }}"
+        >
+          {{ "BACK_HEADING" | translate }}
+        </span>
+        <span class="page-sub-heading">
+          / {{ "ARCHIVED_RESPONSE_DETAILS" | translate }}
         </span>
       </div>
-      <div class="col-12" [ngClass]="{'text-right': isRtl}">
-        <label class="page-sub-title mb-0 min-w-160 mr-2">{{ 'NEW_REPEATED_REPORTS' | translate }}:</label>
-        <span>{{workItem.obsType | translate }}</span>
+    </div>
+
+    <div class="row" *ngIf="workItem">
+      <!-- header info -->
+      <div class="col-sm-12 col-md-8" [ngClass]="{ 'text-right': isRtl }">
+        <div class="w-100">
+          <label class="page-sub-title min-w-160"
+            >{{ "OBSERVATION_TITLE" | translate }}:</label
+          >
+          <span class="ml-2" [ngClass]="{ 'rtl-direction': !isRtl }">{{
+            workItem.obsTitle
+          }}</span>
+        </div>
+        <div class="w-100">
+          <label class="page-sub-title min-w-160"
+            >{{ "OBSERVATION_SEQUENCE" | translate }}:</label
+          >
+          <span class="ml-2" [ngClass]="{ 'rtl-direction': !isRtl }">{{
+            workItem.obsSeq || 2022
+          }}</span>
+        </div>
       </div>
-      <!-- <div class="col-8 col-lg-11" [ngClass]="{'rtl-direction': !isRtl}">
-        <span>{{workItem.obsTitle}}</span>
-      </div> -->
+
+      <div
+        class="col-sm-12 col-md-4 justify-content-end d-flex"
+        [ngClass]="{ 'text-right': isRtl }"
+      >
+        <button
+          mat-raised-button
+          class="w-70 b-blue c-white"
+          *ngIf="isAdmin"
+          matTooltip="{{ 'G&PA_NOTES' | translate }}"
+          (click)="showNotes()"
+        >
+          {{ "G&PA_NOTES" | translate }}
+          <span *ngIf="observationNotes.notes.length"
+            >( {{ observationNotes.notes.length }} )</span
+          >
+        </button>
+      </div>
+
+      <div class="col-12" [ngClass]="{ 'text-right': isRtl }">
+        <label class="page-sub-title mb-0 min-w-160 mr-2"
+          >{{ "NEW_REPEATED_REPORTS" | translate }}:</label
+        >
+        <span>{{ workItem.obsType | translate }}</span>
+      </div>
+
       <div class="col-12">
         <mat-divider></mat-divider>
       </div>
-      <!-- {{observationCycles | json}} -->
+
       <div class="col-12" dir="ltr">
         <mat-tab-group class="mat-tab-right" (selectedTabChange)="tabClick()">
-          <ng-container *ngFor="let tabs of observationCycles"> 
+          <ng-container *ngFor="let tabs of observationCycles">
             <mat-tab *ngIf="tabs.isVisible">
               <ng-template mat-tab-label>
-                {{tabs.value}}
+                {{ tabs.value }}
               </ng-template>
               <div>
                 <mat-tab-group class="mat-tab-right-details">
                   <mat-tab *ngFor="let data of tabs.departments">
-                    <!-- {{tabs | json}} -->
-                    <ng-template mat-tab-label >{{data.headerName}} </ng-template>
+                    <ng-template mat-tab-label>
+                      {{ data.headerName }}
+                    </ng-template>
                     <div class="row m-0">
-                      <!-- <div class="col-12 mt-2 mb-2" *ngIf="initialData.reportName == 'Observation'">
-                        <button mat-flat-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
-                          (click)="onExapnd(initialData.reportContent)">
-                          {{ 'EXPAND' | translate }}</button>
-                      </div> -->
-                      <div class="col-12" *ngIf="data && data.dataSource && data.dataSource.data.length > 0">
-                        <table mat-table [dataSource]="data.dataSource" [ngClass]="{'text-right': isRtl}" class="w-100">
+                      <div
+                        class="col-12"
+                        *ngIf="
+                          data.dataSource && data.dataSource.data.length > 0
+                        "
+                      >
+                        <table
+                          mat-table
+                          [dataSource]="data.dataSource"
+                          [ngClass]="{ 'text-right': isRtl }"
+                          class="w-100"
+                        >
+                          <!-- FROM -->
                           <ng-container matColumnDef="from">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" class="pt-2 pb-2 w-300">
-                              {{ 'FROM' | translate }} </th>
-                            <td mat-cell *matCellDef="let element" [ngClass]="{'rtl-direction': !isRtl}">
-                              {{element.from}} </td>
-                          </ng-container>
-                          <ng-container matColumnDef="to">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}" class="pt-2 pb-2 w-250">
-                              {{ 'TO' | translate }} </th>
-                            <td mat-cell *matCellDef="let element"> {{element.to}} </td>
-                          </ng-container>
-                          <ng-container matColumnDef="stepName">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-175">
-                              {{ 'STEPNAME' | translate }} </th>
-                            <td mat-cell *matCellDef="let element"> {{element.stepName}} </td>
-                          </ng-container>
-                          <ng-container matColumnDef="actionTaken">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-150">
-                              {{ 'ACTION_TAKEN' | translate }} </th>
-                            <td mat-cell *matCellDef="let element"> {{element.actionTaken}} </td>
-                          </ng-container>
-                          <ng-container matColumnDef="responseDate">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-50">
-                              {{ 'DATE' | translate }}/{{ 'TIME' | translate }} </th>
-                            <td mat-cell *matCellDef="let element">
-                              {{element.responseDate | date:'dd/MM/yyyy hh:mm a'}}
-                            </td>
-                          </ng-container>
-                          <ng-container matColumnDef="response">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-50">
-                              {{ 'RESPONSE' | translate }} </th>
-                            <td mat-cell *matCellDef="let element">
-                              <p class="link-block mb-0">
-                                <a href="javascript:;" *ngIf="element.hasResponse"
-                                  (click)="viewResponse(element.responseId,'text')" class="link-style">
-                                  {{ 'VIEW' | translate}}</a>
-                              </p>
-                            </td>
-                          </ng-container>
-                          <ng-container matColumnDef="attachments">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-50">
-                              {{ 'ATTACHMENTS' | translate }} </th>
-                            <td mat-cell *matCellDef="let element">
-                              <p class="link-block mb-0">
-                                <a href="javascript:;" *ngIf="element.hasAttachments"
-                                  (click)="viewResponse(element.responseId,'attachment')" class="link-style">
-                                  {{ 'VIEW' | translate}}</a>
-                              </p>
-                            </td>
-                          </ng-container>                          
-                          <ng-container matColumnDef="completionYear">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-50">
-                              {{ 'COMPLETION_YEAR' | translate }} </th>
-                            <td mat-cell *matCellDef="let element"> {{element.completionYear}} </td>
-                          </ng-container>
-                          <ng-container matColumnDef="classification">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-50">
-                              {{ 'CLASSIFICATION' | translate }} </th>
-                            <td mat-cell *matCellDef="let element"> {{element.classification}} </td>
-                          </ng-container>
-                          <ng-container matColumnDef="comment">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-150">
-                              {{ 'ENTITY_REASON' | translate }}
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-300"
+                            >
+                              {{ "FROM" | translate }}
                             </th>
-                            <td mat-cell *matCellDef="let element" [ngClass]="{'rtl-direction': !isRtl}">
-                              {{element.comment}} </td>
+                            <td
+                              mat-cell
+                              *matCellDef="let element"
+                              [ngClass]="{ 'rtl-direction': !isRtl }"
+                            >
+                              {{ element.from }}
+                            </td>
                           </ng-container>
-                          <!-- <ng-container matColumnDef="gpaAttachment">
-                            <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"
-                              class="pt-2 pb-2 w-50">
-                              {{ 'G&PA_ATTACHMENT' | translate }} </th>
-                            <td mat-cell *matCellDef="let element"> {{element.gpaAttachment}} </td>
-                          </ng-container> -->
-                          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-                          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                          <!-- TO -->
+                          <ng-container matColumnDef="to">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-250"
+                            >
+                              {{ "TO" | translate }}
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                              {{ element.to }}
+                            </td>
+                          </ng-container>
+
+                          <!-- STEPNAME -->
+                          <ng-container matColumnDef="stepName">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-175"
+                            >
+                              {{ "STEPNAME" | translate }}
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                              {{ element.stepName }}
+                            </td>
+                          </ng-container>
+
+                          <!-- ACTION_TAKEN -->
+                          <ng-container matColumnDef="actionTaken">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-150"
+                            >
+                              {{ "ACTION_TAKEN" | translate }}
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                              {{ element.actionTaken }}
+                            </td>
+                          </ng-container>
+
+                          <!-- RESPONSE_DATE -->
+                          <ng-container matColumnDef="responseDate">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-50"
+                            >
+                              {{ "DATE" | translate }}/{{ "TIME" | translate }}
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                              {{
+                                element.responseDate
+                                  | date : "dd/MM/yyyy hh:mm a"
+                              }}
+                            </td>
+                          </ng-container>
+
+                          <!-- RESPONSE -->
+                          <ng-container matColumnDef="response">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-50"
+                            >
+                              {{ "RESPONSE" | translate }}
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                              <p class="link-block mb-0">
+                                <a
+                                  href="javascript:;"
+                                  *ngIf="element.hasResponse"
+                                  (click)="
+                                    viewResponse(element.responseId, 'text')
+                                  "
+                                  class="link-style"
+                                >
+                                  {{ "VIEW" | translate }}
+                                </a>
+                              </p>
+                            </td>
+                          </ng-container>
+
+                          <!-- ATTACHMENTS -->
+                          <ng-container matColumnDef="attachments">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-50"
+                            >
+                              {{ "ATTACHMENTS" | translate }}
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                              <p class="link-block mb-0">
+                                <a
+                                  href="javascript:;"
+                                  *ngIf="element.hasAttachments"
+                                  (click)="
+                                    viewResponse(
+                                      element.responseId,
+                                      'attachment'
+                                    )
+                                  "
+                                  class="link-style"
+                                >
+                                  {{ "VIEW" | translate }}
+                                </a>
+                              </p>
+                            </td>
+                          </ng-container>
+
+                          <!-- COMPLETION_YEAR -->
+                          <ng-container matColumnDef="completionYear">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-50"
+                            >
+                              {{ "COMPLETION_YEAR" | translate }}
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                              {{ element.completionYear }}
+                            </td>
+                          </ng-container>
+
+                          <!-- CLASSIFICATION -->
+                          <ng-container matColumnDef="classification">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-50"
+                            >
+                              {{ "CLASSIFICATION" | translate }}
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                              {{ element.classification }}
+                            </td>
+                          </ng-container>
+
+                          <!-- ENTITY_REASON -->
+                          <ng-container matColumnDef="comment">
+                            <th
+                              mat-header-cell
+                              *matHeaderCellDef
+                              [ngClass]="{ 'text-right': isRtl }"
+                              class="pt-2 pb-2 w-150"
+                            >
+                              {{ "ENTITY_REASON" | translate }}
+                            </th>
+                            <td
+                              mat-cell
+                              *matCellDef="let element"
+                              [ngClass]="{ 'rtl-direction': !isRtl }"
+                            >
+                              {{ element.comment }}
+                            </td>
+                          </ng-container>
+
+                          <tr
+                            mat-header-row
+                            *matHeaderRowDef="displayedColumns; sticky: true"
+                          ></tr>
+                          <tr
+                            mat-row
+                            *matRowDef="let row; columns: displayedColumns"
+                          ></tr>
                         </table>
-                        <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10" hidePageSize
-                            showFirstLastButtons dir="ltr">
-                          </mat-paginator> -->
                       </div>
                     </div>
                   </mat-tab>

@@ -4,7 +4,7 @@ import { ObsResponse } from 'src/app/models/response.model';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 import { SendResponseComponent } from '../send-response/send-response.component';
 // import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import * as ClassicEditor from '../../../assets/js/ck-editor-plugin/ckeditor';
+import * as ClassicEditor from '../../../../public/assets/js/ck-editor-plugin/ckeditor';
 import { MatTableDataSource } from '@angular/material/table';
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
@@ -13,6 +13,7 @@ import { CoreService } from 'src/app/services/core.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { PreviousEntityTypeComponent } from '../previous-entity-type/previous-entity-type.component';
+import { isArray } from 'lodash';
 
 interface DateStrings {
   date: string;
@@ -25,7 +26,7 @@ export interface Entities {
 @Component({
   selector: 'app-observation-content',
   templateUrl: './observation-content.component.html',
-  styleUrls: ['./observation-content.component.css']
+  styleUrls: ['./observation-content.component.scss']
 })
 export class ObservationContentComponent implements OnInit {
   isRtl: any;

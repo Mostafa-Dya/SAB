@@ -1,185 +1,89 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
-import { ObsResponse } from 'src/app/models/response.model';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
-interface Reason {
-  value: string;
-  isRequired: any;
-}
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { ObsResponse } from '../../models/obs-response.model';
+import { DraggableDialogDirective } from '../../shared/directives/draggable-dialog.directive';
+import { SharedModule } from '../../shared/modules/shared.module';
 
 @Component({
   selector: 'app-cancel-send-back',
+  standalone: true,
   templateUrl: './cancel-send-back.component.html',
-  styleUrls: ['./cancel-send-back.component.css']
+  styleUrls: ['./cancel-send-back.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    SharedModule,
+    DraggableDialogDirective,
+  ],
 })
 export class CancelSendBackComponent implements OnInit {
-  isRtl: any;
-  comment: string = '';
-  isReasonFirst: any = true;
-  isSkipMail: boolean = true;
-  
-  /**  commented by venkat
-  reasons: Reason[] = [
-    { value: '', isRequired: true },
-    { value: 'يرجى تغطية الرد على فقرة "ويطلب الديوان" بالكامل', isRequired: true },
-    { value: 'يرجى تغطية الرد على فقرة "ويعقب الديوان" بالكامل', isRequired: true },
-     { value: 'الرد مكرر – يرجى إضافة تحديث على الرد', isRequired: false },
-     { value: 'يرجى الرد باللغة العربية', isRequired: false },
-     { value: 'يرجى إعادة صياغة الرد', isRequired: false },
-    { value: 'الرد يخالف بروتوكول التعاون مع ديوان المحاسبة', isRequired: false },
-    { value: 'الرد يحتوي على نقاط - يرجى إعادة الصياغة كفقرة', isRequired: false },
-     { value: 'الرد يحتاج شرح إضافي لبعض النقاط', isRequired: false },
-     { value: 'طلب الدائرة باسترجاع الملاحظة لإعادة مراجعة الرد', isRequired: false },
-     { value: 'يرجى التنسيق وإعداد الرد من جهتكم', isRequired: true },
-     { value: 'التصنيف يتعارض مع الرد - يرجى المطابقة', isRequired: false },
-    { value: 'التصنيف يتعارض مع سابقه – يرجى إيضاح الأسباب/ المستجدات', isRequired: false },
-    { value: 'يرجى تزويد الديوان بالمستندات المطلوبة مع ذكر التاريخ بالرد', isRequired: true },
-    { value: 'يرجى ذكر مبلغ الغرامات', isRequired: true },
-    { value: 'يرجى ذكر تاريخ تزويد الديوان بالمستندات المذكورة', isRequired: false },
-     { value: 'Other', isRequired: true }
-  ];
-  **/
-/** reasons are updated by g&pa
+  /* ───────────── injections ───────────── */
+  private readonly shared = inject(SharedVariableService);
+  private readonly dialogRef =
+    inject<MatDialogRef<CancelSendBackComponent>>(MatDialogRef);
+  private readonly data = inject<ObsResponse>(MAT_DIALOG_DATA);
+  private readonly fb = inject(FormBuilder);
 
- reasons: any[] = [ 'All',
-   'يرجى تغطية الرد على فقرة "ويطلب الديوان" بالكامل',
-    'يرجى تغطية الرد على فقرة "ويعقب الديوان" بالكامل',
-    'الرد مكرر – يرجى إضافة تحديث على الرد',
-    'يرجى الرد باللغة العربية',
-    'يرجى إعادة صياغة الرد',
-   'الرد يخالف بروتوكول التعاون مع ديوان المحاسبة',
-    'الرد يحتوي على نقاط - يرجى إعادة الصياغة كفقرة',
-  'الرد يحتاج شرح إضافي لبعض النقاط',
-    'طلب الدائرة باسترجاع الملاحظة لإعادة مراجعة الرد',
-    'يرجى التنسيق وإعداد الرد من جهتكم',
-    'التصنيف يتعارض مع الرد - يرجى المطابقة',
-    'التصنيف يتعارض مع سابقه – يرجى إيضاح الأسباب/ المستجدات',
-    'يرجى تزويد الديوان بالمستندات المطلوبة',
-    'يرجى ذكر مبلغ الغرامات',
-    'يرجى ذكر تاريخ تطبيق الغرامات',
-    'يرجى ذكر تاريخ تزويد الديوان بالمستندات المذكورة',
-   'يرجى الرد بما يخص السنة المالية المذكورة بالملاحظة',
-     'الرد يتعارض مع رد الدائرة المشتركة بالملاحظة، يرجى التنسيق وإعادة إعداد الرد',
-    'يرجى إضافة ما تم الاتفاق عليه خلال الاجتماعات الدورية مع الديوان',
-   'يرجى إضافة ما تم الاتفاق عليه خلال الاجتماعات المنعقدة مع الإدارة العليا',
-    'في حال تم/سيتم موافاة الديوان بالمستندات المطلوبة، يرجى ذكر ذلك في الرد',
-    'Other'
-  ];
+  /* ───────────── view-state ───────────── */
+  readonly isRtl = this.shared.isRtl$;
+  userInfo!: { admin: boolean }; // filled in ngOnInit
 
-  */
+  /** Reactive form */
+  readonly form = this.fb.group({
+    isSkipMail: [true],
+    comment: ['', []], // validators filled in ngOnInit
+  });
 
-  
- reasons: any[] = [ 'All',
- 'لم تتم تغطية الرد على فقرة "ويطلب الديوان" بالكامل',
- 'لم تتم تغطية الرد على فقرة "ويعقب الديوان" بالكامل',
- 'الرد مكرر، يرجى إضافة تحديث على الرد',
- 'لم يتم تقديم الرد باللغة العربية',
- 'مطلوب إعادة صياغة الرد',
- 'الرد يخالف بروتوكول التعاون مع ديوان المحاسبة',
- 'الرد يحتوي على نقاط، يرجى إعادة الصياغة كفقرة',
- 'الرد يحتاج شرح إضافي لبعض النقاط',
- 'طلب الدائرة باسترجاع الملاحظة لإعادة مراجعة الرد',
- 'يرجى التنسيق وإعداد الرد من جهتكم',
- 'يرجى التنسيق مع الدائرة المشتركة بالملاحظة لتوحيد صيغة الرد وتجنب التعارض',
- 'التصنيف يتعارض مع الرد، يرجى المطابقة',
- 'التصنيف يتعارض مع سابقه، يرجى إيضاح المستجدات بالرد',
- 'يرجى تزويد الديوان بالمستندات الدالة',
- 'لم يتم ذكر مبلغ الغرامات',
- 'لم يتم ذكر تاريخ تطبيق الغرامات',
- 'يرجى ذكر تاريخ تزويد الديوان بالمستندات المذكورة',
- 'لم يتم الرد بما يخص السنة المالية المذكورة بالملاحظة',
- 'لم تتم إضافة ما تم الاتفاق عليه خلال الاجتماعات الدورية مع الديوان',
- 'لم تتم إضافة ما تم الاتفاق عليه خلال الاجتماعات المنعقدة مع الإدارة العليا',
- 'في حال تم أو سيتم موافاة الديوان بالمستندات المطلوبة، يرجى ذكر ذلك بالرد',
- 'النظر في إمكانية استخدام معيار قياسي مع شركات عالمية وإيضاح وضع الشركة',
- 'بعد التنسيق مع الدائرة التي تم اقتراحها من قبلكم تبين بأن الرد لازال من طرفكم',
- 'برجاء إضافة ما تم الاتفاق عليه عن طريق البريد الإلكتروني',
- 'Other'
-];
-
-  //selectedReason: Reason;
- selectedReason = new FormControl();
-  showError: boolean;
-  userInformation: any;
-
-  constructor(
-    public dialogRef: MatDialogRef<CancelSendBackComponent>,
-    @Inject(MAT_DIALOG_DATA) public responseData: ObsResponse,
-    private sharedVariableService: SharedVariableService
-  ) {
-    dialogRef.disableClose = true;
-  }
-
+  /* ───────────── life-cycle ───────────── */
   ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-   // this.selectedReason = this.reasons[0];
-    let data: any = localStorage.getItem('sabUserInformation');
-    this.userInformation = JSON.parse(data);
-    this.isReasonFirst = false;
+    /** read user information from localStorage once */
+    this.userInfo = JSON.parse(localStorage.getItem('sabUserInformation') ?? '{}');
 
-   // this.userInformation.admin = !this.userInformation.admin;
+    /* comment validators: required & maxLen for non-admin */
+    const max = this.userInfo.admin ? 1000 : 256;
+    const validators = this.userInfo.admin
+      ? [Validators.maxLength(max)]
+      : [Validators.required, Validators.maxLength(max)];
+
+    this.form.controls.comment.setValidators(validators);
+    this.form.controls.comment.updateValueAndValidity();
+
+    this.dialogRef.disableClose = true;
   }
 
+  /* ───────────── helpers ───────────── */
+  commentLength(): number {
+    return (this.form.controls.comment.value ?? '').trim().length;
+  }
+
+  /* ───────────── SEND handler ───────────── */
   onSend(): void {
-    var _result;
-    //if (this.userInformation.admin) {
-     /** 
-      let selectedValues =  [...this.selectedReason.value];
-      const allIndex = selectedValues.indexOf('All');
-      if (allIndex !== -1) {
-        selectedValues.splice(allIndex, 1);
-      }
-         reason: selectedValues.join(' ; '),
-      **/
-      _result = {
-        isSkipMail: this.isSkipMail,
-        comment: this.comment.trim()
-      };
-      this.dialogRef.close({ event: 'Send', data: _result });
-   // } 
-  }
+    if (this.form.invalid) return;
 
-  reasonChange(event:any){
-    if (!this.isReasonFirst) {
-      if (event.source.value == 'All') {
-        this.isReasonFirst = true;
-        if (event.source._selected) {
-          this.selectedReason.setValue(this.reasons);
-        } else {
-          this.selectedReason.setValue([]);
-        }
-        this.isReasonFirst = false;
-      } else {
-        this.isReasonFirst = true;
-        if (!event.source._selected) {
-          setTimeout(() => {
-            this.isReasonFirst = true;
-            if (this.selectedReason.value[0] == 'All') {
-              let data = [...this.selectedReason.value];
-              data.splice(0, 1);
-              this.selectedReason.setValue(data);
-            }
-            this.isReasonFirst = false;
-          }, 300)
-        } else {
-          setTimeout(() => {
-          this.isReasonFirst = true;
-          // console.log(this.selectedReason.value);
-          // console.log(this.reasons.length);
-          if ((this.selectedReason.value?.length + 1) == this.reasons.length) {
-            this.isReasonFirst = true;
-            this.selectedReason.setValue(this.reasons);
-            this.isReasonFirst = false;
-          }
-          this.isReasonFirst = false;
-        }, 300)
-        }
-      }
-    }
+    const payload = {
+      isSkipMail: this.form.controls.isSkipMail.value,
+      comment: (this.form.controls.comment.value ?? '').trim(),
+    };
+
+    this.dialogRef.close({ event: 'Send', data: payload });
   }
 }

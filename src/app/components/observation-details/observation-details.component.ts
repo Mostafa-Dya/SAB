@@ -11,7 +11,7 @@ import { PastHistoryComponent } from '../past-history/past-history.component';
 @Component({
   selector: 'app-observation-details',
   templateUrl: './observation-details.component.html',
-  styleUrls: ['./observation-details.component.css'],
+  styleUrls: ['./observation-details.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
 export class ObservationDetailsComponent implements OnInit {

@@ -1,246 +1,277 @@
-import { SelectionModel } from '@angular/cdk/collections';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ViewChild,
+  inject,
+  signal,
+  Signal,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ConfigService } from 'src/app/services/config.service';
-import { CoreService } from 'src/app/services/core.service';
-import { LoadingService } from 'src/app/services/loading.service';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
-import { ExportComponent } from '../export/export.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { SelectionModel } from '@angular/cdk/collections';
+
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { CoreService } from '../../services/core.service';
+import { LoadingService } from '../../services/loading.service';
+import { ConfigService } from '../../services/config.service';
+import { SharedModule } from '../../shared/modules/shared.module';
 
 export interface Years {
   value: string;
 }
-
-export interface Classification {
-  value: string;
-  name: string;
-}
-
-export interface Cycle {
-  value: string;
-  name: string;
-}
-
-export interface Directorate {
-  id: string;
-  name: string;
-}
-
-export interface Department {
-  id: string;
-  name: string;
-}
-
 export interface ObservationData {
+  obsId: string;
   obsTitle: string;
   obsSequence: number;
-  cycle: string;
   reportYear: string;
+  obsType: string;
 }
 
 @Component({
   selector: 'app-archived-observations',
+  standalone: true,
   templateUrl: './archived-observations.component.html',
-  styleUrls: ['./archived-observations.component.css']
+  styleUrls: ['./archived-observations.component.scss'],
+  imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ArchivedObservationsComponent implements OnInit {
-  isRtl: any;
-  dataSource: MatTableDataSource<ObservationData>;
-  displayedColumns: string[] = ['obsSequence', 'obsTitle', 'reportYear'];
-  displayedColumnsMob: string[] = ['obsTitle'];
-  selection = new SelectionModel<ObservationData>(true, []);
-  // @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  years: Years[] = [
-    // { value: 'All' }
-  ];
-  cycleValue: Cycle[] = [
-    { value: "All", name: "All" },
-    { value: 'SAB Initial Report', name: 'التقرير الأولى لديوان المحاسبةInitial Rpt' },
-    { value: 'SAB Commentary Report', name: "تقرير تعقيب الديوان SAB Commentary Report"},
-    { value: 'KNPC Response Report', name: 'الرد على التقرير الأولى لديوان المحاسبة KNPC Response Rpt' },
-    { value: 'SAB Quarterly Report Q1', name: 'التقرير الربع سنوى الأول  Q1' },
-    { value: 'SAB Quarterly Report Q2', name: 'التقرير الربع سنوى الثاني Q2' },
-    { value: 'SAB Quarterly Report Q3', name: 'التقرير الربع سنوى الثالت Q3' },
-    { value: 'SAB Quarterly Report Q4', name: 'التقرير الربع سنوى الرابع Q4' },
-    { value: 'SAB Semi-annual Report 1', name: 'التقرير النصف سنوى الأول SA1' },
-    { value: 'SAB Semi-annual Report 2', name: 'التقرير النصف سنوى الثاني SA2' },
-    { value: 'Final Report Launch', name: 'ا التقرير النهائي KNPC Final Report' },
-    { value: 'SAB Statistics', name: 'SAB Statistics' },
-    { value: 'AnnalReport', name: 'التقرير السنوي' },
-    { value: 'SeriouslySettleNotes', name: 'جدية تسوية الملاحظات' }
-  ];
-  directorateValue: Directorate[] = [
-    { id: "0", name: "All" }
-  ];
-  departmentValue: Department[] = [
-    { id: "0", name: "All" }
-  ];
-  selectedYear: string;
-  selectedCycle: string;
-  obsTitle: string;
-  isLoading: boolean;
-  userInformation: any;
-  userJobTitle: any;
-  isAdmin: any;
-  isFilterSelected: boolean;
-  selectedDelegateUserInfo: any;
-  mainUrl: string;
-  reportYear: any;
-  loginId:string;
-  obsSequence: string = '';
+export class ArchivedObservationsComponent {
+  /* ----------------------- static / view refs ----------------------- */
+  @ViewChild(MatSort, { static: false }) private readonly sort?: MatSort;
 
-  constructor(
-    private coreService: CoreService,
-    private router: Router,
-    public dialog: MatDialog,
-    private sharedVariableService: SharedVariableService,
-    private _loading: LoadingService,
-    private configService: ConfigService
-  ) { }
+  /* ------------------------- injected services ---------------------- */
+  private readonly shared = inject(SharedVariableService);
+  private readonly core = inject(CoreService);
+  private readonly router = inject(Router);
+  private readonly loading = inject(LoadingService);
+  private readonly cfg = inject(ConfigService);
 
-  ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-    this.mainUrl = this.configService.baseUrl;
-    let filterTitle: any = localStorage.getItem('sabArchivedObsTitle');
-    if (filterTitle != null) {
-      this.isFilterSelected = true;
-      if (filterTitle == 'undefined') {
-        this.obsTitle = "";
-      } else {
-        this.obsTitle = filterTitle.replace(/"/g, "");
-      }
-    }
-    let delegateuser: any = localStorage.getItem('sabDelegateUser');
-    if (delegateuser) {
-      this.selectedDelegateUserInfo = JSON.parse(delegateuser);
-    }
-    if (this.selectedDelegateUserInfo) {
-      this.getUserInfo();
-    } else {
-      let data: any = localStorage.getItem('sabUserInformation');
-      this.userInformation = JSON.parse(data);
-      this.userJobTitle = this.userInformation.sabMember.userJobTitle;
-      this.isAdmin = this.userInformation.admin;
-      this.reportYear = this.userInformation.reportYear;
-      this.loginId = this.userInformation.sabMember.loginId;
-      this.getYear();
-    }
+  /* -------------------------- reactive state ------------------------ */
+  /** `true` when UI is RTL (signal comes straight from the service) */
+  readonly isRtl = toSignal(this.shared.isRtl$, { initialValue: false });
 
-    let filterClassification: any = localStorage.getItem('sabArchivedObsFilterObsSequence');
-    if (filterClassification != null) {
-      this.isFilterSelected = true;
-      this.obsSequence = filterClassification.replace(/"/g, "");
-    } else {
-      this.obsSequence = '';
-    }
+  /** table & selection helpers */
+  readonly selection = new SelectionModel<ObservationData>(true);
+  readonly dataSource = signal<MatTableDataSource<ObservationData> | null>(
+    null
+  );
+  readonly displayedColumns = [
+    'obsSequence',
+    'obsTitle',
+    'reportYear',
+  ] as const;
+  readonly displayedColumnsMob = ['obsTitle'] as const;
+
+  /** filter model (template bound via ngModel) */
+  obsTitle = '';
+  obsSequence = '';
+  selectedYear = '';
+
+  /** dropdown data */
+  readonly years: Years[] = [];
+  /* --------------------------------------------------------------- */
+
+  /* ----- cached user context (delegation / admin / job-title) ----- */
+  private userInfo: any = null;
+  private delegateInfo: any = null;
+  private userJobTitle = '';
+  private isAdmin = false;
+  private reportYear = '';
+  private loginId = '';
+
+  /* ------------------------------ ctor ------------------------------ */
+  constructor() {
+    this.restoreFilters();
+    this.bootstrapUserContext();
   }
 
-  getUserInfo() {
-    let url = 'UserController/getDelegateUserInfo?userId=' + this.selectedDelegateUserInfo.loginId + '&r=' + (Math.floor(Math.random() * 100) + 100);
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      this.userInformation = response;
-      this.userJobTitle = response.sabMember.userJobTitle;
-      this.isAdmin = response.admin;
-      this.reportYear = response.reportYear;
-      if (this.userJobTitle != 'SEC') {
-        this.directorateValue[0].id = response.sabMember.directorateCode;
-      } else {
-        this.directorateValue[0].id = response.supervisorDetails.directorateCode;
-        let supervisorJobTitle = response.supervisorDetails.userJobTitle;
-      }
-      this.getYear();
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error : ', error);
-    });
-  }
+  /* ======================   lifecycle helpers   ===================== */
 
-  getYear() {
-    let url = 'uploadReportController/getMigratedReportYears';
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      response.map((data: any, index: any) => {        
-        this.years.push({ value: data });
-        if (this.reportYear == data) {
-          this.selectedYear = data;
-        }
+  /** initial load of years list; auto-search if filters pre-populated */
+  private loadYears(): void {
+    const url = 'uploadReportController/getMigratedReportYears';
+    this.loading.setLoading(true, url);
+    this.core
+      .get<string[]>(url)
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (years) => {
+          this.loading.setLoading(false, url);
+          years.forEach((yr) => this.years.push({ value: yr }));
+          this.years.reverse();
+
+          // pick default / restored year
+          this.selectedYear ||= this.years.at(0)?.value ?? '';
+
+          // trigger auto-search if we restored filters
+          this.getObsData();
+        },
+        error: (err) => {
+          this.loading.setLoading(false, url);
+          console.error(err);
+        },
       });
-      this.years.reverse();
-      let filterYear: any = localStorage.getItem('sabArchivedObsFilterYear');
-      if (filterYear != null) {
-        this.isFilterSelected = true;
-        this.selectedYear = filterYear.replace(/"/g, "");
-        } else {
-          this.selectedYear = this.years[0].value;
-
-      }
-
-      if (this.isFilterSelected) {
-        this.getObsData();
-      }
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :' , error);
-    });
   }
 
-  getObsData() {
-    let obsData: any[] = [];
-    this.selection.clear()
-    let url = 'launchObservations/archivedObservations?obsTitle=' + this.obsTitle + '&loginId=' + this.loginId + '&reportYear=' + this.selectedYear + '&obsSeq=' + (this.obsSequence ? this.obsSequence : '');
-    url = url + '&isAdmin=' + this.isAdmin;
-    if (this.selectedDelegateUserInfo) {
-      url = url +'&onBehalfOfUserTitle=' + this.userInformation.sabMember.userJobTitle+'&userDepartmentCode=' + this.userInformation.sabMember.departmentCode+ '&userJobTitle=' + this.userJobTitle + '&isDelegatedUser=true&onBehalfOf=' + this.selectedDelegateUserInfo.loginId;
-    } else {
-      if (this.userJobTitle == 'SEC') {
-        url = url +'&onBehalfOfUserTitle=' + this.userInformation.supervisorDetails.userJobTitle+'&userDepartmentCode=' + this.userInformation.supervisorDetails.departmentCode+ '&userJobTitle=' + this.userJobTitle + '&isDelegatedUser=false&onBehalfOf=' + this.userInformation.supervisorDetails.loginId;
-      } else {
-        url = url +'&onBehalfOfUserTitle=' + this.userJobTitle+'&userDepartmentCode=' + this.userInformation.sabMember.departmentCode+ '&userJobTitle=' + this.userJobTitle + '&isDelegatedUser=false&onBehalfOf=' + this.userInformation.sabMember.loginId;
-      }
+  /** read current KNPC or delegate user info and apply business rules */
+  private bootstrapUserContext(): void {
+    this.delegateInfo = JSON.parse(
+      localStorage.getItem('sabDelegateUser') || 'null'
+    );
+
+    if (this.delegateInfo) {
+      this.fetchDelegateInfo();
+      return;
     }
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      // response = {"2021-2022-1":{"obsId":"2021-2022-1","obsTitle":"أولاً: \tالملاحظات المتعلقة بمشروع الوقود البيئي:","obsSequence":1,"reportYear":"2021-2022","department":"Corporate Planning","obsType":"REPEATED"},"2021-2022-2":{"obsId":"2021-2022-2","obsTitle":"    س- \tاستمرار عدم قيام الشركة بتطبيق غرامات التأخير (PTOF) البالغة 122,400,000/000 دينار كويتي على مقاولي الحزم حتى","obsSequence":2,"reportYear":"2021-2022","department":"Chief Executive Officer's Office","obsType":"REPEATED"},"2021-2022-3":{"obsId":"2021-2022-3","obsTitle":"   2- \tالملاحظات الخاصة بالعقد رقم (CFP/MISC/0064):","obsSequence":3,"reportYear":"2021-2022","department":"Corporate Planning","obsType":"NEW"},"2021-2022-4":{"obsId":"2021-2022-4","obsTitle":"  3- \tالملاحظات الخاصة بمطالبات المقاولين:","obsSequence":4,"reportYear":"2021-2022","department":"Committee","obsType":"REPEATED"}}
-      Object.keys(response).forEach((key) => {
-        obsData.push(response[key]);
-      })
-      this.dataSource = new MatTableDataSource(obsData);
-      setTimeout(() => {
-        this.dataSource.sort = this.sort;
-        // this.dataSource.paginator = this.paginator;
-      })
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :' , error);
-    });
+
+    this.userInfo = JSON.parse(localStorage.getItem('sabUserInformation')!);
+    this.applyUser(this.userInfo);
+    this.loadYears();
   }
 
-  navigateTo(row: any) {
+  /** remote GET for delegate user snapshot */
+  private fetchDelegateInfo(): void {
+    const url =
+      `UserController/getDelegateUserInfo?userId=${this.delegateInfo.loginId}` +
+      `&r=${Math.floor(Math.random() * 100) + 100}`;
+
+    this.loading.setLoading(true, url);
+    this.core
+      .get(url)
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (info) => {
+          this.loading.setLoading(false, url);
+          this.applyUser(info);
+          this.loadYears();
+        },
+        error: (err) => {
+          this.loading.setLoading(false, url);
+          console.error(err);
+        },
+      });
+  }
+
+  /** applies user snapshot to local state used later when building URLs */
+  private applyUser(info: any): void {
+    this.userInfo = info;
+    this.userJobTitle = info.sabMember.userJobTitle;
+    this.isAdmin = info.admin;
+    this.reportYear = info.reportYear;
+    this.loginId = info.sabMember.loginId;
+  }
+
+  /* ======================  data-layer actions  ====================== */
+
+  /** main search click */
+  getObsData(): void {
+    /* persist current filters for F5/back-navigation comfort */
     localStorage.setItem('sabArchivedObsTitle', JSON.stringify(this.obsTitle));
-    localStorage.setItem('sabArchivedObsFilterYear', JSON.stringify(this.selectedYear));
-    localStorage.setItem('sabArchivedObsFilterObsSequence', JSON.stringify(this.obsSequence));
-    this.router.navigate(['archived-observations/observation-details', row.obsId]);
+    localStorage.setItem(
+      'sabArchivedObsFilterYear',
+      JSON.stringify(this.selectedYear)
+    );
+    localStorage.setItem(
+      'sabArchivedObsFilterObsSequence',
+      JSON.stringify(this.obsSequence)
+    );
+
+    this.selection.clear();
+    const url = this.buildSearchUrl();
+    this.loading.setLoading(true, url);
+
+    this.core
+      .get<Record<string, ObservationData>>(url)
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (payload) => {
+          this.loading.setLoading(false, url);
+          const rows = Object.values(payload);
+          const table = new MatTableDataSource(rows);
+          table.sort = this.sort ?? null;
+          this.dataSource.set(table);
+        },
+        error: (err) => {
+          this.loading.setLoading(false, url);
+          console.error(err);
+        },
+      });
   }
 
-  reset() {
-    this.obsTitle = '';
-    this.selectedYear = this.years[0].value;
-    this.obsSequence = '';
-    // this.selectedCycle = this.cycleValue[0].value;
-    // this.selection.clear()
-    if (this.dataSource && this.dataSource.data) {
-      this.dataSource.data = [];
+  /** build the rather gnarly query-string the legacy API expects */
+  private buildSearchUrl(): string {
+    const base = 'launchObservations/archivedObservations';
+    const params = new URLSearchParams({
+      obsTitle: this.obsTitle,
+      loginId: this.loginId,
+      reportYear: this.selectedYear,
+      obsSeq: this.obsSequence || '',
+      isAdmin: String(this.isAdmin),
+    });
+
+    const pushCommon = (info: any, delegated: boolean) => {
+      params.set('onBehalfOfUserTitle', info.userJobTitle);
+      params.set('userDepartmentCode', info.departmentCode);
+      params.set('userJobTitle', this.userJobTitle);
+      params.set('isDelegatedUser', String(delegated));
+      params.set('onBehalfOf', info.loginId);
+    };
+
+    if (this.delegateInfo) {
+      pushCommon(this.userInfo.sabMember, true);
+    } else if (this.userJobTitle === 'SEC') {
+      pushCommon(this.userInfo.supervisorDetails, false);
+    } else {
+      pushCommon(this.userInfo.sabMember, false);
     }
+
+    return `${base}?${params.toString()}`;
+  }
+
+  /** row click → details route */
+  navigateTo(row: ObservationData): void {
+    this.router.navigate([
+      'archived-observations/observation-details',
+      row.obsId,
+    ]);
+  }
+
+  /** “Reset” button handler */
+  reset(): void {
+    this.obsTitle = '';
+    this.obsSequence = '';
+    this.selectedYear = this.years.at(0)?.value ?? '';
+    this.dataSource.set(null);
+  }
+
+  /* ------------------------ helpers ------------------------ */
+
+  /** restore filters from localStorage (called in ctor before UI load) */
+  private restoreFilters(): void {
+    this.obsTitle = (
+      JSON.parse(localStorage.getItem('sabArchivedObsTitle') || '""') ?? ''
+    ).toString();
+    this.obsSequence = (
+      JSON.parse(
+        localStorage.getItem('sabArchivedObsFilterObsSequence') || '""'
+      ) ?? ''
+    ).toString();
+    this.selectedYear = JSON.parse(
+      localStorage.getItem('sabArchivedObsFilterYear') || '""'
+    ) as string;
+  }
+
+  get mathOBS() {
+    return Math.abs(+this.obsSequence || 0).toString();
   }
 }

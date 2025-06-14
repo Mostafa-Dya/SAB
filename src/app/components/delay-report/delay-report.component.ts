@@ -1,19 +1,41 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  HostListener,
+  ViewChild,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-// import { userInfo } from 'os';
-import { ConfigService } from 'src/app/services/config.service';
-import { CoreService } from 'src/app/services/core.service';
-import { LoadingService } from 'src/app/services/loading.service';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import { takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
+
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTableModule } from '@angular/material/table';
+import { ConfigService } from '../../services/config.service';
+import { CoreService } from '../../services/core.service';
+import { LoadingService } from '../../services/loading.service';
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { SharedModule } from '../../shared/modules/shared.module';
 
 export class Group {
   level = 0;
-  parent: Group;
+  parent?: Group;
   expanded = false;
   totalCounts = 0;
-  totalCount =0
+  totalCount = 0;
+
+  [key: string]: any;
+
   get visible(): boolean {
     return !this.parent || (this.parent.visible && this.parent.expanded);
   }
@@ -28,65 +50,74 @@ export interface ReportType {
   name: string;
 }
 
-
-export interface Directorate {
+export interface DirectorateDTO {
   id: string;
   name: string;
 }
 
-export interface Department {
+export interface DepartmentDTO {
   id: string;
   name: string;
 }
 
+/** The shape of each row in the final table. */
 export interface ReportDataTable {
-  department: string,
-  manager: number,
-  teamLeader: number,
-  user: number,
-  total: number,
+  department: string;
+  manager: number;
+  teamLeader: number;
+  user: number;
+  total: number;
   organization: string;
-  totalCount:number;
-  projects: string;
+  totalCount: number;
 }
 
+/** Response from the server's "searchDelayReport" or "getDirectorateData" endpoints, etc. */
+interface DelayReportResponse {
+  code: string;
+  name: string;
+  count: number;
+  departments: Array<{
+    deptCode: number;
+    deptName: string;
+    pendingUser: number;
+    pendingManager: number;
+    pendingTl: number;
+    count: number;
+  }>;
+}
 
 @Component({
+  standalone: true,
   selector: 'app-delay-report',
   templateUrl: './delay-report.component.html',
-  styleUrls: ['./delay-report.component.css']
+  styleUrls: ['./delay-report.component.scss'],
+  imports: [SharedModule],
 })
+export class DelayReportComponent implements OnInit, OnDestroy {
+  /** Data after fetching from server. Used for grouping logic. */
+  private allData: ReportDataTable[] = [];
 
-export class DelayReportComponent implements OnInit {
-  data: any = [];
+  /** Table data source containing raw rows + group rows. */
   public dataSource = new MatTableDataSource<any>([]);
-  displayedColumns: string[] = ['department', 'manager', 'teamLeader', 'user', 'total'];
+
+  /** Displayed columns for wide screens. */
+  displayedColumns: string[] = [
+    'department',
+    'manager',
+    'teamLeader',
+    'user',
+    'total',
+  ];
+
+  /** Displayed columns for smaller screens. */
   displayedColumnsSmallMob: string[] = ['department', 'total'];
-  groupByColumns: string[] = ['organization'];
-  isRtl: any;
-  _alldata: any[];
-  isLoading: boolean = true;
-  length: number = 0;
-  // Filters
-  selectedYear: string;
-  selectedReport: string = 'KNPC Response Report';
-  mainUrl: string;
-  isFilterSelected: boolean;
-  selectedDelegateUserInfo: any;
-  isDirectorateVisible: boolean = true;
-  isDepartmentVisible: boolean = true;
-  selectedDirectorate: string;
-  selectedDepartment: string;
-  directorateData = new FormControl();
-  directorateList: string[] = ['All'];
-  directorateAllValues: Directorate[] = [{ id: "All", name: "All" }];
-  departmentAllValues: Department[] = [{ id: "All", name: "All" }];
-  isDirectorateFirst: any = false;
-  departmentData = new FormControl();
-  departmentList: string[] = ['All'];
-  isDepartmentFirst: any = false;
-  delayInfo: any;
+
+  /** The columns used for grouping rows. */
+  groupByColumns: (keyof ReportDataTable)[] = ['organization'];
+  /** All year options. */
   years: Years[] = [];
+
+  /** All report-type options. */
   reportType: ReportType[] = [
     { value: 'KNPC Response Report', name: 'KNPC_RESPONSE_REPORT' },
     { value: 'SAB Quarterly Report Q1', name: 'SAB_QUARTERLY_REPORT_Q1' },
@@ -94,118 +125,540 @@ export class DelayReportComponent implements OnInit {
     { value: 'SAB Quarterly Report Q3', name: 'SAB_QUARTERLY_REPORT_Q3' },
     { value: 'SAB Quarterly Report Q4', name: 'SAB_QUARTERLY_REPORT_Q4' },
     { value: 'SAB Semi-annual Report 1', name: 'SAB_SEMI_ANNUAL_REPORT_1' },
-    { value: 'SAB Semi-annual Report 2', name: 'SAB_SEMI_ANNUAL_REPORT_2' }
+    { value: 'SAB Semi-annual Report 2', name: 'SAB_SEMI_ANNUAL_REPORT_2' },
   ];
+
+  /** Form controls for directorate & department multi-selection. */
+  directorateData = new FormControl<string[] | null>(null);
+  departmentData = new FormControl<string[] | null>(null);
+
+  /** List of all directorates in string form (for the multi-select). */
+  directorateList: string[] = ['All'];
+  /** Backing store with IDs for each directorate. */
+  directorateAllValues: DirectorateDTO[] = [{ id: 'All', name: 'All' }];
+
+  /** List of all departments in string form (for the multi-select). */
+  departmentList: string[] = ['All'];
+  /** Backing store with IDs for each department. */
+  departmentAllValues: DepartmentDTO[] = [{ id: 'All', name: 'All' }];
+
+  /** Tracks whether user has selected 'All' for directorates & we are adjusting. */
+  private isDirectorateFirst = false;
+  /** Tracks whether user has selected 'All' for departments & we are adjusting. */
+  private isDepartmentFirst = false;
+
+  /** The currently selected year. */
+  selectedYear = '';
+  /** The currently selected report type. */
+  selectedReport = 'KNPC Response Report';
+
+  /** The logged-in user info from localStorage. */
   userInformation: any;
+  /** The jobTitle for the current user. */
   userJobTitle: any;
-  isAdmin: any;
+  /** Whether the user is an admin. */
+  isAdmin: boolean | undefined;
+
+  /** Main base URL from config. */
+  mainUrl = '';
+
+  /** If user is delegated or not. (You had logic referencing “onBehalfOf” etc.) */
+  selectedDelegateUserInfo: any;
+
+  /** For toggling the spinner or manual isLoading. */
+  isLoading = true;
+
+  /** Whether layout is RTL or LTR. */
+  isRtl = false;
+
+  /** A simple array referencing the raw data (converted to table rows). */
+  data: ReportDataTable[] = [];
+
+  /** Screen width for responsive logic. */
   innerWidth = 0;
-  constructor(private coreService: CoreService,
+
+  /** Subject to clean up subscriptions. */
+  private readonly destroy$ = new Subject<void>();
+
+  isGroup = (index: number, rowData: any) => {
+  // If you used a `Group` class, check with `instanceof Group`:
+  return rowData instanceof Group;
+};
+
+  constructor(
+    private coreService: CoreService,
     private sharedVariableService: SharedVariableService,
     private configService: ConfigService,
-    private _loading: LoadingService) { }
+    private loadingService: LoadingService
+  ) {}
 
   ngOnInit(): void {
-    let sabUserInformation: any = localStorage.getItem('sabUserInformation');
-    this.mainUrl = this.configService.baseUrl;
-    this.userInformation = JSON.parse(sabUserInformation);
-    this.userJobTitle = this.userInformation.sabMember.userJobTitle;
-    this.isAdmin = this.userInformation.admin;
-    this.selectedYear = this.userInformation.reportYear;
+    // Subscribe to RTL changes
+    this.sharedVariableService.isRtl$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((rtl) => (this.isRtl = rtl));
+
+    // Load sabUserInformation from localStorage
+    const sabUserInformation = localStorage.getItem('sabUserInformation');
+    if (sabUserInformation) {
+      this.userInformation = JSON.parse(sabUserInformation);
+      this.userJobTitle = this.userInformation?.sabMember?.userJobTitle;
+      this.isAdmin = this.userInformation?.admin;
+      this.selectedYear = this.userInformation?.reportYear || '';
+    }
+
     this.innerWidth = window.innerWidth;
-    this.getDirectorateData()
+
+    // Base URL from config
+    this.mainUrl = this.configService['baseUrl'];
+
+    // Initialize directorate & department data
+    this.getDirectorateData();
     this.getYear();
   }
 
-  getYear() {
-    // let url = 'uploadReportController/getReportYears';
-    // this._loading.setLoading(true, url);
-    // this.coreService.get(url).subscribe(response => {
-    //   this._loading.setLoading(false, url);
-    //   response.map((data: any) => {
-    //     this.years.push({ value: data })
-    //   })
-    //   this.years.reverse();
-    //   setTimeout(() => {
-    //     this.selectedYear = this.years[0].value;
-    //     // this.form.controls.year.reset(this.years[0].value)
-    //   }, 1000)
-    // }, error => {
-    //   this._loading.setLoading(false, url);
-    //   console.log('error :' , error);
-    // });
-
-    let url = 'uploadReportController/getReportYears';
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      let years: any[] = [];
-      response.map((data: any) => {
-        years.push({ value: data })
-      })
-      years.reverse();
-      this.years = [...this.years, ...years];
-      this.selectedYear = this.years[0].value;
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :', error);
-    });
+  ngOnDestroy(): void {
+    // clean up any ongoing Observables
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  onResize(event: any) {
+  /** Listen for window resize events to handle small-screen vs. large-screen logic */
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
     this.innerWidth = window.innerWidth;
   }
 
-  groupBy(event: any, column: any) {
-    event.stopPropagation();
-    this.checkGroupByColumn(column.field, true);
-    this.dataSource.data = this.addGroups(this._alldata, this.groupByColumns);
-    this.dataSource.filter = performance.now().toString();
+  /**
+   * Retrieve the year list from the server.
+   */
+  getYear(): void {
+    const url = 'uploadReportController/getReportYears';
+    this.loadingService.setLoading(true, url);
+
+    this.coreService
+      .get<string[]>(url)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.loadingService.setLoading(false, url);
+
+          // Example logic to push them into `this.years`
+          const result: Years[] = response.map((year) => ({ value: year }));
+          // reverse if you want the newest first
+          result.reverse();
+
+          // Append them to our existing array
+          this.years = [...this.years, ...result];
+          // set default selection to the first
+          if (this.years[0]) {
+            this.selectedYear = this.years[0].value;
+          }
+        },
+        error: (err) => {
+          this.loadingService.setLoading(false, url);
+          console.error('getYear() error:', err);
+        },
+      });
   }
 
-  checkGroupByColumn(field: any, add: any) {
-    let found = null;
-    for (const column of this.groupByColumns) {
-      if (column === field) {
-        found = this.groupByColumns.indexOf(column, 0);
-      }
+  /**
+   * Fetch directorate data from server to populate the multi-select.
+   */
+  getDirectorateData(): void {
+    const url = 'UserController/getsabDirectorates';
+    this.loadingService.setLoading(true, url);
+
+    this.directorateAllValues = [{ id: 'All', name: 'All' }];
+    this.directorateList = ['All'];
+
+    this.coreService
+      .get<Record<string, string>>(url)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.loadingService.setLoading(false, url);
+
+          // Convert object { "101210":"Deputy C.E.O. ...", ...} to array
+          Object.keys(response).forEach((key) => {
+            this.directorateAllValues.push({ id: key, name: response[key] });
+            this.directorateList.push(response[key]);
+          });
+
+          // Sort them
+          this.directorateAllValues.sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+          );
+          this.directorateList.sort();
+
+          // Optionally read from localStorage
+          const filterDirectorate = localStorage.getItem(
+            'sabDelayStatFilterDirectorate'
+          );
+          if (filterDirectorate != null) {
+            // e.g. parse & set, if desired
+            // this.directorateData.setValue(JSON.parse(filterDirectorate))
+          } else {
+            localStorage.setItem(
+              'sabDelayStatFilterDirectorate',
+              JSON.stringify([])
+            );
+          }
+
+          this.getDepartmentData();
+        },
+        error: (err) => {
+          this.loadingService.setLoading(false, url);
+          console.error('getDirectorateData() error:', err);
+        },
+      });
+  }
+
+  /**
+   * Fetch department data from server to populate the multi-select.
+   */
+  getDepartmentData(): void {
+    let url = 'UserController/getsabDepartments';
+    if (!this.isAdmin) {
+      url +=
+        '?directorateId=' + this.userInformation?.sabMember?.directorateCode;
     }
-    if (found != null && found >= 0) {
-      if (!add) {
-        this.groupByColumns.splice(found, 1);
+
+    this.loadingService.setLoading(true, url);
+    this.departmentAllValues = [{ id: 'All', name: 'All' }];
+    this.departmentList = ['All'];
+
+    this.coreService
+      .get<Record<string, string>>(url)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.loadingService.setLoading(false, url);
+
+          Object.keys(response).forEach((key) => {
+            this.departmentAllValues.push({ id: key, name: response[key] });
+            this.departmentList.push(response[key]);
+          });
+
+          this.departmentAllValues.sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+          );
+          this.departmentList.sort();
+
+          // Optionally read from localStorage
+          const filterDepartment = localStorage.getItem(
+            'sabDelayStatFilterDepartment'
+          );
+          if (filterDepartment != null) {
+            // e.g. parse & set, if desired
+            // this.departmentData.setValue(JSON.parse(filterDepartment))
+          } else {
+            localStorage.setItem(
+              'sabDelayStatFilterDepartment',
+              JSON.stringify([])
+            );
+          }
+        },
+        error: (err) => {
+          this.loadingService.setLoading(false, url);
+          console.error('getDepartmentData() error:', err);
+        },
+      });
+  }
+
+  /**
+   * Called whenever user changes department multi-select. Handles the "All" logic.
+   */
+  departmentChange(event: any): void {
+    if (this.isDepartmentFirst) {
+      return;
+    }
+    const isAll = event.source.value === 'All';
+    this.isDepartmentFirst = true;
+
+    const filterDeptStr = localStorage.getItem('sabDelayStatFilterDepartment');
+    let filterDept = filterDeptStr ? JSON.parse(filterDeptStr) : [];
+
+    if (isAll) {
+      if (event.source._selected) {
+        // user selected 'All'
+        this.departmentData.setValue(this.departmentList);
+        localStorage.setItem(
+          'sabDelayStatFilterDepartment',
+          JSON.stringify([])
+        );
+      } else {
+        // user unselected 'All'
+        this.departmentData.setValue([]);
+        localStorage.setItem(
+          'sabDelayStatFilterDepartment',
+          JSON.stringify(this.departmentList)
+        );
       }
     } else {
-      if (add) {
-        this.groupByColumns.push(field);
+      // A specific department
+      if (!event.source._selected) {
+        // user unselected
+        setTimeout(() => {
+          if (this.departmentData.value?.[0] === 'All') {
+            const newVal = [...(this.departmentData.value as string[])];
+            newVal.splice(0, 1);
+            this.departmentData.setValue(newVal);
+          }
+          filterDept = [...filterDept, event.source.value];
+          localStorage.setItem(
+            'sabDelayStatFilterDepartment',
+            JSON.stringify(filterDept)
+          );
+          this.isDepartmentFirst = false;
+        }, 300);
+      } else {
+        // user selected a specific department
+        setTimeout(() => {
+          const idx = filterDept.indexOf(event.source.value);
+          if (idx >= 0) {
+            filterDept.splice(idx, 1);
+            localStorage.setItem(
+              'sabDelayStatFilterDepartment',
+              JSON.stringify(filterDept)
+            );
+          }
+          // if selected + 1 == departmentList.length => user effectively selected all
+          if (
+            this.departmentData.value &&
+            this.departmentData.value.length + 1 === this.departmentList.length
+          ) {
+            this.departmentData.setValue(this.departmentList);
+            localStorage.setItem(
+              'sabDelayStatFilterDepartment',
+              JSON.stringify([])
+            );
+          }
+          this.isDepartmentFirst = false;
+        }, 300);
       }
     }
+    this.isDepartmentFirst = false;
   }
 
-  unGroupBy(event: any, column: any) {
-    event.stopPropagation();
-    this.checkGroupByColumn(column.field, false);
-    this.dataSource.data = this.addGroups(this._alldata, this.groupByColumns);
-    this.dataSource.filter = performance.now().toString();
+  /**
+   * Called whenever user changes directorate multi-select. Handles the "All" logic.
+   */
+  directorateChange(event: any): void {
+    if (this.isDirectorateFirst) {
+      return;
+    }
+    const isAll = event.source.value === 'All';
+    this.isDirectorateFirst = true;
+
+    const filterDirStr = localStorage.getItem('sabDelayStatFilterDirectorate');
+    let filterDir = filterDirStr ? JSON.parse(filterDirStr) : [];
+
+    if (isAll) {
+      if (event.source._selected) {
+        // user selected 'All'
+        this.directorateData.setValue(this.directorateList);
+        localStorage.setItem(
+          'sabDelayStatFilterDirectorate',
+          JSON.stringify([])
+        );
+      } else {
+        // user unselected 'All'
+        this.directorateData.setValue([]);
+        localStorage.setItem(
+          'sabDelayStatFilterDirectorate',
+          JSON.stringify(this.directorateList)
+        );
+      }
+    } else {
+      // A specific directorate
+      if (!event.source._selected) {
+        // user unselected
+        setTimeout(() => {
+          if (this.directorateData.value?.[0] === 'All') {
+            const newVal = [...(this.directorateData.value as string[])];
+            newVal.splice(0, 1);
+            this.directorateData.setValue(newVal);
+          }
+          filterDir = [...filterDir, event.source.value];
+          localStorage.setItem(
+            'sabDelayStatFilterDirectorate',
+            JSON.stringify(filterDir)
+          );
+          this.isDirectorateFirst = false;
+        }, 300);
+      } else {
+        // user selected a specific directorate
+        setTimeout(() => {
+          const idx = filterDir.indexOf(event.source.value);
+          if (idx >= 0) {
+            filterDir.splice(idx, 1);
+            localStorage.setItem(
+              'sabDelayStatFilterDirectorate',
+              JSON.stringify(filterDir)
+            );
+          }
+          // if selected + 1 == directorateList.length => user effectively selected all
+          if (
+            this.directorateData.value &&
+            this.directorateData.value.length + 1 ===
+              this.directorateList.length
+          ) {
+            this.directorateData.setValue(this.directorateList);
+            localStorage.setItem(
+              'sabDelayStatFilterDirectorate',
+              JSON.stringify([])
+            );
+          }
+          this.isDirectorateFirst = false;
+        }, 300);
+      }
+    }
+    this.isDirectorateFirst = false;
   }
 
-  // below is for grid row grouping
+  /**
+   * Fetch the "delay report" data from the server and update the table.
+   */
+  getDelayReport(): void {
+    let departmentData = this.buildMultiSelectionParam(
+      this.departmentData.value,
+      this.departmentAllValues
+    );
+    let directorateData = this.buildMultiSelectionParam(
+      this.directorateData.value,
+      this.directorateAllValues
+    );
+
+    // if user selected 'All'
+    if (
+      this.departmentData.value &&
+      this.departmentData.value.length === this.departmentAllValues.length
+    ) {
+      departmentData = 'All';
+    }
+    if (
+      this.directorateData.value &&
+      this.directorateData.value.length === this.directorateAllValues.length
+    ) {
+      directorateData = 'All';
+    }
+
+    let url =
+      `SearchController/searchDelayReport?reportYear=${this.selectedYear}` +
+      `&reportCycle=${this.selectedReport}` +
+      `&dirId=${directorateData}` +
+      `&depId=${departmentData}`;
+
+    // handle delegated user or SEC user logic
+    if (this.selectedDelegateUserInfo) {
+      url += `&userJobTitle=${this.userJobTitle}&isDelegatedUser=true&onBehalfOf=${this.selectedDelegateUserInfo.loginId}`;
+    } else {
+      if (this.userJobTitle === 'SEC') {
+        const supLogin = this.userInformation?.supervisorDetails?.loginId || '';
+        url += `&userJobTitle=SEC&isDelegatedUser=false&onBehalfOf=${supLogin}`;
+      } else {
+        const sabLogin = this.userInformation?.sabMember?.loginId || '';
+        url += `&userJobTitle=${this.userJobTitle}&isDelegatedUser=false&onBehalfOf=${sabLogin}`;
+      }
+    }
+
+    this.data = [];
+    this.loadingService.setLoading(true, url);
+
+    this.coreService
+      .get<DelayReportResponse[]>(url)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.loadingService.setLoading(false, url);
+          // Flatten the nested data
+          const flattened: ReportDataTable[] = [];
+          for (const orgItem of response) {
+            for (const deptItem of orgItem.departments) {
+              flattened.push({
+                department: deptItem.deptName,
+                manager: deptItem.pendingManager,
+                teamLeader: deptItem.pendingTl,
+                user: deptItem.pendingUser,
+                total: deptItem.count,
+                organization: orgItem.name,
+                totalCount: orgItem.count,
+              });
+            }
+          }
+          this.data = flattened;
+          this.allData = flattened;
+
+          // Group the data
+          this.dataSource.data = this.addGroups(
+            this.allData,
+            this.groupByColumns
+          );
+          if (
+            this.dataSource.data.length > 0 &&
+            this.dataSource.data[0] instanceof Group
+          ) {
+            // expand the top group by default
+            (this.dataSource.data[0] as Group).expanded = true;
+          }
+
+          // Set up custom filter
+          this.dataSource.filterPredicate =
+            this.customFilterPredicate.bind(this);
+          // Trigger the filter to process grouping
+          this.dataSource.filter = performance.now().toString();
+        },
+        error: (err) => {
+          this.loadingService.setLoading(false, url);
+          console.error('getDelayReport() error:', err);
+        },
+      });
+  }
+
+  /**
+   * Helper to convert form-control arrays to comma-delimited IDs (based on a reference array).
+   */
+  private buildMultiSelectionParam(
+    selectedValues: string[] | null,
+    allValues: Array<{ id: string; name: string }>
+  ): string {
+    if (!selectedValues || !selectedValues.length) {
+      return '';
+    }
+    const ids: string[] = [];
+    for (const val of selectedValues) {
+      // find the matching ID
+      const found = allValues.find((x) => x.name === val);
+      if (found) {
+        ids.push(found.id);
+      }
+    }
+    return ids.join(',');
+  }
+
+  /**
+   * Row grouping logic
+   */
   customFilterPredicate(data: any | Group, filter: string): boolean {
-    return (data instanceof Group) ? data.visible : this.getDataRowVisible(data);
+    return data instanceof Group ? data.visible : this.getDataRowVisible(data);
   }
 
-  getDataRowVisible(data: any): boolean {
-    const groupRows = this.dataSource.data.filter((row) => {
-      // if (!(row instanceof Group)) {
-      //   return false;
-      // }
+  getDataRowVisible(data: ReportDataTable): boolean {
+    // find any group row(s) that match this row’s grouping columns
+    const groupRows = this.dataSource.data.filter((row: any) => {
+      if (!(row instanceof Group)) {
+        return false;
+      }
       let match = true;
-      this.groupByColumns.forEach(column => {
-        if (!row[column] || !data[column] || row[column] !== data[column]) {
+      this.groupByColumns.forEach((column) => {
+        if (row[column] !== data[column]) {
           match = false;
         }
       });
       return match;
     });
+
     if (groupRows.length === 0) {
       return true;
     }
@@ -213,431 +666,140 @@ export class DelayReportComponent implements OnInit {
     return parent.visible && parent.expanded;
   }
 
-  groupHeaderClick(row: any) {
-    // for(let i = 0 ;i < this.dataSource.data.length ;i++){
-    //   if(this.dataSource.data[i] instanceof Group && JSON.stringify(row) != JSON.stringify(this.dataSource.data[i])){
-    //     this.dataSource.data[i].expanded = false
-    //   }
-    //   if(i == this.dataSource.data.length - 1){
+  groupHeaderClick(row: Group): void {
     row.expanded = !row.expanded;
-    //   }
-    // }
-    this.dataSource.filter = performance.now().toString();  // bug here need to fix
+    this.dataSource.filter = performance.now().toString();
   }
 
-  addGroups(data: any[], groupByColumns: string[]): any[] {
+  addGroups(data: ReportDataTable[], groupByCols: string[]): any[] {
     const rootGroup = new Group();
     rootGroup.expanded = true;
-    return this.getSublevel(data, 0, groupByColumns, rootGroup);
+    return this.getSublevel(data, 0, groupByCols, rootGroup);
   }
 
-  getSublevel(data: any[], level: number, groupByColumns: string[], parent: Group): any[] {
-    if (level >= groupByColumns.length) {
+  getSublevel(
+    data: ReportDataTable[],
+    level: number,
+    groupByCols: string[],
+    parent: Group
+  ): any[] {
+    if (level >= groupByCols.length) {
       return data;
     }
-    const groups = this.uniqueBy(data.map(row => {
-      let result: any = new Group();
-      result.level = level + 1;
-      result.parent = parent;
-      for (let i = 0; i <= level; i++) {
-        result[groupByColumns[i]] = row[groupByColumns[i]];
-      }
-      return result;
-    }), JSON.stringify);
-    const currentColumn = groupByColumns[level];
-    let subGroups: any = [];
-    groups.forEach((group: any) => {
-      const rowsInGroup = data.filter(row => group[currentColumn] === row[currentColumn]);
+    // Create top-level groups
+    const groups = this.uniqueBy(
+      data.map((row) => {
+        const result = new Group();
+        result.level = level + 1;
+        result.parent = parent;
+        for (let i = 0; i <= level; i++) {
+          result[groupByCols[i]] = row[groupByCols[i] as keyof ReportDataTable];
+        }
+        return result;
+      }),
+      JSON.stringify
+    );
+
+    const currentCol = groupByCols[level];
+    let subGroups: any[] = [];
+
+    groups.forEach((group) => {
+      const rowsInGroup = data.filter(
+        (row) => group[currentCol] === row[currentCol as keyof ReportDataTable]
+      );
       group.totalCounts = rowsInGroup.length;
-      let totalCount = data.find(row => row.organization === group.organization);
-      group.totalCount = totalCount.totalCount;
-      const subGroup = this.getSublevel(rowsInGroup, level + 1, groupByColumns, group);
+
+      // e.g. totalCount from the first row
+      if (rowsInGroup.length > 0) {
+        group.totalCount = rowsInGroup[0].totalCount;
+      }
+
+      const subGroup = this.getSublevel(
+        rowsInGroup,
+        level + 1,
+        groupByCols,
+        group
+      );
+      // Insert the group row at the start of subGroup
       subGroup.unshift(group);
       subGroups = subGroups.concat(subGroup);
     });
     return subGroups;
   }
 
-  uniqueBy(a: any, key: any) {
-    let seen: any = {};
-    return a.filter((item: any) => {
-      const k = key(item);
+  uniqueBy(array: any[], keyFn: (item: any) => string): any[] {
+    const seen: { [key: string]: boolean } = {};
+    return array.filter((item) => {
+      const k = keyFn(item);
       return seen.hasOwnProperty(k) ? false : (seen[k] = true);
     });
   }
 
-  isGroup(index: any, item: any): boolean {
-    return item.level;
-  }
-
-  getDelayReport() {
-    let departmentData: string = '';
-    let directorateData: string = '';
-    let obsData: any[] = [];
-    for (let i = 0; i < this.departmentAllValues.length; i++) {
-      if (this.departmentData && this.departmentData.value && this.departmentData.value.length) {
-        for (let j = 0; j < this.departmentData.value.length; j++) {
-          if (this.departmentData.value[j] == this.departmentAllValues[i].name) {
-            if (departmentData == '') {
-              departmentData = this.departmentAllValues[i].id
-            } else {
-              departmentData = departmentData + "," + this.departmentAllValues[i].id;
-            }
-          }
-        }
-      }
+  /** Export the table data to MS Word */
+  msWord(): void {
+    let departmentData = this.buildMultiSelectionParam(
+      this.departmentData.value,
+      this.departmentAllValues
+    );
+    let directorateData = this.buildMultiSelectionParam(
+      this.directorateData.value,
+      this.directorateAllValues
+    );
+    // handle 'All'
+    if (
+      this.departmentData.value &&
+      this.departmentData.value.length === this.departmentAllValues.length
+    ) {
+      departmentData = 'All';
     }
-    for (let i = 0; i < this.directorateAllValues.length; i++) {
-      if (this.directorateData && this.directorateData.value && this.directorateData.value.length) {
-        for (let j = 0; j < this.directorateData.value.length; j++) {
-          if (this.directorateData.value[j] == this.directorateAllValues[i].name) {
-            if (directorateData == '') {
-              directorateData = this.directorateAllValues[i].id
-            } else {
-              directorateData = directorateData + "," + this.directorateAllValues[i].id;
-            }
-          }
-        }
-      }
+    if (
+      this.directorateData.value &&
+      this.directorateData.value.length === this.directorateAllValues.length
+    ) {
+      directorateData = 'All';
     }
-    if (this.departmentData && this.departmentData.value && this.departmentAllValues.length == this.departmentData.value.length) {
-      departmentData = 'All'
-    }
-    if (this.directorateData && this.directorateData.value && this.directorateAllValues.length == this.directorateData.value.length) {
-      directorateData = 'All'
-    }
-    let url = 'SearchController/searchDelayReport?reportYear=' + this.selectedYear + '&reportCycle=' + this.selectedReport + '&dirId=' + directorateData + '&depId=' + departmentData
-    if (this.selectedDelegateUserInfo) {
-      url = url + '&userJobTitle=' + this.userJobTitle + '&isDelegatedUser=true&onBehalfOf=' + this.selectedDelegateUserInfo.loginId;
-    } else {
-      if (this.userJobTitle == 'SEC') {
-        url = url + '&userJobTitle=' + this.userJobTitle + '&isDelegatedUser=false&onBehalfOf=' + this.userInformation.supervisorDetails.loginId;
-      } else {
-        url = url + '&userJobTitle=' + this.userJobTitle + '&isDelegatedUser=false&onBehalfOf=' + this.userInformation.sabMember.loginId;
-      }
-    }
-    this.data = [];
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe((response:any) => {
-      this._loading.setLoading(false, url);
 
-      //  response = [{"code":"101330","name":"Deputy C.E.O. For Planning & Finance","count":27,"departments":[{"deptCode":103010,"deptName":"Corporate Planning","pendingUser":0,"pendingManager":0,"pendingTl":0,"count":27}]},{"code":"101280","name":"Deputy C.E.O. For Support Services","count":5,"departments":[{"deptCode":196100,"deptName":"Information Technology","pendingUser":0,"pendingManager":0,"pendingTl":0,"count":5}]},{"code":"101210","name":"Deputy C.E.O. For Fuel Supply Operations","count":2,"departments":[{"deptCode":117010,"deptName":"Local Marketing","pendingUser":0,"pendingManager":0,"pendingTl":0,"count":2}]}]
+    const url =
+      'ReminderAndClassificationExportController/exportDelayReportToWord' +
+      `?reportYear=${this.selectedYear}` +
+      `&reportCycle=${this.selectedReport}` +
+      `&dirId=${directorateData}` +
+      `&depId=${departmentData}`;
 
-      for (let i = 0; i < response.length; i++) {
-        for (let j = 0; j < response[i].departments.length; j++) {
-          this.data.push({
-            department: response[i].departments[j].deptName,
-            manager: response[i].departments[j].pendingManager,
-            teamLeader: response[i].departments[j].pendingTl,
-            user: response[i].departments[j].pendingUser,
-            total: response[i].departments[j].count,
-            organization: response[i].name,
-            totalCount: response[i].count
-          })
-        }
-      }
-      this._alldata = this.data;
-      this.length = this._alldata.length
-      this.dataSource.data = this.addGroups(this._alldata, this.groupByColumns);
-      if (this.dataSource.data && this.dataSource.data.length > 0 && this.dataSource.data[0] instanceof Group) {
-        this.dataSource.data[0].expanded = true
-      }
-      this.dataSource.filterPredicate = this.customFilterPredicate.bind(this);
-      this.dataSource.filter = performance.now().toString();
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error : ', error);
-    });
-
-  }
-
-
-  getDirectorateData() {
-    let url = 'UserController/getsabDirectorates';
-    this._loading.setLoading(true, url);
-    this.directorateAllValues = [{ id: "All", name: "All" }];
-    this.directorateList = ['All'];
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key: any) => {
-        this.directorateAllValues.push({ id: key, name: response[key] })
-        this.directorateList.push(response[key])
-      })
-      this.directorateAllValues.sort((a: any, b: any) => {
-        let fa = a.name.toLowerCase(), fb = b.name.toLowerCase();
-        if (fa < fb) {
-          return -1;
-        }
-        if (fa > fb) {
-          return 1;
-        }
-        return 0;
-      });
-
-      this.directorateList.sort();
-
-      setTimeout(() => {
-        // this.directorateData.setValue(this.directorateList);
-        // console.log(this.directorateData, 'directorateData',this.directorateList, 'directorateList' )
-        let filterDirectorate: any = localStorage.getItem('sabDelayStatFilterDirectorate');
-        if (filterDirectorate != null) {
-          this.isFilterSelected = true;
-          // this.directorateData.setValue(JSON.parse(filterDirectorate))
-        } else {
-          localStorage.setItem('sabDelayStatFilterDirectorate', JSON.stringify([]));
-        }
-        this.isDirectorateFirst = false;
-      }, 1000)
-      this.getDepartmentData();
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :', error);
-    });
-  }
-
-  getDepartmentData() {
-    let url = 'UserController/getsabDepartments';
-
-    if (!this.isAdmin) {
-      url = url + '?directorateId=' + this.userInformation.sabMember.directorateCode
-    }
-    this._loading.setLoading(true, url);
-    this.departmentAllValues = [{ id: "All", name: "All" }];
-    this.departmentList = ['All'];
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
-        this.departmentAllValues.push({ id: key, name: response[key] })
-        this.departmentList.push(response[key])
-      })
-      this.departmentAllValues.sort((a: any, b: any) => {
-        let fa = a.name.toLowerCase(), fb = b.name.toLowerCase();
-        if (fa < fb) {
-          return -1;
-        }
-        if (fa > fb) {
-          return 1;
-        }
-        return 0;
-      });
-
-      this.departmentList.sort();
-      setTimeout(() => {
-        // this.departmentData.setValue(this.departmentList);
-        console.log(this.departmentData)
-        let filterDepartment: any = localStorage.getItem('sabDelayStatFilterDepartment');
-        if (filterDepartment != null) {
-          this.isFilterSelected = true;
-          // this.departmentData.setValue(JSON.parse(filterDepartment))
-        } else {
-          localStorage.setItem('sabDelayStatFilterDepartment', JSON.stringify([]));
-        }
-        this.isDepartmentFirst = false;
-      }, 1000)
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :', error);
-    });
-
-  }
-
-
-  departmentChange(event: any) {
-
-    if (!this.isDepartmentFirst) {
-      if (event.source.value == 'All') {
-        this.isDepartmentFirst = true;
-        if (event.source._selected) {
-          this.departmentData.setValue(this.departmentList)
-          localStorage.setItem('sabDelayStatFilterDepartment', JSON.stringify([]));
-        } else {
-          this.departmentData.setValue([]);
-          localStorage.setItem('sabDelayStatFilterDepartment', JSON.stringify(this.departmentList));
-        }
-        this.isDepartmentFirst = false;
-      } else {
-        this.isDepartmentFirst = true;
-        let filter: any = localStorage.getItem('sabDelayStatFilterDepartment');
-
-        if (!event.source._selected) {
-          setTimeout(() => {
-            this.isDepartmentFirst = true;
-
-            if (this.departmentData.value[0] == 'All') {
-              let data = [...this.departmentData.value];
-              data.splice(0, 1);
-              this.departmentData.setValue(data);
-            }
-
-            if (filter && JSON.parse(filter).length > 0) {
-              filter = JSON.parse(filter)
-              filter = [...filter, event.source.value]
-              localStorage.setItem('sabDelayStatFilterDepartment', JSON.stringify(filter));
-            } else {
-              localStorage.setItem('sabDelayStatFilterDepartment', JSON.stringify(['All', event.source.value]));
-            }
-            this.isDepartmentFirst = false;
-          }, 300)
-        } else {
-          if (filter) {
-            setTimeout(() => {
-              this.isDepartmentFirst = true;
-              filter = JSON.parse(filter);
-              let index = filter.indexOf(event.source.value);
-              filter.splice(index, 1)
-              localStorage.setItem('sabDelayStatFilterDepartment', JSON.stringify(filter));
-              if ((this.departmentData.value.length + 1) == this.departmentList.length) {
-                this.isDepartmentFirst = true;
-                this.departmentData.setValue(this.departmentList);
-                localStorage.setItem('sabDelayStatFilterDepartment', JSON.stringify([]));
-                this.isDepartmentFirst = false;
-              }
-              this.isDepartmentFirst = false;
-            }, 300)
-          }
-
-        }
-
-      }
-
-    }
-  }
-
-  directorateChange(event: any) {
-    console.log(this.isDirectorateFirst)
-    if (!this.isDirectorateFirst) {
-      if (event.source.value == 'All') {
-        this.isDirectorateFirst = true;
-        if (event.source._selected) {
-          this.directorateData.setValue(this.directorateList)
-          localStorage.setItem('sabDelayStatFilterDirectorate', JSON.stringify([]));
-        } else {
-          this.directorateData.setValue([]);
-          localStorage.setItem('sabDelayStatFilterDirectorate', JSON.stringify(this.directorateList));
-        }
-        this.isDirectorateFirst = false;
-      } else {
-        this.isDirectorateFirst = true;
-        let filter: any = localStorage.getItem('sabDelayStatFilterDirectorate');
-        if (!event.source._selected) {
-          setTimeout(() => {
-            this.isDirectorateFirst = true;
-            if (this.directorateData.value[0] == 'All') {
-              let data = [...this.directorateData.value];
-              data.splice(0, 1);
-              this.directorateData.setValue(data);
-            }
-            if (filter && JSON.parse(filter).length > 0) {
-              filter = JSON.parse(filter)
-              filter = [...filter, event.source.value]
-              localStorage.setItem('sabDelayStatFilterDirectorate', JSON.stringify(filter));
-            } else {
-              localStorage.setItem('sabDelayStatFilterDirectorate', JSON.stringify(['All', event.source.value]));
-            }
-            this.isDirectorateFirst = false;
-          }, 300)
-        } else {
-          if (filter) {
-            setTimeout(() => {
-              this.isDirectorateFirst = true;
-              filter = JSON.parse(filter);
-              let index = filter.indexOf(event.source.value);
-              filter.splice(index, 1)
-              localStorage.setItem('sabDelayStatFilterDirectorate', JSON.stringify(filter));
-              if ((this.directorateData.value.length + 1) == this.directorateList.length) {
-                this.isDirectorateFirst = true;
-                this.directorateData.setValue(this.directorateList);
-                localStorage.setItem('sabDelayStatFilterDirectorate', JSON.stringify([]));
-                this.isDirectorateFirst = false;
-              }
-              this.isDirectorateFirst = false;
-            }, 300)
-          }
-          // this.isDirectorateFirst = false;
-        }
-      }
-    }
-  }
-
-  msWord() {
-    let departmentData: string = '';
-    let directorateData: string = '';
-    let obsData: any[] = [];
-    for (let i = 0; i < this.departmentAllValues.length; i++) {
-      if (this.departmentData && this.departmentData.value && this.departmentData.value.length) {
-        for (let j = 0; j < this.departmentData.value.length; j++) {
-          if (this.departmentData.value[j] == this.departmentAllValues[i].name) {
-            if (departmentData == '') {
-              departmentData = this.departmentAllValues[i].id
-            } else {
-              departmentData = departmentData + "," + this.departmentAllValues[i].id;
-            }
-          }
-        }
-      }
-    }
-    for (let i = 0; i < this.directorateAllValues.length; i++) {
-      if (this.directorateData && this.directorateData.value && this.directorateData.value.length) {
-        for (let j = 0; j < this.directorateData.value.length; j++) {
-          if (this.directorateData.value[j] == this.directorateAllValues[i].name) {
-            if (directorateData == '') {
-              directorateData = this.directorateAllValues[i].id
-            } else {
-              directorateData = directorateData + "," + this.directorateAllValues[i].id;
-            }
-          }
-        }
-      }
-    }
-    if (this.departmentData && this.departmentData.value && this.departmentAllValues.length == this.departmentData.value.length) {
-      departmentData = 'All'
-    }
-    if (this.directorateData && this.directorateData.value && this.directorateAllValues.length == this.directorateData.value.length) {
-      directorateData = 'All'
-    }
-    let url = 'ReminderAndClassificationExportController/exportDelayReportToWord?reportYear=' + this.selectedYear + '&reportCycle=' + this.selectedReport + '&dirId=' + directorateData + '&depId=' + departmentData;
     window.open(this.mainUrl + url, '_parent');
   }
 
-  msExcel() {
-    let departmentData: string = '';
-    let directorateData: string = '';
-    let obsData: any[] = [];
-    for (let i = 0; i < this.departmentAllValues.length; i++) {
-      if (this.departmentData && this.departmentData.value && this.departmentData.value.length) {
-        for (let j = 0; j < this.departmentData.value.length; j++) {
-          if (this.departmentData.value[j] == this.departmentAllValues[i].name) {
-            if (departmentData == '') {
-              departmentData = this.departmentAllValues[i].id
-            } else {
-              departmentData = departmentData + "," + this.departmentAllValues[i].id;
-            }
-          }
-        }
-      }
+  /** Export the table data to MS Excel */
+  msExcel(): void {
+    let departmentData = this.buildMultiSelectionParam(
+      this.departmentData.value,
+      this.departmentAllValues
+    );
+    let directorateData = this.buildMultiSelectionParam(
+      this.directorateData.value,
+      this.directorateAllValues
+    );
+    // handle 'All'
+    if (
+      this.departmentData.value &&
+      this.departmentData.value.length === this.departmentAllValues.length
+    ) {
+      departmentData = 'All';
     }
-    for (let i = 0; i < this.directorateAllValues.length; i++) {
-      if (this.directorateData && this.directorateData.value && this.directorateData.value.length) {
-        for (let j = 0; j < this.directorateData.value.length; j++) {
-          if (this.directorateData.value[j] == this.directorateAllValues[i].name) {
-            if (directorateData == '') {
-              directorateData = this.directorateAllValues[i].id
-            } else {
-              directorateData = directorateData + "," + this.directorateAllValues[i].id;
-            }
-          }
-        }
-      }
+    if (
+      this.directorateData.value &&
+      this.directorateData.value.length === this.directorateAllValues.length
+    ) {
+      directorateData = 'All';
     }
-    if (this.departmentData && this.departmentData.value && this.departmentAllValues.length == this.departmentData.value.length) {
-      departmentData = 'All'
-    }
-    if (this.directorateData && this.directorateData.value && this.directorateAllValues.length == this.directorateData.value.length) {
-      directorateData = 'All'
-    }
-    let url = 'ReminderAndClassificationExportController/exportDelayReportToExcel?reportYear=' + this.selectedYear + '&reportCycle=' + this.selectedReport + '&dirId=' + directorateData + '&depId=' + departmentData;
+
+    const url =
+      'ReminderAndClassificationExportController/exportDelayReportToExcel' +
+      `?reportYear=${this.selectedYear}` +
+      `&reportCycle=${this.selectedReport}` +
+      `&dirId=${directorateData}` +
+      `&depId=${departmentData}`;
+
     window.open(this.mainUrl + url, '_parent');
   }
-
-
 }

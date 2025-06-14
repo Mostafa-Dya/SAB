@@ -1,48 +1,65 @@
-import { Component, OnInit,Inject, ViewChild } from '@angular/core';
-import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  inject,
+  ViewChild,
+} from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { ObservationCard } from 'src/app/models/observationCard.model';
-import { ConfigService } from 'src/app/services/config.service';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import { MatSort } from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
+
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { environment } from '../../../environments/environment';
+import { SharedModule } from '../../shared/modules/shared.module';
+
+/* ────────── tiny helper interface ────────── */
+interface Attachment {
+  name: string;
+  attachedBy: string;
+  createdDate: Date | string;
+  docId: string;
+}
 
 @Component({
   selector: 'app-attachment-list',
+  standalone: true,
   templateUrl: './attachment-list.component.html',
-  styleUrls: ['./attachment-list.component.css']
+  styleUrls: ['./attachment-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SharedModule],
 })
-export class AttachmentListComponent implements OnInit {
-  isRtl: any;
-  mainUrl: string;
-  displayedColumns: string[] = ['name', 'attachedBy', 'createdDate', 'action'];
-  displayedColumnsMob: string[] = ['name'];
-  dataSource = new MatTableDataSource<any>();
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+export class AttachmentListComponent implements OnInit, AfterViewInit {
+  /* -------- public view-model -------- */
+  readonly displayedColumns = ['name', 'attachedBy', 'createdDate', 'action'];
+  readonly dataSource = new MatTableDataSource<Attachment>([]);
 
-  constructor(
-    private sharedVariableService: SharedVariableService,
-    public dialogRef: MatDialogRef<AttachmentListComponent>,
-    private configService: ConfigService,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    @Inject(MAT_DIALOG_DATA) public observation: ObservationCard
-    ) { }
+  /* -------- view refs -------- */
+  @ViewChild(MatSort, { static: true }) private readonly sort!: MatSort;
+  @ViewChild(MatPaginator, { static: true })
+  private readonly pager!: MatPaginator;
 
-  ngOnInit(): void {    
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-    this.mainUrl = this.configService.baseUrl;
-    this.dataSource = new MatTableDataSource(this.data.attachment);   
-    setTimeout(() => {
-      this.dataSource.sort = this.sort;
-      this.dataSource.paginator = this.paginator;
-    })
+  /* -------- local signals / props -------- */
+
+  readonly isRtl = inject(SharedVariableService).isRtl$;
+  private readonly mainUrl = environment.baseUrl;
+  private readonly rawData = inject<Attachment[]>(MAT_DIALOG_DATA);
+
+  /* ---------------------------------------------------- */
+  ngOnInit(): void {
+    this.dataSource.data = this.rawData ?? [];
   }
 
-  downloadAttachment(docId: any) {
-    let url = 'DownloadController/downloadAttachByDocId?DocId=' + docId;
-    window.open(this.mainUrl + url, '_parent');
+  ngAfterViewInit(): void {
+    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.pager;
+  }
+
+  /* -------- download file -------- */
+  downloadAttachment(docId: string): void {
+    const url = `${this.mainUrl}DownloadController/downloadAttachByDocId?DocId=${docId}`;
+    window.open(url, '_parent');
   }
 }

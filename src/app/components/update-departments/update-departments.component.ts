@@ -8,7 +8,7 @@ import { DepartmentAssignmentComponent } from '../department-assignment/departme
 @Component({
   selector: 'app-update-departments',
   templateUrl: './update-departments.component.html',
-  styleUrls: ['./update-departments.component.css']
+  styleUrls: ['./update-departments.component.scss']
 })
 export class UpdateDepartmentsComponent implements OnInit {
   displayedColumns: string[] = ['select', 'departmentName', 'loginId', 'userName'];

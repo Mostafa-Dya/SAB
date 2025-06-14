@@ -1,42 +1,56 @@
+<div [class.rtl-direction]="isRtl()">
+  <!-- Header (draggable) -->
+  <div
+    cdkDrag
+    class="dialog-heading-div"
+    [class.text-right]="isRtl()"
+    appDraggableDialog
+  >
+    <span [class.mr-4]="isRtl()" [class.ml-4]="!(isRtl())"
+      >{{ 'G&PA_NOTES' | translate }}</span
+    >
+  </div>
 
+  <mat-dialog-content class="mat-typography" [class.text-right]="isRtl()">
+    <!-- Table -->
+    <div class="table-container" *ngIf="(dataSource.data.length > 0)">
+      <table mat-table [dataSource]="dataSource" matSort matSortActive="addedDate" matSortDirection="asc">
+        <!-- Added Date -->
+        <ng-container matColumnDef="addedDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'ADDED_ON' | translate }}</th>
+          <td mat-cell *matCellDef="let e">{{ e.addedDate }}</td>
+        </ng-container>
+        <!-- Added By -->
+        <ng-container matColumnDef="addedBy">
+          <th mat-header-cell *matHeaderCellDef>{{ 'ADDED_BY' | translate }}</th>
+          <td mat-cell *matCellDef="let e">{{ e.addedBy }}</td>
+        </ng-container>
+        <!-- Department Name -->
+        <ng-container matColumnDef="departmentName">
+          <th mat-header-cell *matHeaderCellDef>{{ 'DEPARTMENT_NAME' | translate }}</th>
+          <td mat-cell *matCellDef="let e">{{ e.departmentName }}</td>
+        </ng-container>
+        <!-- Notes -->
+        <ng-container matColumnDef="notes">
+          <th mat-header-cell *matHeaderCellDef>{{ 'G&PA_NOTE' | translate }}</th>
+          <td mat-cell *matCellDef="let e">{{ e.notes }}</td>
+        </ng-container>
 
-<div [ngClass]="{'rtl-direction' : isRtl}" >
-    <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
-      <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">  {{ 'G&PA_NOTES' | translate }}</span>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+      <mat-paginator [pageSize]="5" showFirstLastButtons></mat-paginator>
     </div>
-    <mat-dialog-content class="mat-typography" [ngClass]="{'text-right': isRtl}">
-        <div class="row">
-            <div class="col-12 mt-3" *ngIf="dataSource && dataSource.data.length > 0">
-                <table mat-table [dataSource]="dataSource">
-                    <ng-container matColumnDef="addedDate" class="pl-2 pr-2">
-                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"> {{ 'ADDED_ON' | translate}} </th>
-                        <td mat-cell *matCellDef="let element"> {{element.addedDate }} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="addedBy"  class="w-200" class="pl-2 pr-2">
-                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"> {{ 'ADDED_BY' | translate}} </th>
-                        <td mat-cell *matCellDef="let element"> {{element.addedBy}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="departmentName"  class="w-300" class="pl-2 pr-2">
-                        <th mat-header-cell *matHeaderCellDef  class="w-300" [ngClass]="{'text-right': isRtl}"> {{ 'DEPARTMENT_NAME' | translate}} </th>
-                        <td mat-cell *matCellDef="let element" class="w-300"> {{element.departmentName}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="notes" class="pl-2 pr-2 ">
-                        <th mat-header-cell *matHeaderCellDef class="w-300 rtl-direction text-right" [ngClass]="{'text-right': isRtl}"> {{ 'G&PA_NOTE' | translate}} </th>
-                        <td mat-cell *matCellDef="let element" class="w-300 rtl-direction text-right"> {{element.notes }} </td>
-                    </ng-container>
-                
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                </table>
-            </div>
-        </div>
-        <div class="row center-block w-300 mt-5 mb-5 pt-5 pb-5" *ngIf="dataSource && dataSource.data.length == 0">
-            <div class="center mt-5" >
-                <mat-icon class="center-icon">cloud_queue</mat-icon>
-                <span class="center-text">{{ 'NO_DATA' | translate }}</span>
-            </div>
-        </div>
-    </mat-dialog-content>
-  
+
+    <!-- No data -->
+    <div
+      class="row center-block w-300 mt-5 mb-5 pt-5 pb-5"
+      *ngIf="(dataSource.data.length === 0)"
+    >
+      <div class="center mt-5">
+        <mat-icon class="center-icon">cloud_queue</mat-icon>
+        <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+      </div>
+    </div>
+  </mat-dialog-content>
 </div>
-  

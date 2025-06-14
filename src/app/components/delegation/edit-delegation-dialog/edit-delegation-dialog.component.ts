@@ -23,7 +23,7 @@ export const MY_FORMATS = {
 @Component({
   selector: 'app-edit-delegation-dialog',
   templateUrl: './edit-delegation-dialog.component.html',
-  styleUrls: ['./edit-delegation-dialog.component.css'],
+  styleUrls: ['./edit-delegation-dialog.component.scss'],
   providers: [
     {
       provide: DateAdapter,

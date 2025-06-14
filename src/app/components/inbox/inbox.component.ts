@@ -3,7 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
-import { WorkItem } from '../../models/workItem.model';
+import { WorkItem } from '../../models/edited/work-item.model';
 import { InboxItem } from 'src/app/models/inboxItem.model';
 import { Router } from '@angular/router';
 import { CoreService } from 'src/app/services/core.service';
@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { LoadingService } from 'src/app/services/loading.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { AssignToStaffComponent } from '../assign-to-staff/assign-to-staff.component';
+import * as _ from 'lodash';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 declare var $: any;
@@ -43,7 +44,7 @@ export interface PeriodicElement {
 @Component({
   selector: 'app-inbox',
   templateUrl: './inbox.component.html',
-  styleUrls: ['./inbox.component.css']
+  styleUrls: ['./inbox.component.scss']
 })
 export class InboxComponent implements OnInit {
   displayedColumns: string[] = ['select', 'type', 'obsSeq', 'obsTitle', 'receievedDate', 'reportName', 'deptName', 'sentToMultipleDept', 'responseStatus'];
@@ -1112,8 +1113,8 @@ export class InboxComponent implements OnInit {
       }
     }
     // this.isLoading = true;
-    this.coreService.get(url).subscribe(response => {
-      if (JSON.stringify(response) === JSON.stringify(this.inboxItems)) {
+    this.coreService.get(url).subscribe(async response => {
+      if (!_.isEqual(JSON.stringify(response), JSON.stringify(this.inboxItems))) {
         this.typeData = new FormControl();
         let oldTypeList = this.typeList;
         this.typeList = ['All'];
@@ -1176,7 +1177,7 @@ export class InboxComponent implements OnInit {
         this.typeList = [...typeSet];
         if (filterType != null) {
           isFilterSelected = true;
-          let filterValue =  this.applyOldFilter(filterType, this.typeList, oldTypeList)
+          let filterValue = await this.applyOldFilter(filterType, this.typeList, oldTypeList)
           this.typeData.setValue(filterValue);
         } else {
           this.typeData.setValue(this.typeList);
@@ -1185,7 +1186,7 @@ export class InboxComponent implements OnInit {
         this.sequenceList = [...sequenceSet];
         if (filterSequence != null) {
           isFilterSelected = true;
-          let filterValue =  this.applyOldFilter(filterSequence, this.sequenceList, oldSequenceList)
+          let filterValue = await this.applyOldFilter(filterSequence, this.sequenceList, oldSequenceList)
           this.sequenceData.setValue(filterValue);
         } else {
           this.sequenceData.setValue(this.sequenceList);
@@ -1194,7 +1195,7 @@ export class InboxComponent implements OnInit {
         this.departmentList = [...departmentSet];
         if (filterDepartment != null) {
           isFilterSelected = true;
-          let filterValue =  this.applyOldFilter(filterDepartment, this.departmentList, oldDepartmentList)
+          let filterValue = await this.applyOldFilter(filterDepartment, this.departmentList, oldDepartmentList)
           this.departmentData.setValue(filterValue);
         } else {
           this.departmentData.setValue(this.departmentList);
@@ -1204,7 +1205,7 @@ export class InboxComponent implements OnInit {
         this.statusList.sort();
         if (filterStatus != null) {
           isFilterSelected = true;
-          let filterValue =  this.applyOldFilter(filterStatus, this.statusList, oldStatusList,)
+          let filterValue = await this.applyOldFilter(filterStatus, this.statusList, oldStatusList,)
           this.statusData.setValue(filterValue);
         } else {
           this.statusData.setValue(this.statusList);
@@ -1214,7 +1215,7 @@ export class InboxComponent implements OnInit {
         this.multipleList.sort();
         if (filterStatus != null) {
           isFilterSelected = true;
-          let filterValue =  this.applyOldFilter(filterStatus, this.multipleList, oldMultipleDept)
+          let filterValue = await this.applyOldFilter(filterStatus, this.multipleList, oldMultipleDept)
           this.multipleData.setValue(filterValue);
         } else {
           this.multipleData.setValue(this.multipleList);
@@ -1226,7 +1227,7 @@ export class InboxComponent implements OnInit {
         this.reviewedList.sort();
         if (filterStatus != null) {
           isFilterSelected = true;
-          let filterValue =  this.applyOldFilter(filterStatus, this.reviewedList, oldReviewed)
+          let filterValue = await this.applyOldFilter(filterStatus, this.reviewedList, oldReviewed)
           this.reviewedData.setValue(filterValue);
         } else {
           this.reviewedData.setValue(this.reviewedList);

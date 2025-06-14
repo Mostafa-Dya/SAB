@@ -1,157 +1,219 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CoreService } from 'src/app/services/core.service';
-import { LoadingService } from 'src/app/services/loading.service';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import { Subject, takeUntil } from 'rxjs';
+import { CoreService } from '../../services/core.service';
+import { LoadingService } from '../../services/loading.service';
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { InformationDialog } from './information-dialog/information-dialog.component';
+import { SharedModule } from '../../shared/modules/shared.module';
 
+// We reuse the interface to shape our data row
 export interface ExtractFinalObservation {
   observationDiwanReply: string;
   observationDocID: string;
   observationFinalTitle: string;
   observationSequence: string;
-  observationTitle: string
+  observationTitle: string;
   observationType: string;
+  obsSequence?: number;
 }
 
 @Component({
   selector: 'app-compare-observation',
   templateUrl: './compare-observation.component.html',
-  styleUrls: ['./compare-observation.component.css']
+  styleUrls: ['./compare-observation.component.scss'],
+  standalone: true,
+  imports: [SharedModule],
 })
-export class CompareObservationComponent implements OnInit {
-  isRtl: any;
-  dataSource: MatTableDataSource<ExtractFinalObservation>;
-  displayedColumns: string[] = ['obsSequence', 'observationFinalTitle', 'observationTitle', 'view'];
-  displayedColumnsRTL: string[] = ['view', 'observationTitle', 'observationFinalTitle', 'obsSequence'];
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+export class CompareObservationComponent implements OnInit, OnDestroy {
+  /** Whether layout is RTL or not */
+  isRtl = false;
+
+  /** Material table data-source */
+  dataSource!: MatTableDataSource<ExtractFinalObservation>;
+
+  /** Column definitions for LTR layout */
+  displayedColumns: string[] = [
+    'obsSequence',
+    'observationFinalTitle',
+    'observationTitle',
+    'view',
+  ];
+
+  /** Column definitions for RTL layout */
+  displayedColumnsRTL: string[] = [
+    'view',
+    'observationTitle',
+    'observationFinalTitle',
+    'obsSequence',
+  ];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  /** Response from the API with autoComparedObs and totalObs */
   finalObsData: any;
-  status: any;
+  status!: string;
   userInformation: any;
-  reportYear:string;
+  reportYear = '';
+
+  /** Destroy notifier for subscriptions */
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private coreService: CoreService,
     private router: Router,
     private sharedVariableService: SharedVariableService,
-    private _loading: LoadingService,
+    private loadingService: LoadingService,
     public dialog: MatDialog,
     private route: ActivatedRoute
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    let data: any = localStorage.getItem('sabUserInformation');
+    // Subscribe to RTL changes
+    this.sharedVariableService.isRtl$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((rtl) => (this.isRtl = rtl));
 
-    this.userInformation = JSON.parse(data);
+    // Load userInformation from localStorage or the shared service
+    const data = localStorage.getItem('sabUserInformation');
+    if (data) {
+      this.userInformation = JSON.parse(data);
+      if (this.userInformation.reportYear) {
+        this.reportYear = this.userInformation.reportYear;
+      }
+    }
 
-    this.reportYear = this.userInformation.reportYear;
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-    this.route.params.subscribe(params => {
+    // Get the route param
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.status = params['status'];
+      if (this.status === 'new') {
+        this.getCompareObservation();
+      } else {
+        this.getCompareObservationBack();
+      }
     });
-    if (this.status == 'new') {
-      this.getCompareObservation();
+  }
+
+  /**
+   * Fetch compare-observations for "new" status
+   */
+  getCompareObservation(): void {
+    const url = `launchObservations/extractFinalObs?reportYear=${this.reportYear}`;
+    this.loadingService.setLoading(true, url);
+
+    this.coreService.get<any>(url).subscribe({
+      next: (response) => {
+        this.loadingService.setLoading(false, url);
+
+        response.autoComparedObs.forEach((obs: any, index: number) => {
+          obs.obsSequence = index + 1;
+        });
+
+        this.finalObsData = response;
+        this.dataSource = new MatTableDataSource(response.autoComparedObs);
+        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+
+        // Open info dialog
+        this.dialog.open(InformationDialog, {
+          data: {
+            autoComparedObsCount: response.autoComparedObsCount,
+            totalObs: response.totalObs,
+          },
+          disableClose: true,
+        });
+      },
+      error: (err) => {
+        this.loadingService.setLoading(false, url);
+        console.error('Error fetching observations:', err);
+      },
+    });
+  }
+
+  /**
+   * Fetch compare-observations for "back" status
+   */
+  getCompareObservationBack(): void {
+    const url = 'launchObservations/getIntialFinalList';
+    this.loadingService.setLoading(true, url);
+
+    this.coreService.get<any>(url).subscribe({
+      next: (response) => {
+        this.loadingService.setLoading(false, url);
+
+        response.autoComparedObs.forEach((obs: any, index: number) => {
+          obs.obsSequence = index + 1;
+        });
+
+        this.finalObsData = response;
+        this.dataSource = new MatTableDataSource(response.autoComparedObs);
+        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+      },
+      error: (err) => {
+        this.loadingService.setLoading(false, url);
+        console.error('Error fetching observations:', err);
+      },
+    });
+  }
+
+  /**
+   * Confirm or navigate to link
+   */
+  confirmAll(): void {
+    if (
+      this.finalObsData?.totalObs === this.finalObsData?.autoComparedObsCount
+    ) {
+      const url = `launchObservations/updateFinalObservations?reportYear=${this.reportYear}`;
+      this.loadingService.setLoading(true, url);
+
+      this.coreService.get<any>(url).subscribe({
+        next: () => {
+          this.loadingService.setLoading(false, url);
+          this.router.navigate([
+            'extractReports',
+            'compare-observations',
+            'new',
+            'initial-final-comparison-report',
+          ]);
+        },
+        error: (err) => {
+          this.loadingService.setLoading(false, url);
+          console.error('Error confirming observations:', err);
+        },
+      });
     } else {
-      this.getCompareObservationBack();
+      // If not all automatically matched, go to link page
+      this.router.navigate([
+        'extractReports',
+        'compare-observations',
+        'new',
+        'link-observations',
+      ]);
     }
   }
 
-  getCompareObservation() {
-    let url = 'launchObservations/extractFinalObs?reportYear='+this.reportYear;
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      response.autoComparedObs.map((data: any, index: any) => {
-        data.obsSequence = index + 1;
-      });
-      this.finalObsData = response;
-      this.dataSource = new MatTableDataSource(response.autoComparedObs);
-      setTimeout(() => {
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
-      })
-      this.dialog.open(InformationDialog, {
-        data: {
-          autoComparedObsCount: response.autoComparedObsCount,
-          totalObs: response.totalObs
-        }
-      });
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :' , error);
-    });
+  /**
+   * Navigate to the final observation detail page
+   */
+  goToExtractFinalObs(obsId: string): void {
+    this.router.navigate([
+      'extractReports',
+      'compare-observations',
+      'new',
+      'extract-final-observation',
+      obsId,
+    ]);
   }
 
-  getCompareObservationBack() {
-    let url = 'launchObservations/getIntialFinalList';
-    this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(response => {
-      this._loading.setLoading(false, url);
-      response.autoComparedObs.map((data: any, index: any) => {
-        data.obsSequence = index + 1;
-      });
-      this.finalObsData = response;
-      this.dataSource = new MatTableDataSource(response.autoComparedObs);
-      setTimeout(() => {
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
-      })
-    }, error => {
-      this._loading.setLoading(false, url);
-      console.log('error :' , error);
-    });
-  }
-
-  confirmAll() {
-    if (this.finalObsData.totalObs == this.finalObsData.autoComparedObsCount) {
-      let url = 'launchObservations/updateFinalObservations?reportYear='+this.reportYear;
-      this._loading.setLoading(true, url);
-      this.coreService.get(url).subscribe(response => {
-        this._loading.setLoading(false, url);
-        this.router.navigate(['extractReports/compare-observations/new/initial-final-comparison-report']);
-      }, error => {
-        this._loading.setLoading(false, url);
-        console.log('error :', error);
-      });
-    } else {
-      this.router.navigate(['extractReports/compare-observations/new/link-observations']);
-    }
-  }
-
-  goToExtractFinalObs(obsId: any) {
-    this.router.navigate(['extractReports/compare-observations/new/extract-final-observation', obsId]);
-  }
-}
-
-@Component({
-  selector: 'dialog-elements-example-dialog',
-  templateUrl: './information-dialog.html',
-  styleUrls: ['./compare-observation.component.css']
-})
-export class InformationDialog {
-  isRtl: any;
-
-  constructor(
-    public dialogRef: MatDialogRef<any>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private sharedVariableService: SharedVariableService
-  ) {
-    dialogRef.disableClose = true;
-  }
-
-  ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
-  }
-
-  onClose() {
-    this.dialogRef.close();
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
