@@ -1,0 +1,12 @@
+<div >
+    <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+        <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">Information</span>
+        <mat-icon [ngClass]="isRtl ? 'close-rtl' : 'close'" (click)="onClose()">close</mat-icon>
+    </div>
+    <mat-dialog-content class="mat-typography" [ngClass]="{'text-right': isRtl}">
+        <div class="mt-3">
+            <label>{{ 'AUTO_COMPARED' | translate }} {{data.autoComparedObsCount}} {{ 'OUT_OF' | translate}}
+                {{data.totalObs}}</label>
+        </div>
+    </mat-dialog-content>
+</div>

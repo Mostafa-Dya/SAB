@@ -1,0 +1,15 @@
+.dialog-heading-div {
+    padding: 15px 0 15px 0px;
+    margin: 0 -24px 0 -24px;
+    background: #3253ab;
+    color: #ffffff;
+}
+.mat-dialog-content.custom-height{
+    height:170px;
+}
+.h-120{
+    min-height: 120px;
+}
+.mat-dialog-container{
+    height: 80%;
+}

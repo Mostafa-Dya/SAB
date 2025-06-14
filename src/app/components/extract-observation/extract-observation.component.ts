@@ -11,7 +11,7 @@ import { LoadingService } from 'src/app/services/loading.service';
 @Component({
   selector: 'app-extract-observation',
   templateUrl: './extract-observation.component.html',
-  styleUrls: ['./extract-observation.component.scss']
+  styleUrls: ['./extract-observation.component.css']
 })
 export class ExtractObservationComponent implements OnInit {
   exractionReport: ExtractionReport;

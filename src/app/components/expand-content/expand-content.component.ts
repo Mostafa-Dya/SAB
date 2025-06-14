@@ -6,7 +6,7 @@ import { SharedVariableService } from 'src/app/services/shared-variable.service'
 @Component({
   selector: 'app-expand-content',
   templateUrl: './expand-content.component.html',
-  styleUrls: ['./expand-content.component.scss']
+  styleUrls: ['./expand-content.component.css']
 })
 export class ExpandContentComponent implements OnInit {
   isRtl: any;

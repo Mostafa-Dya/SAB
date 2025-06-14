@@ -6,7 +6,7 @@ import { SharedVariableService } from 'src/app/services/shared-variable.service'
 @Component({
   selector: 'app-link-observations',
   templateUrl: './link-observations.component.html',
-  styleUrls: ['./link-observations.component.scss']
+  styleUrls: ['./link-observations.component.css']
 })
 export class LinkObservationsComponent implements OnInit {
   obsTitle: string = '';

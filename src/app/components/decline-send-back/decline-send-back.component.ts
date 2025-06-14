@@ -1,58 +1,38 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Subject, takeUntil } from 'rxjs';
-import { ObsResponse } from '../../models/obs-response.model';
-import { SharedVariableService } from '../../services/shared-variable.service';
-import { SharedModule } from '../../shared/modules/shared.module';
-
-
+import { ObsResponse } from 'src/app/models/response.model';
+import { SharedVariableService } from 'src/app/services/shared-variable.service';
 
 @Component({
-  standalone: true,
   selector: 'app-decline-send-back',
   templateUrl: './decline-send-back.component.html',
-  styleUrls: ['./decline-send-back.component.scss'],
-  imports: [
-    SharedModule
-  ]
+  styleUrls: ['./decline-send-back.component.css']
 })
-export class DeclineSendBackComponent implements OnInit, OnDestroy {
-  isRtl = false;
-  comment = '';
-
-  private readonly destroy$ = new Subject<void>();
+export class DeclineSendBackComponent implements OnInit {
+  isRtl: any;
+  comment: string = '';
 
   constructor(
     public dialogRef: MatDialogRef<DeclineSendBackComponent>,
     @Inject(MAT_DIALOG_DATA) public responseData: ObsResponse,
     private sharedVariableService: SharedVariableService
   ) {
-    // Make the dialog non-closable by clicking outside
     dialogRef.disableClose = true;
   }
 
   ngOnInit(): void {
-    // Subscribe to the RTL value
-    this.sharedVariableService.isRtl$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((rtl) => {
-        this.isRtl = rtl;
-      });
-  }
-
-  /**
-   * When user clicks "Send" button
-   */
-  onSend(): void {
-    const trimmed = this.comment.trim();
-    this.dialogRef.close({
-      event: 'Send',
-      data: { comment: trimmed }
+    this.sharedVariableService.getRtlValue().subscribe((value) => {
+      this.isRtl = value;
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  onSend(): void {
+    if (this.comment == undefined) {
+      this.comment = '';
+    }
+    let _result = {
+      comment: this.comment.trim()
+    };
+    this.dialogRef.close({ event: 'Send', data: _result });
   }
 }

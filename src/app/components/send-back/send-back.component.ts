@@ -12,7 +12,7 @@ interface Reason {
 @Component({
   selector: 'app-send-back',
   templateUrl: './send-back.component.html',
-  styleUrls: ['./send-back.component.scss']
+  styleUrls: ['./send-back.component.css']
 })
 export class SendBackComponent implements OnInit {
   isRtl: any;

@@ -20,7 +20,7 @@ export interface InitialFinalData {
 @Component({
   selector: 'app-initial-final-comparison-report',
   templateUrl: './initial-final-comparison-report.component.html',
-  styleUrls: ['./initial-final-comparison-report.component.scss']
+  styleUrls: ['./initial-final-comparison-report.component.css']
 })
 export class InitialFinalComparisonReportComponent implements OnInit {
   isRtl: any;

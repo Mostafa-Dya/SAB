@@ -6,7 +6,6 @@ import { SharedVariableService } from 'src/app/services/shared-variable.service'
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { isArray } from 'lodash';
 
 export interface ClassificationData {
   value: string;
@@ -32,7 +31,7 @@ export interface NatureType {
 @Component({
   selector: 'app-edit-observation',
   templateUrl: './edit-observation.component.html',
-  styleUrls: ['./edit-observation.component.scss']
+  styleUrls: ['./edit-observation.component.css']
 })
 export class EditObservationComponent implements OnInit {
   isRtl: any;
@@ -232,7 +231,7 @@ export class EditObservationComponent implements OnInit {
   }
 
   onSubmit() {
-    if(isArray(this.entities)){
+    if(this.entities){
       this.entities = this.entities.filter((item: any) => {
         return item.trim();
       })

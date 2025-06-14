@@ -1,194 +1,78 @@
 <div class="container-flud">
-  <mat-card class="main-card">
-    <div class="row">
-      <div class="col-12 col-sm-10 mb-3" [ngClass]="{ 'text-right': isRtl }">
-        <span
-          class="page-heading-icon pointer"
-          routerLink="/extractReports"
-          matTooltip="{{ 'BACK' | translate }}"
-        >
-          {{ "BACK_HEADING" | translate }}
-        </span>
-        <span class="page-sub-heading">
-          / {{ "COMPARE_OBSERVATIONS" | translate }}</span
-        >
-      </div>
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 col-sm-10 mb-3" [ngClass]="{'text-right': isRtl}">
+                <!-- <mat-icon class="page-heading-icon pointer" routerLink="/extractReports">flip_to_back</mat-icon> -->
+                <span class="page-heading-icon pointer" routerLink="/extractReports" matTooltip="{{ 'BACK' | translate }}"> {{ 'BACK_HEADING' | translate }}</span>
 
-      <div class="col-12 col-sm-2 mb-3">
-        <button
-          mat-raised-button
-          class="b-blue c-white"
-          [ngClass]="{ 'float-right': !isRtl }"
-          (click)="confirmAll()"
-        >
-          {{ "CONFIRM_ALL" | translate }}
-        </button>
-      </div>
-
-      <div class="col-12 rtl-direction">
-        <!-- English (LTR) Table -->
-        <table
-          mat-table
-          [dataSource]="dataSource"
-          matSort
-          class="text-right"
-          *ngIf="!isRtl"
-        >
-          <ng-container matColumnDef="view">
-            <th mat-header-cell *matHeaderCellDef class="text-center">
-              <span class="hide-mobile">{{
-                "VIEW_OBSERVATION" | translate
-              }}</span>
-            </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              class="text-center"
-              (click)="goToExtractFinalObs(element.observationDocID)"
-            >
-              <mat-icon class="c-blue">find_in_page</mat-icon>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="observationTitle">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              mat-sort-header
-              class="text-right"
-            >
-              {{ "INITIAL_OBS_TITLE" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.observationTitle }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="observationFinalTitle">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              mat-sort-header
-              class="text-right"
-            >
-              {{ "FINAL_OBS_TITLE" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.observationFinalTitle }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="obsSequence">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              mat-sort-header
-              class="text-center"
-            >
-              {{ "SL_NO" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.obsSequence }}
-            </td>
-          </ng-container>
-
-          <tr
-            mat-header-row
-            *matHeaderRowDef="displayedColumns; sticky: true"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumns"
-            style="cursor: pointer"
-          ></tr>
-        </table>
-
-        <!-- Arabic (RTL) Table -->
-        <table
-          mat-table
-          [dataSource]="dataSource"
-          matSort
-          class="text-right"
-          *ngIf="isRtl"
-        >
-          <ng-container matColumnDef="view">
-            <th mat-header-cell *matHeaderCellDef class="text-center">
-              <span class="hide-mobile">{{
-                "VIEW_OBSERVATION" | translate
-              }}</span>
-            </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              class="text-center"
-              (click)="goToExtractFinalObs(element.observationDocID)"
-            >
-              <mat-icon class="c-blue">find_in_page</mat-icon>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="observationTitle">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              mat-sort-header
-              class="text-right"
-            >
-              {{ "INITIAL_OBS_TITLE" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.observationTitle }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="observationFinalTitle">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              mat-sort-header
-              class="text-right"
-            >
-              {{ "FINAL_OBS_TITLE" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.observationFinalTitle }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="obsSequence">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              mat-sort-header
-              class="text-center"
-            >
-              {{ "SL_NO" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let element" class="text-center">
-              {{ element.obsSequence }}
-            </td>
-          </ng-container>
-
-          <tr
-            mat-header-row
-            *matHeaderRowDef="displayedColumnsRTL; sticky: true"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumnsRTL"
-            style="cursor: pointer"
-          ></tr>
-        </table>
-
-        <mat-paginator
-          [length]="dataSource.data.length || 0"
-          [pageSize]="10"
-          hidePageSize
-          showFirstLastButtons
-          dir="ltr"
-        >
-        </mat-paginator>
-      </div>
-    </div>
-  </mat-card>
+                <span class="page-sub-heading"> / {{ 'COMPARE_OBSERVATIONS' | translate }}</span>
+            </div>
+            <div class="col-12 col-sm-2 mb-3">
+                <button mat-raised-button class="b-blue c-white" [ngClass]="{'float-right': !isRtl}"
+                    (click)="confirmAll()">
+                    {{ 'CONFIRM_ALL' | translate }}
+                </button>
+            </div>
+            <div class="col-12 rtl-direction">
+                <table mat-table [dataSource]="dataSource" matSort class="text-right" *ngIf="!isRtl">
+                    <ng-container matColumnDef="view">
+                        <th mat-header-cell *matHeaderCellDef class="text-center">
+                            <span class="hide-mobile">{{ 'VIEW_OBSERVATION' | translate }}</span>
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="text-center"
+                            (click)="goToExtractFinalObs(element.observationDocID)">
+                            <mat-icon class="c-blue">find_in_page</mat-icon>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="observationTitle">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">
+                            {{ 'INITIAL_OBS_TITLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.observationTitle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="observationFinalTitle">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">
+                            {{ 'FINAL_OBS_TITLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.observationFinalTitle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="obsSequence">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">
+                            {{ 'SL_NO' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.obsSequence}} </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="cursor: pointer;"></tr>
+                </table>
+                <table mat-table [dataSource]="dataSource" matSort class="text-right" *ngIf="isRtl">
+                    <ng-container matColumnDef="view">
+                        <th mat-header-cell *matHeaderCellDef class="text-center">
+                            <span class="hide-mobile">{{ 'VIEW_OBSERVATION' | translate }}</span>
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="text-center">
+                            <mat-icon class="c-blue">find_in_page</mat-icon>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="observationTitle">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">
+                            {{ 'INITIAL_OBS_TITLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.observationTitle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="observationFinalTitle">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">
+                            {{ 'FINAL_OBS_TITLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.observationFinalTitle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="obsSequence">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">
+                            {{ 'SL_NO' | translate }} </th>
+                        <td mat-cell *matCellDef="let element" class="text-center"> {{element.obsSequence}} </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsRTL; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsRTL;" style="cursor: pointer;"></tr>
+                </table>
+                <mat-paginator [length]="dataSource && dataSource.data.length" [pageSize]="10" hidePageSize
+                    showFirstLastButtons dir="ltr">
+                </mat-paginator>
+            </div>
+        </div>
+    </mat-card>
 </div>

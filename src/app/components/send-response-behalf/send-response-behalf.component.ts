@@ -4,7 +4,7 @@ import { ObsResponse } from 'src/app/models/response.model';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 import { SendResponseComponent } from '../send-response/send-response.component';
 // import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import * as ClassicEditor from '../../../../public/assets/js/ck-editor-plugin/ckeditor';
+import * as ClassicEditor from '../../../assets/js/ck-editor-plugin/ckeditor';
 import { MatTableDataSource } from '@angular/material/table';
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
@@ -13,7 +13,6 @@ import { CoreService } from 'src/app/services/core.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { PreviousEntityTypeComponent } from '../previous-entity-type/previous-entity-type.component';
-import { isArray } from 'lodash';
 
 interface DateStrings {
   date: string;
@@ -26,7 +25,7 @@ export interface Entities {
 @Component({
   selector: 'app-send-response-behalf',
   templateUrl: './send-response-behalf.component.html',
-  styleUrls: ['./send-response-behalf.component.scss']
+  styleUrls: ['./send-response-behalf.component.css']
 })
 export class SendResponseBehalfComponent implements OnInit {
   public Editor = ClassicEditor;
@@ -248,7 +247,7 @@ export class SendResponseBehalfComponent implements OnInit {
   }
 
   onSendResponse(): void {
-    if(isArray(this.entities)){
+    if(this.entities){
       this.entities = this.entities.filter((item: any) => {
         return item.trim();
       })

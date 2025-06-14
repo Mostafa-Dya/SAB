@@ -5,7 +5,7 @@ import { SharedVariableService } from 'src/app/services/shared-variable.service'
 @Component({
   selector: 'app-export',
   templateUrl: './export.component.html',
-  styleUrls: ['./export.component.scss']
+  styleUrls: ['./export.component.css']
 })
 export class ExportComponent implements OnInit {
   isRtl: any;

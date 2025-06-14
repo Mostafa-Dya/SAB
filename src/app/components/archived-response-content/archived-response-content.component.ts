@@ -1,26 +1,25 @@
-import { Component, OnInit, Inject, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SharedVariableService } from '../../services/shared-variable.service';
-import { ObservationCard } from '../../models/observation-card.model';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { SharedModule } from '../../shared/modules/shared.module';
+import { Component, OnInit,Inject } from '@angular/core';
+import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import { ObservationCard } from 'src/app/models/observationCard.model';
+import { SharedVariableService } from 'src/app/services/shared-variable.service';
 
 @Component({
   selector: 'app-archived-response-content',
   templateUrl: './archived-response-content.component.html',
-  styleUrls: ['./archived-response-content.component.scss'],
-  standalone: true,
-  imports: [SharedModule],
+  styleUrls: ['./archived-response-content.component.css']
 })
 export class ArchivedResponseContentComponent implements OnInit {
-  private readonly shared = inject(SharedVariableService);
-
-  readonly isRtl = toSignal(this.shared.isRtl$, { initialValue: false });
-
+  isRtl: any;
+  
   constructor(
+    private sharedVariableService: SharedVariableService,
     public dialogRef: MatDialogRef<ArchivedResponseContentComponent>,
     @Inject(MAT_DIALOG_DATA) public observation: ObservationCard
-  ) {}
+    ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {    
+    this.sharedVariableService.getRtlValue().subscribe((value) => {
+      this.isRtl = value;
+    });
+  }
 }

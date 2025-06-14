@@ -61,7 +61,7 @@ export interface ReportDataTable {
 @Component({
   selector: 'app-observations-per-department-report',
   templateUrl: './observations-per-department-report.component.html',
-  styleUrls: ['./observations-per-department-report.component.scss']
+  styleUrls: ['./observations-per-department-report.component.css']
 })
 
 export class ObservationsPerDepartmentReportComponent implements OnInit {

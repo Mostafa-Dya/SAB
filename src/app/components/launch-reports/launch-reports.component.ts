@@ -9,7 +9,6 @@ import { ApproveComponent } from '../approve/approve.component';
 import { LoadingService } from 'src/app/services/loading.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { Subscription } from 'rxjs';
-import { values } from 'lodash';
 
 interface Reports {
   value: string;
@@ -19,7 +18,7 @@ interface Reports {
 @Component({
   selector: 'app-launch-reports',
   templateUrl: './launch-reports.component.html',
-  styleUrls: ['./launch-reports.component.scss']
+  styleUrls: ['./launch-reports.component.css']
 })
 export class LaunchReportsComponent implements OnInit {
   selectedReport: any;
@@ -376,7 +375,7 @@ export class LaunchReportsComponent implements OnInit {
 @Component({
   selector: 'extraction-complete-dialog',
   templateUrl: 'extraction-complete.component.html',
-  styleUrls: ['./launch-reports.component.scss']
+  styleUrls: ['./launch-reports.component.css']
 })
 export class ExtractionCompleteDialogComponent {
   isRtl: any;

@@ -3,7 +3,6 @@ import { FormControl } from "@angular/forms";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { String } from "lodash";
 import { NzNotificationService } from "ng-zorro-antd/notification";
 import { CoreService } from "src/app/services/core.service";
 import { LoadingService } from "src/app/services/loading.service";
@@ -20,7 +19,7 @@ export interface EscalationData {
 @Component({
   selector: "app-escalation-settings",
   templateUrl: "./escalation-settings.component.html",
-  styleUrls: ["./escalation-settings.component.scss"],
+  styleUrls: ["./escalation-settings.component.css"],
 })
 export class EscalationSettingsComponent implements OnInit {
   isRtl: any;
