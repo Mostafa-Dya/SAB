@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 .dialog-heading-div {
-  padding: 15px;
+  padding: 15px 0;
   margin: 0 -24px;
   background: #3253ab;
   color: #fff;
@@ -84,4 +84,22 @@
 
 .expanded-td {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+.gen-comment-toolbar {
+  height: 50px;
+  font-size: 15px;
+  padding: 0 24px;
+}
+
+.w-90 {
+  width: 90%;
+}
+
+.w-35 {
+  width: 35px;
+}
+
+.rtl-direction th.mat-header-cell {
+  text-align: right !important;
 }

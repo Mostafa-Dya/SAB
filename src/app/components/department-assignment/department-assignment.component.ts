@@ -1,80 +1,106 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Directorate } from 'src/app/models/directorate';
-import { Manager } from 'src/app/models/manager';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+
+import { Directorate } from '../../models/directorate.model';
+import { Manager } from '../../models/manager.model';
+import { SharedVariableService } from '../../services/shared-variable.service';
+import { SharedModule } from '../../shared/modules/shared.module';
+import { DraggableDialogDirective } from '../../shared/directives/draggable-dialog.directive';
 
 @Component({
   selector: 'app-department-assignment',
+  standalone: true,
   templateUrl: './department-assignment.component.html',
-  styleUrls: ['./department-assignment.component.scss']
+  styleUrls: ['./department-assignment.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, SharedModule, DraggableDialogDirective],
 })
-export class DepartmentAssignmentComponent implements OnInit {
-  displayedColumns: string[] = ['select', 'departmentName', 'loginId', 'userName', 'cmntButton'];
-  displayedColumnsMob: string[] = ['select', 'departmentName'];
-  isGeneralCmntEnabled: boolean = true;
-  selectedManagers: Manager[] = [];
-  isGroupCommentsEnabled: false;
-  groupComment: String = '';
-  directoratesList: Directorate[];
-  noOfactiveDepts: number;
-  isRtl: any;
+export class DepartmentAssignmentComponent {
+  private readonly dialogRef =
+    inject<MatDialogRef<DepartmentAssignmentComponent>>(MatDialogRef);
+  private readonly data = inject<any>(MAT_DIALOG_DATA);
+  private readonly shared = inject(SharedVariableService);
 
-  constructor(
-    public dialogRef: MatDialogRef<DepartmentAssignmentComponent>,
-    @Inject(MAT_DIALOG_DATA) public response: any,
-    private sharedVariableService: SharedVariableService
-  ) {
-    dialogRef.disableClose = true;
-    this.directoratesList = response.directoratesList;
-    this.noOfactiveDepts = response.noOfActiveDepts;
+  readonly isRtl = toSignal(this.shared.isRtl$, { initialValue: false });
+
+  readonly displayedColumns = signal<string[]>([
+    'select',
+    'departmentName',
+    'loginId',
+    'userName',
+    'cmntButton',
+  ]);
+  readonly displayedColumnsMob = ['select', 'departmentName'] as const;
+  readonly isGeneralCmntEnabled = signal(true);
+  private readonly _selectedManagers = signal<Manager[]>([]);
+  readonly selectedCount = computed(() => this._selectedManagers().length);
+
+  groupComment = '';
+
+  readonly directoratesList: Directorate[] = this.data.directoratesList;
+  readonly noOfactiveDepts: number = this.data.noOfActiveDepts;
+
+  constructor() {
+    this.dialogRef.disableClose = true;
   }
 
-  ngOnInit(): void {
-    this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
-    });
+  removeTableComments(): void {
+    this.isGeneralCmntEnabled.set(true);
+    this.displayedColumns.set([
+      'select',
+      'departmentName',
+      'loginId',
+      'userName',
+      'cmntButton',
+    ]);
   }
 
-  removeTableComments() {
-    this.isGeneralCmntEnabled = true;
-    this.displayedColumns = ['select', 'departmentName', 'loginId', 'userName', 'cmntButton'];
-  }
-
-  addTableComments() {
-    this.isGeneralCmntEnabled = false;
-    this.displayedColumns = ['select', 'departmentName', 'loginId', 'userName', 'cmntText'];
+  addTableComments(): void {
+    this.isGeneralCmntEnabled.set(false);
+    this.displayedColumns.set([
+      'select',
+      'departmentName',
+      'loginId',
+      'userName',
+      'cmntText',
+    ]);
   }
 
   onSendToDepartments(): void {
-    var _result = {
-      groupComment: this.groupComment.trim(),
-      selectedManagers: this.selectedManagers
-    };
-    this.dialogRef.close({ event: 'Send', data: _result });
+    this.dialogRef.close({
+      event: 'Send',
+      data: {
+        groupComment: this.groupComment.trim(),
+        selectedManagers: this._selectedManagers(),
+      },
+    });
   }
 
-  onManagerSelection(manager: Manager) {
+  onManagerSelection(manager: Manager): void {
+    manager.checked = !manager.checked;
+    const arr = [...this._selectedManagers()];
     if (manager.checked) {
-      this.selectedManagers.push(manager);
+      arr.push(manager);
     } else {
-      this.selectedManagers.forEach((item, index) => {
-        if (item.loginId === manager.loginId) this.selectedManagers.splice(index, 1);
-      });
+      const idx = arr.findIndex((m) => m.loginId === manager.loginId);
+      if (idx !== -1) arr.splice(idx, 1);
     }
+    this._selectedManagers.set(arr);
   }
 
-  onAddManagerComment(manager: Manager) {
-    manager.comment = manager.comment.trim()
+  onAddManagerComment(manager: Manager): void {
+    manager.comment = (manager.comment ?? '').trim();
     if (manager.checked) {
-      this.selectedManagers.forEach((item, index) => {
-        if (item.loginId === manager.loginId) this.selectedManagers.splice(index, 1);
-      });
-      this.selectedManagers.push(manager);
-    } else {
-      this.selectedManagers.forEach((item, index) => {
-        if (item.loginId === manager.loginId) this.selectedManagers.splice(index, 1);
-      });
+      this.onManagerSelection(manager);
+      this.onManagerSelection(manager);
     }
   }
 }
