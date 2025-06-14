@@ -1,7 +1,7 @@
 <div class="container-flud">
   <mat-card class="main-card">
     <div class="row">
-      <div class="col-12 mb-3" [ngClass]="{ 'text-right': isRtl }">
+      <div class="col-12 mb-3" [ngClass]="{ 'text-right': isRtl() }">
         <span
           class="page-heading-icon pointer"
           routerLink="/archived-observations"
@@ -17,12 +17,12 @@
 
     <div class="row" *ngIf="workItem">
       <!-- header info -->
-      <div class="col-sm-12 col-md-8" [ngClass]="{ 'text-right': isRtl }">
+      <div class="col-sm-12 col-md-8" [ngClass]="{ 'text-right': isRtl() }">
         <div class="w-100">
           <label class="page-sub-title min-w-160"
             >{{ "OBSERVATION_TITLE" | translate }}:</label
           >
-          <span class="ml-2" [ngClass]="{ 'rtl-direction': !isRtl }">{{
+          <span class="ml-2" [ngClass]="{ 'rtl-direction': !isRtl() }">{{
             workItem.obsTitle
           }}</span>
         </div>
@@ -30,7 +30,7 @@
           <label class="page-sub-title min-w-160"
             >{{ "OBSERVATION_SEQUENCE" | translate }}:</label
           >
-          <span class="ml-2" [ngClass]="{ 'rtl-direction': !isRtl }">{{
+          <span class="ml-2" [ngClass]="{ 'rtl-direction': !isRtl() }">{{
             workItem.obsSeq || 2022
           }}</span>
         </div>
@@ -38,7 +38,7 @@
 
       <div
         class="col-sm-12 col-md-4 justify-content-end d-flex"
-        [ngClass]="{ 'text-right': isRtl }"
+        [ngClass]="{ 'text-right': isRtl() }"
       >
         <button
           mat-raised-button
@@ -54,7 +54,7 @@
         </button>
       </div>
 
-      <div class="col-12" [ngClass]="{ 'text-right': isRtl }">
+      <div class="col-12" [ngClass]="{ 'text-right': isRtl() }">
         <label class="page-sub-title mb-0 min-w-160 mr-2"
           >{{ "NEW_REPEATED_REPORTS" | translate }}:</label
         >
@@ -88,7 +88,7 @@
                         <table
                           mat-table
                           [dataSource]="data.dataSource"
-                          [ngClass]="{ 'text-right': isRtl }"
+                          [ngClass]="{ 'text-right': isRtl() }"
                           class="w-100"
                         >
                           <!-- FROM -->
@@ -96,7 +96,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-300"
                             >
                               {{ "FROM" | translate }}
@@ -104,7 +104,7 @@
                             <td
                               mat-cell
                               *matCellDef="let element"
-                              [ngClass]="{ 'rtl-direction': !isRtl }"
+                              [ngClass]="{ 'rtl-direction': !isRtl() }"
                             >
                               {{ element.from }}
                             </td>
@@ -115,7 +115,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-250"
                             >
                               {{ "TO" | translate }}
@@ -130,7 +130,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-175"
                             >
                               {{ "STEPNAME" | translate }}
@@ -145,7 +145,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-150"
                             >
                               {{ "ACTION_TAKEN" | translate }}
@@ -160,7 +160,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-50"
                             >
                               {{ "DATE" | translate }}/{{ "TIME" | translate }}
@@ -178,7 +178,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-50"
                             >
                               {{ "RESPONSE" | translate }}
@@ -204,7 +204,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-50"
                             >
                               {{ "ATTACHMENTS" | translate }}
@@ -233,7 +233,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-50"
                             >
                               {{ "COMPLETION_YEAR" | translate }}
@@ -248,7 +248,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-50"
                             >
                               {{ "CLASSIFICATION" | translate }}
@@ -263,7 +263,7 @@
                             <th
                               mat-header-cell
                               *matHeaderCellDef
-                              [ngClass]="{ 'text-right': isRtl }"
+                              [ngClass]="{ 'text-right': isRtl() }"
                               class="pt-2 pb-2 w-150"
                             >
                               {{ "ENTITY_REASON" | translate }}
@@ -271,7 +271,7 @@
                             <td
                               mat-cell
                               *matCellDef="let element"
-                              [ngClass]="{ 'rtl-direction': !isRtl }"
+                              [ngClass]="{ 'rtl-direction': !isRtl() }"
                             >
                               {{ element.comment }}
                             </td>

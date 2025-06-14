@@ -2,39 +2,39 @@
 <mat-card class="main-card">
   <div class="row">
     <!-- Page heading -->
-    <div class="col-12 mb-3" [class.text-right]="isRtl$ | async">
+    <div class="col-12 mb-3" [class.text-right]="isRtl()">
       <mat-icon class="bread-page-heading-icon">inventory_2</mat-icon>
       <span class="page-heading">{{ "ARCHIVE" | translate }}</span>
     </div>
 
     <!-- Filters: Title -->
     <div class="col-12 col-lg-4 col-xl-3">
-      <mat-form-field class="w-100" [class.text-right]="isRtl$ | async">
+      <mat-form-field class="w-100" [class.text-right]="isRtl()">
         <mat-label
-          [class.main-label-rtl]="isRtl$ | async"
-          [class.main-label]="!(isRtl$ | async)"
+          [class.main-label-rtl]="isRtl()"
+          [class.main-label]="!isRtl()"
         >
           {{ "TITLE" | translate }}
         </mat-label>
-        <input matInput [(ngModel)]="obsTitle" />
+        <input matInput [formControl]="titleControl" />
       </mat-form-field>
     </div>
 
     <!-- Filters: Year -->
     <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
-      <mat-form-field class="w-100" [class.text-right]="isRtl$ | async">
+      <mat-form-field class="w-100" [class.text-right]="isRtl()">
         <mat-label
-          [class.main-label-rtl]="isRtl$ | async"
-          [class.main-label]="!(isRtl$ | async)"
+          [class.main-label-rtl]="isRtl()"
+          [class.main-label]="!isRtl()"
         >
           {{ "YEAR" | translate }}
         </mat-label>
-        <mat-select [(value)]="selectedYear">
+        <mat-select [formControl]="yearControl">
           <mat-option
             *ngFor="let y of years; trackBy: trackByValue"
             [value]="y.value"
-            [class.rtl-direction]="isRtl$ | async"
-            [class.text-right]="isRtl$ | async"
+            [class.rtl-direction]="isRtl()"
+            [class.text-right]="isRtl()"
           >
             {{ y.value }}
           </mat-option>
@@ -44,19 +44,19 @@
 
     <!-- Filters: Cycle -->
     <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
-      <mat-form-field class="w-100" [class.text-right]="isRtl$ | async">
+      <mat-form-field class="w-100" [class.text-right]="isRtl()">
         <mat-label
-          [class.main-label-rtl]="isRtl$ | async"
-          [class.main-label]="!(isRtl$ | async)"
+          [class.main-label-rtl]="isRtl()"
+          [class.main-label]="!isRtl()"
         >
           {{ "CYCLE" | translate }}
         </mat-label>
-        <mat-select [(value)]="selectedCycle">
+        <mat-select [formControl]="cycleControl">
           <mat-option
             *ngFor="let c of cycles; trackBy: trackByValue"
             [value]="c.value"
-            [class.rtl-direction]="isRtl$ | async"
-            [class.text-right]="isRtl$ | async"
+            [class.rtl-direction]="isRtl()"
+            [class.text-right]="isRtl()"
           >
             {{ c.value }}
           </mat-option>
@@ -69,16 +69,16 @@
       <button
         mat-raised-button
         class="search-btn b-blue c-white"
-        [class.float-right]="!(isRtl$ | async)"
-        [class.float-left]="isRtl$ | async"
+        [class.float-right]="!isRtl()"
+        [class.float-left]="isRtl()"
       >
         {{ "SEARCH" | translate }}
       </button>
       <button
         mat-raised-button
         class="search-btn-mob b-blue c-white"
-        [class.float-left]="isRtl$ | async"
-        [class.float-right]="!(isRtl$ | async)"
+        [class.float-left]="isRtl()"
+        [class.float-right]="!isRtl()"
       >
         {{ "SEARCH" | translate }}
       </button>
@@ -90,21 +90,21 @@
     </div>
 
     <!-- Summary details -->
-    <div class="col-4 col-sm-3 col-lg-2" [class.text-right]="isRtl$ | async">
+    <div class="col-4 col-sm-3 col-lg-2" [class.text-right]="isRtl()">
       <label class="page-sub-title">{{ "TITLE" | translate }}:</label>
     </div>
-    <div class="col-8 col-sm-9 col-lg-10" [class.text-right]="isRtl$ | async">
+    <div class="col-8 col-sm-9 col-lg-10" [class.text-right]="isRtl()">
       <span>ئي بالوقود المتعلقة الما</span>
     </div>
-    <div class="col-4 col-sm-3 col-lg-2" [class.text-right]="isRtl$ | async">
+    <div class="col-4 col-sm-3 col-lg-2" [class.text-right]="isRtl()">
       <label class="page-sub-title">{{ "YEAR" | translate }}:</label>
     </div>
-    <div class="col-8 col-sm-9 col-lg-10" [class.text-right]="isRtl$ | async">
+    <div class="col-8 col-sm-9 col-lg-10" [class.text-right]="isRtl()">
       <span>2018-2019</span>
     </div>
 
     <!-- Desktop/Table view -->
-    <div class="col-12 hide-tablet" [class.text-right]="isRtl$ | async">
+    <div class="col-12 hide-tablet" [class.text-right]="isRtl()">
       <table mat-table [dataSource]="dataSource">
         <!-- Cycle Column -->
         <ng-container matColumnDef="cycle">

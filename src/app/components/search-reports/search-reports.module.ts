@@ -5,11 +5,11 @@ import { SearchReportsComponent } from './search-reports.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  declarations: [SearchReportsComponent],
   imports: [
     CommonModule,
     SearchReportsRoutingModule,
-    SharedModule
-  ]
+    SharedModule,
+    SearchReportsComponent,
+  ],
 })
 export class SearchReportsModule { }
