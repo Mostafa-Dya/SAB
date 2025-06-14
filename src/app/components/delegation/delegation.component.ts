@@ -1,4 +1,11 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
@@ -16,6 +23,7 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { EditDelegationDialogComponent } from './edit-delegation-dialog/edit-delegation-dialog.component';
+import { SharedModule } from '../../shared/modules/shared.module';
 
 export interface Users {
   loginId: number;
@@ -55,8 +63,11 @@ export const MY_FORMATS = {
 
 @Component({
   selector: 'app-delegation',
+  standalone: true,
   templateUrl: './delegation.component.html',
-  styleUrls: ['./delegation.component.css'],
+  styleUrls: ['./delegation.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SharedModule],
   providers: [
     {
       provide: DateAdapter,
@@ -114,15 +125,12 @@ export class DelegationComponent implements OnInit {
   isDisable = true;
   selectedTab = "self";
   innerWidth = 0;
-  constructor(
-    private coreService: CoreService,
-    private sharedVariableService: SharedVariableService,
-    private fb: FormBuilder,
-    public dialog: MatDialog,
-    private _loading: LoadingService,
-    private notification: NzNotificationService,
-  ) {
-  }
+  private readonly coreService = inject(CoreService);
+  private readonly sharedVariableService = inject(SharedVariableService);
+  private readonly fb = inject(FormBuilder);
+  private readonly dialog = inject(MatDialog);
+  private readonly _loading = inject(LoadingService);
+  private readonly notification = inject(NzNotificationService);
 
   ngOnInit(): void {
     this.sharedVariableService.getRtlValue().subscribe((value) => {
