@@ -8,9 +8,9 @@ describe('SearchReportsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SearchReportsComponent ]
+      imports: [SearchReportsComponent]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
