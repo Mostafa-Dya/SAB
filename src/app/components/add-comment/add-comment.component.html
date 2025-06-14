@@ -1,14 +1,14 @@
-<div [class.rtl-direction]="isRtl$ | async">
+<div [class.rtl-direction]="isRtl()">
   <div
     cdkDrag
     cdkDragRootElement=".mat-dialog-container"
     class="dialog-heading-div"
-    [class.text-right]="isRtl$ | async"
+    [class.text-right]="isRtl()"
   >
     <span
       class="page-title"
-      [class.ml-4]="!(isRtl$ | async)"
-      [class.mr-4]="isRtl$ | async"
+      [class.ml-4]="!isRtl()"
+      [class.mr-4]="isRtl()"
     >
       Add Comment
     </span>
@@ -35,7 +35,7 @@
           cdkAutosizeMaxRows="5"
         ></textarea>
         <mat-hint align="end">
-          {{ form.value.comment?.trim()?.length || 0 }} / {{ maxLen }}
+          {{ form.value.comment?.trim()?.length || 0 }} / {{ maxLen() }}
         </mat-hint>
       </mat-form-field>
     </div>
