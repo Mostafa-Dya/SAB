@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatAccordion } from '@angular/material/expansion';
 import { MatPaginator } from '@angular/material/paginator';
@@ -30,14 +30,19 @@ export interface ObservationData {
   // "gpaAttachment": string
 }
 
+import { CommonModule } from '@angular/common';
+import { SharedModule } from '../../shared/modules/shared.module';
+
 @Component({
   selector: 'app-archived-observation-details',
+  standalone: true,
+  imports: [CommonModule, SharedModule, ArchiveResponseNotesComponent, ArchivedResponseContentComponent, AttachmentListComponent, ExpandContentComponent],
   templateUrl: './archived-observation-details.component.html',
-  styleUrls: ['./archived-observation-details.component.css']
+  styleUrls: ['./archived-observation-details.component.scss']
 })
 export class ArchivedObservationDetailsComponent implements OnInit {
   id: string;
-  isRtl: any;
+  isRtl = signal(false);
   obsContant: any = "";
   obsId: string;
   workItem: any;
@@ -115,7 +120,7 @@ export class ArchivedObservationDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.sharedVariableService.getRtlValue().subscribe((value) => {
-      this.isRtl = value;
+      this.isRtl.set(value);
     });
     this.route.params.subscribe(params => {
       this.id = params['obsId'];

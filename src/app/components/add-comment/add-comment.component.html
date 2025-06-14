@@ -1,17 +1,9 @@
-<div [ngClass]="{ 'rtl-direction': isRtl }">
-  <div
-    class="dialog-heading-div"
-    [ngClass]="{ 'text-right': isRtl }"
-    appDraggableDialog
-  >
-    <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'"
-      >Add Comment</span
-    >
-  </div>
+<div [ngClass]="{ 'rtl-direction': isRtl() }">
+  <app-dialog-header [title]="'Add Comment'" [rtl]="isRtl()"></app-dialog-header>
   <mat-dialog-content
     class="mat-typography"
     [ngClass]="
-      isRtl
+      isRtl()
         ? !userInformation.admin
           ? 'text-right custom-height'
           : 'text-right'
@@ -31,20 +23,15 @@
       <mat-form-field class="w-100 text-right border-textarea">
         <textarea
           matInput
-          [(ngModel)]="comment"
+          [formControl]="comment"
           [matTextareaAutosize]="false"
           [matAutosizeMinRows]="3"
           [matAutosizeMaxRows]="5"
-          #message
           [maxlength]="userInformation.admin ? 1000 : 256"
-          style="
-            min-height: 70px !important;
-            height: 70px !important;
-            min-height: 70px !important;
-          "
+          style="min-height: 70px; height: 70px;"
         ></textarea>
         <mat-hint align="end"
-          >{{ message.value.trim().length }} /
+          >{{ comment.value.trim().length }} /
           {{ userInformation.admin ? 1000 : 256 }}</mat-hint
         >
       </mat-form-field>
@@ -65,8 +52,8 @@
       mat-raised-button
       class="b-blue c-white"
       (click)="onSend()"
-      [ngClass]="{ 'ml-0 mr-2': isRtl }"
-      [disabled]="comment.length === 0 || comment.trim() == ''"
+      [ngClass]="{ 'ml-0 mr-2': isRtl() }"
+      [disabled]="comment.value.length === 0 || comment.value.trim() == ''"
     >
       {{ "SEND" | translate }}
     </button>

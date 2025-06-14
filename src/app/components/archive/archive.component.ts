@@ -3,6 +3,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { CoreService } from 'src/app/services/core.service';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
+import { StaticDataService } from 'src/app/services/static-data.service';
+import { CommonModule } from '@angular/common';
+import { SharedModule } from '../../shared/modules/shared.module';
 
 export interface Years {
   value: string;
@@ -27,25 +30,19 @@ export interface ObservationData {
 
 @Component({
   selector: 'app-archive',
+  standalone: true,
+  imports: [CommonModule, SharedModule],
   templateUrl: './archive.component.html',
-  styleUrls: ['./archive.component.css']
+  styleUrls: ['./archive.component.scss']
 })
 export class ArchiveComponent implements OnInit {
   isRtl: any;
   obsTitle: string;
 
-  years: Years[] = [
-    { value: 'Select Year' },
-    { value: '2019-2020' },
-    { value: '2020-2021' }
-  ];
+  years: Years[] = [];
   selectedYear: string;
-  cycles: Cycles[] = [
-    { value: 'All' },
-    { value: 'SA1' },
-    { value: 'SA2' }
-  ];
-  selectedCycle: string;  
+  cycles: Cycles[] = [];
+  selectedCycle: string;
   observationData: ObservationData[] = [
     {
       "cycle": "SA1",
@@ -90,13 +87,16 @@ export class ArchiveComponent implements OnInit {
   constructor(
     private coreService: CoreService,
     private router: Router,
-    private sharedVariableService: SharedVariableService
+    private sharedVariableService: SharedVariableService,
+    private staticData: StaticDataService
   ) { }
 
   ngOnInit(): void {
     this.sharedVariableService.getRtlValue().subscribe((value) => {
       this.isRtl = value;
     });
+    this.years = this.staticData.getYears();
+    this.cycles = this.staticData.getCycles();
     this.selectedYear = this.years[0].value;
     // this.selectedCycle = this.cycles[0].value;
     this.dataSource = new MatTableDataSource(this.observationData);
