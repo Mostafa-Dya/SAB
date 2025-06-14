@@ -7,14 +7,29 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { formatDate } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { LOCALE_ID } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { of, Observable, Subject } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
 
@@ -26,6 +41,7 @@ import { EditDelegationDialogComponent } from './edit-delegation-dialog/edit-del
 import { CoreService } from '../../services/core.service';
 import { LoadingService } from '../../services/loading.service';
 import { SharedVariableService } from '../../services/shared-variable.service';
+import { DelegationMessagesService } from '../../services/delegation-messages.service';
 
 export interface Users {
   loginId: number | string;
@@ -57,7 +73,20 @@ export interface DelegatedUsers {
   templateUrl: './delegation.component.html',
   styleUrls: ['./delegation.component.scss'],
   imports: [
-    // Import your SharedModule or the needed Angular Material modules, etc.
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatTabsModule,
+    MatTooltipModule,
   ],
   providers: [
     // Remove any MomentDateAdapter references and custom date providers if not needed
@@ -67,11 +96,22 @@ export interface DelegatedUsers {
 })
 export class DelegationComponent implements OnInit, OnDestroy {
   /** Whether layout is RTL or LTR */
-  isRtl = false;
+  isRtl = toSignal(this.sharedVariableService.isRtl$, { initialValue: false });
 
   /** Main forms for “self” delegation & “others” delegation */
-  addDelegateUserForm!: FormGroup;
-  addToDelegateForm!: FormGroup;
+  addDelegateUserForm!: FormGroup<{
+    delegateUser: FormControl<Users | null>;
+    from: FormControl<Date | null>;
+    to: FormControl<Date | null>;
+    reason: FormControl<string | null>;
+  }>;
+  addToDelegateForm!: FormGroup<{
+    userData: FormControl<Users | null>;
+    delegateUserData: FormControl<Users | null>;
+    from: FormControl<Date | null>;
+    to: FormControl<Date | null>;
+    reason: FormControl<string | null>;
+  }>;
 
   /** Holds the user info from localStorage */
   userInformation: any;
@@ -115,8 +155,8 @@ export class DelegationComponent implements OnInit, OnDestroy {
   selectedTab: 'self' | 'others' = 'self';
 
   /** Form controls for “others” delegation */
-  userData = new FormControl();          // from
-  delegateUserData = new FormControl();  // to
+  userData = new FormControl<Users | null>(null); // from
+  delegateUserData = new FormControl<Users | null>(null); // to
 
   /** Local references for user input elements */
   @ViewChild('userInput') userInput!: ElementRef<HTMLInputElement>;
@@ -135,16 +175,12 @@ export class DelegationComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     public dialog: MatDialog,
     private loadingService: LoadingService,
-    private notification: NzNotificationService
+    private notification: NzNotificationService,
+    private msgService: DelegationMessagesService
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to RTL changes
-    this.sharedVariableService.isRtl$()
-      .pipe()
-      .subscribe((value) => {
-        this.isRtl = value;
-      });
+
 
     // Load userInformation from localStorage
     const data: string | null = localStorage.getItem('sabUserInformation');
@@ -208,19 +244,19 @@ export class DelegationComponent implements OnInit, OnDestroy {
   private buildForms(): void {
     // Self Delegation Form
     this.addDelegateUserForm = this.fb.group({
-      delegateUser: [null, [Validators.required]],
-      from: [null, [Validators.required]],
-      to: [null, [Validators.required]],
-      reason: [null]
+      delegateUser: this.fb.control<Users | null>(null, Validators.required),
+      from: this.fb.control<Date | null>(null, Validators.required),
+      to: this.fb.control<Date | null>(null, Validators.required),
+      reason: this.fb.control<string | null>(null),
     });
 
     // Delegation to Others
     this.addToDelegateForm = this.fb.group({
-      userData: [null, [Validators.required]],
-      delegateUserData: [{ value: null, disabled: this.isDisable }, [Validators.required]],
-      from: [null, [Validators.required]],
-      to: [null, [Validators.required]],
-      reason: [null]
+      userData: this.fb.control<Users | null>(null, Validators.required),
+      delegateUserData: this.fb.control<Users | null>({ value: null, disabled: this.isDisable }, Validators.required),
+      from: this.fb.control<Date | null>(null, Validators.required),
+      to: this.fb.control<Date | null>(null, Validators.required),
+      reason: this.fb.control<string | null>(null),
     });
   }
 
@@ -427,7 +463,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
         this.notification.create(
           'success',
           'Success',
-          'Delegation added successfully'
+          this.msgService.addSuccess
         );
         this.getSelfDelegatedUser();
       },
@@ -479,7 +515,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
         this.notification.create(
           'success',
           'Success',
-          'Delegation added successfully'
+          this.msgService.addSuccess
         );
 
         // Clear the "to" data & disable it

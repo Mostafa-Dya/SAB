@@ -1,1 +1,87 @@
 /* You can add global styles to this file, and also import other style files */
+.dialog-heading-div {
+  padding: 15px;
+  margin: 0 -24px;
+  background: #3253ab;
+  color: #fff;
+}
+
+.rtl-direction {
+  direction: rtl;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.search-btn {
+  margin-top: 0.5rem;
+}
+
+.search-btn-mob {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .search-btn {
+    display: none;
+  }
+  .search-btn-mob {
+    display: block;
+  }
+}
+
+.hide-mob { display: none; }
+.show-mob { display: block; }
+
+.expanded-div {
+  margin-top: -15px;
+  margin-bottom: 10px;
+}
+
+.expanded-div-rtl {
+  margin-left: 0;
+  margin-top: -15px;
+  margin-bottom: 10px;
+}
+
+.expanded-content {
+  display: inline-block;
+  width: 250px;
+  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}
+
+.delete-mob {
+  position: absolute;
+  right: 10px;
+}
+
+.to-date-error {
+  position: relative;
+  bottom: 12px;
+}
+
+.title-td {
+  font-weight: 600;
+  display: inline-block;
+  width: 400px;
+  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  margin: 10px 0 0 0;
+}
+
+.title-td-rtl {
+  margin: 10px 20px 0 0 !important;
+}
+
+.expanded-td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
