@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import {
+  Component,
+  Inject,
+  OnInit,
+  computed,
+  signal,
+} from '@angular/core';
 import {
   ReactiveFormsModule,
   FormControl,
@@ -18,8 +24,9 @@ import { MatInputModule } from '@angular/material/input';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TranslateModule } from '@ngx-translate/core';
 import { SharedVariableService } from '../../services/shared-variable.service';
-import { Observable } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ObsResponse } from '../../models/obs-response.model';
+import { CommentConfigService } from '../../services/comment-config.service';
 
 @Component({
   selector: 'app-add-comment',
@@ -38,34 +45,42 @@ import { ObsResponse } from '../../models/obs-response.model';
   styleUrls: ['./add-comment.component.scss'],
 })
 export class AddCommentComponent implements OnInit {
-  form!: FormGroup;
-  isAdmin = false;
-  isRtl$: Observable<any>;
+  isAdmin = signal(false);
+  readonly isRtl = toSignal(this.sharedVariableService.isRtl$, {
+    initialValue: false,
+  });
+  readonly maxLenSignal = computed(() =>
+    this.isAdmin() ? this.config.adminMaxLength : this.config.userMaxLength
+  );
+
+  form!: FormGroup<{ comment: FormControl<string> }>;
+
   constructor(
     private dialogRef: MatDialogRef<AddCommentComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ObsResponse,
-    private sharedVariableService: SharedVariableService
+    private sharedVariableService: SharedVariableService,
+    private config: CommentConfigService
   ) {
     this.dialogRef.disableClose = true;
-    this.isRtl$ = this.sharedVariableService.isRtl$;
   }
 
   ngOnInit(): void {
     const userInfo = JSON.parse(
       localStorage.getItem('sabUserInformation') || '{}'
     );
-    this.isAdmin = !!userInfo.admin;
+    this.isAdmin.set(!!userInfo.admin);
 
-    this.form = new FormGroup({
-      comment: new FormControl('', [
-        Validators.required,
-        Validators.maxLength(this.isAdmin ? 1000 : 256),
-      ]),
+    this.form = new FormGroup<{ comment: FormControl<string> }>({
+      comment: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.maxLength(this.maxLenSignal())],
+      }),
     });
   }
 
-  get maxLen(): number {
-    return this.isAdmin ? 1000 : 256;
+
+  maxLen(): number {
+    return this.maxLenSignal();
   }
 
   onSend(): void {
