@@ -3,12 +3,12 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { ConfigService } from './config.service';
-import { User } from '../models/user';
-import { Directorate } from '../models/directorate';
-import { Department } from '../models/department';
-import { CommitteeUsers } from '../models/committee-users';
-import { ExecutiveUsers } from '../models/executive-users';
-import { SabMember } from '../models/sab-member';
+import { User } from '../models/user.model';
+import { Directorate } from '../models/directorate.model';
+import { Department } from '../models/department.model';
+import { CommitteeUsers } from '../models/committee-users.model';
+import { ExecutiveUsers } from '../models/executive-users.model';
+import { SabMember } from '../models/sab-member.model';
 
 @Injectable({
   providedIn: 'root'

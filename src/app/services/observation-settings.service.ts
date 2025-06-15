@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ObservalElement } from '../models/observal.model';
+import { ObservalElement } from '../models/observal-element.model';
 
 @Injectable({
   providedIn: 'root'

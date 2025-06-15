@@ -1,5 +1,5 @@
-import { Employee } from './employee'
-import { SabMember } from './sab-member';
+import { Employee } from './employee.model'
+import { SabMember } from './sab-member.model';
 export class User {
 	// admin(arg0: string, admin: any) {
 	// 	throw new Error('Method not implemented.');

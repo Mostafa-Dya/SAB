@@ -2,7 +2,7 @@ import { I } from '@angular/cdk/keycodes';
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { SabMember } from 'src/app/models/sab-member';
+import { SabMember } from 'src/app/models/sab-member.model';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 
 @Component({

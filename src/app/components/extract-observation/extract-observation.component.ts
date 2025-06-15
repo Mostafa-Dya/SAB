@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ExtractionReport } from 'src/app/models/extractionReport.model';
-import { ObservationCard } from 'src/app/models/observationCard.model';
+import { ExtractionReport } from 'src/app/models/extraction-report.model';
+import { ObservationCard } from 'src/app/models/observation-card.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ExpandContentComponent } from '../expand-content/expand-content.component';
 import { Router } from '@angular/router';

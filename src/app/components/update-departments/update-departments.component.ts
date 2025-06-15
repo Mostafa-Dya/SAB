@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Directorate } from 'src/app/models/directorate';
-import { Manager } from 'src/app/models/manager';
+import { Directorate } from 'src/app/models/directorate.model';
+import { Manager } from 'src/app/models/manager.model';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 import { DepartmentAssignmentComponent } from '../department-assignment/department-assignment.component';
 

@@ -1,4 +1,4 @@
-import { ObservationCard } from "./observationCard.model";
+import { ObservationCard } from './observation-card.model';
 
 export class ExtractionReport {
   firstObsTitle: string;
