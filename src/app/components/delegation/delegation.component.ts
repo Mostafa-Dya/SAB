@@ -34,7 +34,7 @@ import { DelegatedUser, UserLookup } from '../../models/delegation.model';
   templateUrl: './delegation.component.html',
   styleUrls: ['./delegation.component.scss'],
   imports: [
-    // Import your SharedModule or the needed Angular Material modules, etc.
+    SharedModule
   ],
   providers: [
     // Remove any MomentDateAdapter references and custom date providers if not needed
