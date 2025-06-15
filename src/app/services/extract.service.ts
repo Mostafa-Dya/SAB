@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-import { ObservationCard } from '../models/observationCard.model';
+import { ObservationCard } from '../models/observation-card.model';
 import { ConfigService } from './config.service';
-import { ExtractionReport } from '../models/extractionReport.model';
+import { ExtractionReport } from '../models/extraction-report.model';
 import { LinkObservations } from '../models/link-observations.model';
 
 @Injectable({

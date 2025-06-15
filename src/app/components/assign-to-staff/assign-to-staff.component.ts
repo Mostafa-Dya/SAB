@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { Department } from 'src/app/models/department';
-import { StaffMemebr } from 'src/app/models/staff-member';
+import { Department } from 'src/app/models/department.model';
+import { StaffMemebr } from 'src/app/models/staff-member.model';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 
 @Component({

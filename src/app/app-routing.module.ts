@@ -114,7 +114,7 @@ const routes: Routes = [
   },{
     path: 'contact-detail',
     canActivate: [AuthGuard],
-    loadChildren: () => import('./components/g&pa-contact-details/g&pa-contact-details.module').then(m => m.GPAContactDetailsModule)
+    loadChildren: () => import('./components/gpa-contact-details/gpa-contact-details.module').then(m => m.GPAContactDetailsModule)
   },{
     path: 'deactive-deco-notification',
     canActivate: [AuthGuard],

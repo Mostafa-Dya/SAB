@@ -5,9 +5,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 
 @Component({
-  selector: 'app-g&pa-member-details',
-  templateUrl: './g&pa-member-details.component.html',
-  styleUrls: ['./g&pa-member-details.component.css']
+  selector: 'app-gpa-member-details',
+  templateUrl: './gpa-member-details.component.html',
+  styleUrls: ['./gpa-member-details.component.css']
 })
 export class GPAMemberDetailsComponent implements OnInit {
   isRtl: any;

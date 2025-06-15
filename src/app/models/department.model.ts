@@ -1,5 +1,5 @@
-import { Manager } from "./manager";
-import { StaffMemebr } from "./staff-member";
+import { Manager } from './manager.model';
+import { StaffMemebr } from './staff-member.model';
 
 export class Department {	   
 	directorateName: string;

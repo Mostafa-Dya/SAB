@@ -9,7 +9,7 @@ import { CoreService } from "src/app/services/core.service";
 import { LoadingService } from "src/app/services/loading.service";
 import { SharedVariableService } from "src/app/services/shared-variable.service";
 import { MatDialog } from "@angular/material/dialog";
-import { GPAMemberDetailsComponent } from "../g&pa-member-details/g&pa-member-details.component";
+import { GPAMemberDetailsComponent } from '../gpa-member-details/gpa-member-details.component';
 
 export interface EscalationData {
   configurationKey: string;
@@ -20,9 +20,9 @@ export interface EscalationData {
 }
 
 @Component({
-  selector: "app-g&pa-contact-details",
-  templateUrl: "./g&pa-contact-details.component.html",
-  styleUrls: ["./g&pa-contact-details.component.css"],
+  selector: 'app-gpa-contact-details',
+  templateUrl: './gpa-contact-details.component.html',
+  styleUrls: ['./gpa-contact-details.component.css'],
 })
 export class GPAContactDetailsComponent implements OnInit {
   isRtl: any;
@@ -400,7 +400,7 @@ this.dataSource = new MatTableDataSource(response);
          this._loading.setLoading(false, url);
         
     this.notification.create('success', 'Success', "Concerned G&PA Member updated successfully.");
-         this.router.navigate(["/g&pa-contact-details"]);
+        this.router.navigate(['/contact-detail']);
        },
        (error) => {
     //     // this.isDialogLoading = false;

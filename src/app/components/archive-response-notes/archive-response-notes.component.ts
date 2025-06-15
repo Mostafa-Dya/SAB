@@ -3,7 +3,7 @@ import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ObservationCard } from 'src/app/models/observationCard.model';
+import { ObservationCard } from 'src/app/models/observation-card.model';
 import { ConfigService } from 'src/app/services/config.service';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 

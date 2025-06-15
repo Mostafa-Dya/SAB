@@ -27,8 +27,8 @@ import { WorkingDepartmentListComponent } from '../components/working-department
 import { DraggableDialogDirective } from './draggable-dialog.directive';
 import { SharedModule } from './shared.module';
 import { EditDelegationDialogComponent } from '../components/delegation/edit-delegation-dialog/edit-delegation-dialog.component';
-import { GPAContactDetailsModule } from '../components/g&pa-contact-details/g&pa-contact-details.module';
-import { GPAMemberDetailsComponent } from '../components/g&pa-member-details/g&pa-member-details.component';
+import { GPAContactDetailsModule } from '../components/gpa-contact-details/gpa-contact-details.module';
+import { GPAMemberDetailsComponent } from '../components/gpa-member-details/gpa-member-details.component';
 import { ContactPersonDetailsComponent } from '../components/contact-person-details/contact-person-details.component';
 import { OverviewComponent } from '../components/overview/overview.component';
 import { DeclinedByManagerComponent } from '../components/declined-by-manager/declined-by-manager.component';

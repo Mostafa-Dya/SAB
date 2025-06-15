@@ -1,4 +1,4 @@
-import { Manager } from "./manager";
+import { Manager } from './manager.model';
 
 export class Directorate {
 	directorateName: string;

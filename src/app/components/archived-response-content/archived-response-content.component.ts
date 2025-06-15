@@ -1,6 +1,6 @@
 import { Component, OnInit,Inject } from '@angular/core';
 import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { ObservationCard } from 'src/app/models/observationCard.model';
+import { ObservationCard } from 'src/app/models/observation-card.model';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 
 @Component({
