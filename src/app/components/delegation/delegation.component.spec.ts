@@ -8,7 +8,7 @@ describe('DelegationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DelegationComponent]
+      declarations: [ DelegationComponent ]
     })
     .compileComponents();
   });

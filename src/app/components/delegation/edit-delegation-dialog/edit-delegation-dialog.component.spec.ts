@@ -8,7 +8,7 @@ describe('EditDelegationDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditDelegationDialogComponent]
+      declarations: [ EditDelegationDialogComponent ]
     })
     .compileComponents();
   });

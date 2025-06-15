@@ -1,9 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -22,9 +17,6 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 
 import { MatTableDataSource } from '@angular/material/table';
-import { inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ObservationNote } from '../../models/observation-note.model';
 
 
 
@@ -51,17 +43,6 @@ export interface ObservationData {
   reasonComment: string;
 }
 
-interface CycleDepartment {
-  headerName: string;
-  dataSource: MatTableDataSource<any>;
-}
-
-interface ObservationCycle {
-  value: string;
-  departments: CycleDepartment[];
-  isVisible: boolean;
-}
-
 @Component({
   selector: 'app-archived-observation-details',
   standalone: true,
@@ -84,16 +65,15 @@ interface ObservationCycle {
   ],
   templateUrl: './archived-observation-details.component.html',
   styleUrls: ['./archived-observation-details.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchivedObservationDetailsComponent implements OnInit {
   id!: string;
-  readonly isRtl = toSignal(this.sharedVariableService.isRtl$, {
-    initialValue: false,
-  });
+  isRtl: boolean = false;
+  obsContant: any = '';
   obsId!: string;
   workItem: any;
-  isLoading = true;
+  loginId!: string;
+  isLoading: boolean = true;
   reportCycle!: string;
 
   dataSource!: MatTableDataSource<any>;
@@ -112,7 +92,7 @@ export class ArchivedObservationDetailsComponent implements OnInit {
 
   displayedColumnsMob: string[] = ['obsTitle'];
 
-  observationCycles: ObservationCycle[] = [
+  observationCycles = [
     {
       value: 'Initial Report',
       departments: [{ headerName: '', dataSource: new MatTableDataSource([]) }],
@@ -150,7 +130,7 @@ export class ArchivedObservationDetailsComponent implements OnInit {
     },
   ];
 
-  observationNotes: { notes: ObservationNote[] } = { notes: [] };
+  observationNotes: { notes: any[] } = { notes: [] };
   isAdmin: boolean = false;
   userInformation: any;
 
@@ -167,7 +147,9 @@ export class ArchivedObservationDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.params['obsId'];
+    this.sharedVariableService.isRtl$.subscribe((v) => (this.isRtl = v));
+
+    this.route.params.subscribe((params) => (this.id = params['obsId']));
 
     const raw = localStorage.getItem('sabUserInformation');
     this.userInformation = raw ? JSON.parse(raw) : {};
@@ -273,8 +255,8 @@ export class ArchivedObservationDetailsComponent implements OnInit {
   private getNotes(): void {
     const url = `respAuditController/getObservationNotes?obsId=${this.id}`;
     this._loading.setLoading(true, url);
-    this.coreService.get<ObservationNote[]>(url).subscribe({
-      next: (notes: ObservationNote[]) => {
+    this.coreService.get<any[]>(url).subscribe({
+      next: (notes: any[]) => {
         this._loading.setLoading(false, url);
         notes.sort((a, b) =>
           a.addedDate < b.addedDate ? -1 : a.addedDate > b.addedDate ? 1 : 0

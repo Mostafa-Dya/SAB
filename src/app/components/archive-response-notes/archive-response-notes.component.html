@@ -1,17 +1,17 @@
-<div [class.rtl-direction]="isRtl()">
+<div [class.rtl-direction]="isRtl$ | async">
   <!-- Header (draggable) -->
   <div
     cdkDrag
     class="dialog-heading-div"
-    [class.text-right]="isRtl()"
+    [class.text-right]="isRtl$ | async"
     appDraggableDialog
   >
-    <span [class.mr-4]="isRtl()" [class.ml-4]="!(isRtl())"
+    <span [class.mr-4]="isRtl$ | async" [class.ml-4]="!(isRtl$ | async)"
       >{{ 'G&PA_NOTES' | translate }}</span
     >
   </div>
 
-  <mat-dialog-content class="mat-typography" [class.text-right]="isRtl()">
+  <mat-dialog-content class="mat-typography" [class.text-right]="isRtl$ | async">
     <!-- Table -->
     <div class="table-container" *ngIf="(dataSource.data.length > 0)">
       <table mat-table [dataSource]="dataSource" matSort matSortActive="addedDate" matSortDirection="asc">

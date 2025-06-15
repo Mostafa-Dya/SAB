@@ -18,6 +18,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "strictPropertyInitialization": false,
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

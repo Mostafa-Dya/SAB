@@ -1,24 +1,18 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  inject,
-} from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ConfigService } from 'src/app/services/config.service';
 import { CoreService } from 'src/app/services/core.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
-import { ReportTypeService } from 'src/app/services/report-type.service';
-import { ReportType } from 'src/app/models/report-type.model';
-import { SharedModule } from '../../shared/modules/shared.module';
 
 export interface Years {
   value: string;
 }
 
+export interface ReportType {
+  value: string;
+  name: string;
+}
 
 export interface ReportData {
   obsId: string;
@@ -30,113 +24,111 @@ export interface ReportData {
 
 @Component({
   selector: 'app-search-reports',
-  standalone: true,
   templateUrl: './search-reports.component.html',
-  styleUrls: ['./search-reports.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, SharedModule]
+  styleUrls: ['./search-reports.component.scss']
 })
 export class SearchReportsComponent implements OnInit {
-  readonly isRtl = toSignal(this.shared.isRtl$, { initialValue: false });
-  dataSource = new MatTableDataSource<ReportData>();
-  readonly displayedColumns: string[] = ['reportTitle', 'fiscalYear', 'reportType', 'action'];
-  readonly displayedColumnsMob: string[] = ['reportTitle'];
-  readonly yearControl = new FormControl('', { nonNullable: true });
-  readonly reportControl = new FormControl('', { nonNullable: true });
-  isLoading = true;
+  isRtl: any;
+  dataSource: MatTableDataSource<ReportData>;
+  displayedColumns: string[] = ['reportTitle', 'fiscalYear', 'reportType', 'action'];
+  displayedColumnsMob: string[] = ['reportTitle'];
+  selectedYear: string;
+  selectedReport: string;
+  isLoading: boolean = true;
   years: Years[] = [];
-  readonly reportType: ReadonlyArray<ReportType>;
-  mainUrl = '';
+  reportType: ReportType[] = [
+    // { value: 'Select Report Type', name: 'Select Report Type' },
+    { value: 'SAB Initial Report', name: 'التقرير الأولى لديوان المحاسبة Initial Report' },
+    // { value: 'SAB Final Report', name: 'التقرير  النهائي لديوان المحاسبة Final Rpt' },
+    { value: 'SAB Commentary Report', name: "تقرير التبليغ SAB Commentary Report" },
+    { value: 'KNPC Response Report', name: 'الرد على التقرير الأولى لديوان المحاسبة Initial Response Report' },
+    { value: 'SAB Quarterly Report Q1', name: 'التقرير الربع سنوى الأول  Q1' },
+    { value: 'SAB Quarterly Report Q2', name: 'التقرير الربع سنوى الثاني Q2' },
+    { value: 'SAB Quarterly Report Q3', name: 'التقرير الربع سنوى الثالت Q3' },
+    { value: 'SAB Quarterly Report Q4', name: 'التقرير الربع سنوى الرابع Q4' },
+    { value: 'SAB Semi-annual Report 1', name: 'التقرير النصف سنوى الأول SA1' },
+    { value: 'SAB Semi-annual Report 2', name: 'التقرير النصف سنوى الثاني SA2' },
+    { value: 'KNPC Final Report', name: 'ا التقرير النهائي KNPC Final Report' },
+    { value: 'Annual Report', name: 'التقرير السنوي' },
+    { value: 'Seriousness of notes taken', name: 'جدية تسوية الملاحظات' }
+  ];
+  mainUrl: string;
 
   constructor(
     private coreService: CoreService,
-    private shared: SharedVariableService,
+    private sharedVariableService: SharedVariableService,
     private configService: ConfigService,
-    private _loading: LoadingService,
-    reportTypes: ReportTypeService
-  ) {
-    this.reportType = reportTypes.searchTypes;
-  }
+    private _loading: LoadingService
+  ) { }
 
   ngOnInit(): void {
+    this.sharedVariableService.getRtlValue().subscribe((value) => {
+      this.isRtl = value;
+    });
     this.mainUrl = this.configService.baseUrl;
-    this.reportControl.setValue(this.reportType[0]?.value ?? '');
+    this.selectedReport = this.reportType[0].value;
     this.getReportYear();
   }
 
-  getReportYear(): void {
+  getReportYear() {
     this.isLoading = true;
-    const url = 'uploadReportController/getReportYears';
+    let url = 'uploadReportController/getReportYears';
     this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        this._loading.setLoading(false, url);
-        response.map((data: any) => {
-          this.years.push({ value: data });
-        });
-        this.years.reverse();
-        this.yearControl.setValue(this.years[0]?.value ?? '');
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this._loading.setLoading(false, url);
-        console.log('error :', error);
-      },
+    this.coreService.get(url).subscribe(response => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      response.map((data: any) => {
+        this.years.push({ value: data })
+      })
+      this.years.reverse();
+      this.selectedYear = this.years[0].value;
+    }, error => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      console.log('error :' , error);
     });
   }
 
-  reset(): void {
-    this.yearControl.setValue(this.years[0]?.value ?? '');
-    this.reportControl.setValue(this.reportType[0]?.value ?? '');
+  reset() {
+    this.selectedYear = this.years[0].value;
+    this.selectedReport = this.reportType[0].value;
     if (this.dataSource && this.dataSource.data) {
       this.dataSource.data = [];
     }
   }
 
-  searchReport(): void {
+  searchReport() {
     this.isLoading = true;
-    const year = this.yearControl.value;
-    const type = this.reportControl.value;
-    const url = `ReportController/serachReports?reportYear=${year}&reportType=${type}`;
+    let url = 'ReportController/serachReports?reportYear=' + this.selectedYear + '&reportType=' + this.selectedReport;
     this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        this._loading.setLoading(false, url);
-        if (
-          response.length > 0 &&
-          (response[0].obsType === 'Annual Report' ||
-            response[0].obsType === 'Seriousness of notes taken')
-        ) {
-          for (const item of response) {
-            item.obsType =
-              item.obsType === 'Annual Report'
-                ? 'التقرير السنوي'
-                : 'جدية تسوية الملاحظات';
+    this.coreService.get(url).subscribe(response => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      if (response.length > 0 && (response[0].obsType === 'Annual Report' || response[0].obsType === 'Seriousness of notes taken')) {
+        for (var i = 0; i < response.length; i++) {
+          if (response[i].obsType === 'Annual Report')
+            response[i].obsType = 'التقرير السنوي';
+          else response[i].obsType = 'جدية تسوية الملاحظات';
+        }
+      }
+      if (response.length > 0 && (response[0].obsType === 'KNPC Final Report')) {
+        for (var i = 0; i < response.length; i++) {
+          if (response[i].obsType === 'KNPC Final Report') {
+            response[i].obsType = 'KNPC Final Report';
+            response[i].obsTitle = 'KNPC Final Report' + response[i].reportYear + '.doc';
           }
         }
-        if (response.length > 0 && response[0].obsType === 'KNPC Final Report') {
-          for (const item of response) {
-            if (item.obsType === 'KNPC Final Report') {
-              item.obsType = 'KNPC Final Report';
-              item.obsTitle = `KNPC Final Report${item.reportYear}.doc`;
-            }
-          }
-        }
-        this.dataSource = new MatTableDataSource(response);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this._loading.setLoading(false, url);
-        console.log('error :', error);
-      },
+      }
+      this.dataSource = new MatTableDataSource(response);
+    }, error => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      console.log('error :' , error);
     });
   }
 
-  downloadReport(report: ReportData): void {
-    const url =
-      'DownloadController/downloadReportByDocId?docId=' + report.obsId;
+  downloadReport(report: any) {
+    let url = 'DownloadController/downloadReportByDocId?docId=' + report.obsId;
     window.open(this.mainUrl + url, '_parent');
   }
 }

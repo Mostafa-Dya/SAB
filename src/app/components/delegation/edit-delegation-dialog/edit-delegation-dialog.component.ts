@@ -1,13 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  Inject,
-  inject,
-} from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
 import * as moment from 'moment';
 import { CoreService } from 'src/app/services/core.service';
@@ -15,7 +9,6 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { SharedModule } from '../../../shared/modules/shared.module';
 export const MY_FORMATS = {
   parse: {
     dateInput: 'LL'
@@ -29,11 +22,8 @@ export const MY_FORMATS = {
 };
 @Component({
   selector: 'app-edit-delegation-dialog',
-  standalone: true,
   templateUrl: './edit-delegation-dialog.component.html',
   styleUrls: ['./edit-delegation-dialog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SharedModule],
   providers: [
     {
       provide: DateAdapter,
@@ -55,13 +45,11 @@ export class EditDelegationDialogComponent implements OnInit {
   updateData: any;
   isButtonDisabled = false;
   msg: any = '';
-  private readonly sharedVariableService = inject(SharedVariableService);
-  private readonly fb = inject(FormBuilder);
-  private readonly coreService = inject(CoreService);
-  private readonly _loading = inject(LoadingService);
-  private readonly notification = inject(NzNotificationService);
-  readonly dialogRef = inject(MatDialogRef<EditDelegationDialogComponent>);
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
+  constructor(private sharedVariableService: SharedVariableService, private fb: FormBuilder, private coreService: CoreService,
+    private _loading: LoadingService,
+    private notification: NzNotificationService,
+    public dialogRef: MatDialogRef<EditDelegationDialogComponent>, private ref: ChangeDetectorRef,
+    @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   ngOnInit(): void {
     const updateData = this.data;
@@ -105,6 +93,7 @@ export class EditDelegationDialogComponent implements OnInit {
         console.log(this.msg );
       }
 
+      // this.ref.detectChanges();
 
     } 
   }

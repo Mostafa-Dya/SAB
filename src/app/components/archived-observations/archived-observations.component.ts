@@ -4,9 +4,10 @@ import {
   ViewChild,
   inject,
   signal,
+  Signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -71,12 +72,10 @@ export class ArchivedObservationsComponent {
   ] as const;
   readonly displayedColumnsMob = ['obsTitle'] as const;
 
-  /** filter form */
-  readonly form = new FormGroup({
-    obsTitle: new FormControl<string>('', { nonNullable: true }),
-    obsSequence: new FormControl<string>('', { nonNullable: true }),
-    selectedYear: new FormControl<string>('', { nonNullable: true }),
-  });
+  /** filter model (template bound via ngModel) */
+  obsTitle = '';
+  obsSequence = '';
+  selectedYear = '';
 
   /** dropdown data */
   readonly years: Years[] = [];
@@ -112,11 +111,7 @@ export class ArchivedObservationsComponent {
           this.years.reverse();
 
           // pick default / restored year
-          if (!this.form.controls.selectedYear.value) {
-            this.form.controls.selectedYear.setValue(
-              this.years.at(0)?.value ?? ''
-            );
-          }
+          this.selectedYear ||= this.years.at(0)?.value ?? '';
 
           // trigger auto-search if we restored filters
           this.getObsData();
@@ -180,17 +175,15 @@ export class ArchivedObservationsComponent {
 
   /** main search click */
   getObsData(): void {
-    const { obsTitle, obsSequence, selectedYear } = this.form.controls;
-
     /* persist current filters for F5/back-navigation comfort */
-    localStorage.setItem('sabArchivedObsTitle', JSON.stringify(obsTitle.value));
+    localStorage.setItem('sabArchivedObsTitle', JSON.stringify(this.obsTitle));
     localStorage.setItem(
       'sabArchivedObsFilterYear',
-      JSON.stringify(selectedYear.value)
+      JSON.stringify(this.selectedYear)
     );
     localStorage.setItem(
       'sabArchivedObsFilterObsSequence',
-      JSON.stringify(obsSequence.value)
+      JSON.stringify(this.obsSequence)
     );
 
     this.selection.clear();
@@ -218,12 +211,11 @@ export class ArchivedObservationsComponent {
   /** build the rather gnarly query-string the legacy API expects */
   private buildSearchUrl(): string {
     const base = 'launchObservations/archivedObservations';
-    const { obsTitle, obsSequence, selectedYear } = this.form.controls;
     const params = new URLSearchParams({
-      obsTitle: obsTitle.value,
+      obsTitle: this.obsTitle,
       loginId: this.loginId,
-      reportYear: selectedYear.value,
-      obsSeq: obsSequence.value || '',
+      reportYear: this.selectedYear,
+      obsSeq: this.obsSequence || '',
       isAdmin: String(this.isAdmin),
     });
 
@@ -256,11 +248,9 @@ export class ArchivedObservationsComponent {
 
   /** “Reset” button handler */
   reset(): void {
-    this.form.reset({
-      obsTitle: '',
-      obsSequence: '',
-      selectedYear: this.years.at(0)?.value ?? '',
-    });
+    this.obsTitle = '';
+    this.obsSequence = '';
+    this.selectedYear = this.years.at(0)?.value ?? '';
     this.dataSource.set(null);
   }
 
@@ -268,22 +258,20 @@ export class ArchivedObservationsComponent {
 
   /** restore filters from localStorage (called in ctor before UI load) */
   private restoreFilters(): void {
-    this.form.patchValue({
-      obsTitle: (
-        JSON.parse(localStorage.getItem('sabArchivedObsTitle') || '""') ?? ''
-      ).toString(),
-      obsSequence: (
-        JSON.parse(
-          localStorage.getItem('sabArchivedObsFilterObsSequence') || '""'
-        ) ?? ''
-      ).toString(),
-      selectedYear: JSON.parse(
-        localStorage.getItem('sabArchivedObsFilterYear') || '""'
-      ) as string,
-    });
+    this.obsTitle = (
+      JSON.parse(localStorage.getItem('sabArchivedObsTitle') || '""') ?? ''
+    ).toString();
+    this.obsSequence = (
+      JSON.parse(
+        localStorage.getItem('sabArchivedObsFilterObsSequence') || '""'
+      ) ?? ''
+    ).toString();
+    this.selectedYear = JSON.parse(
+      localStorage.getItem('sabArchivedObsFilterYear') || '""'
+    ) as string;
   }
 
   get mathOBS() {
-    return Math.abs(+this.form.controls.obsSequence.value || 0).toString();
+    return Math.abs(+this.obsSequence || 0).toString();
   }
 }

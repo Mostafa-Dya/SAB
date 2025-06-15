@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatCardModule
@@ -28,10 +28,9 @@ import {
   TranslateModule
 } from '@ngx-translate/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { SharedVariableService } from '../../services/shared-variable.service';
+import { FormsModule } from '@angular/forms';
 
 export interface YearOption { value: string; }
 export interface CycleOption { value: string; }
@@ -54,7 +53,7 @@ export interface ObservationData {
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    FormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -68,27 +67,23 @@ export interface ObservationData {
   templateUrl: './archive.component.html',
   styleUrls: ['./archive.component.scss']
 })
-export class ArchiveComponent {
-  readonly isRtl = toSignal(this.sharedVariableService.isRtl$, {
-    initialValue: false,
-  });
+export class ArchiveComponent implements OnInit {
+  isRtl$: Observable<boolean>;
 
-  readonly titleControl = new FormControl('', { nonNullable: true });
-  readonly years: YearOption[] = [
+  obsTitle = '';
+  years: YearOption[] = [
     { value: 'Select Year' },
     { value: '2019-2020' },
     { value: '2020-2021' }
   ];
+  selectedYear = this.years[0].value;
 
-  readonly yearControl = new FormControl(this.years[0].value, { nonNullable: true });
-
-  readonly cycles: CycleOption[] = [
+  cycles: CycleOption[] = [
     { value: 'All' },
     { value: 'SA1' },
     { value: 'SA2' }
   ];
-
-  readonly cycleControl = new FormControl(this.cycles[0].value, { nonNullable: true });
+  selectedCycle = this.cycles[0].value;
 
   observationData: ObservationData[] = [
     {
@@ -124,10 +119,14 @@ export class ArchiveComponent {
   ];
   displayedColumnsMob = ['cycle'];
 
-  constructor(private readonly sharedVariableService: SharedVariableService) {}
+  constructor(
+    private readonly sharedVariableService: SharedVariableService
+  ) {
+    this.isRtl$ = this.sharedVariableService.isRtl$;
+  }
 
   ngOnInit(): void {
-    // nothing else needed—the signal already handles updates
+    // nothing else needed—async pipe will pick up RTL changes
   }
 
   trackByValue<T extends { value: string }>(_: number, item: T) {

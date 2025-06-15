@@ -1,14 +1,8 @@
-import {
-  Component,
-  OnInit,
-  ChangeDetectionStrategy,
-  ViewChild,
-  DestroyRef,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Subject, takeUntil } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
 import { CoreService } from '../../services/core.service';
@@ -33,17 +27,14 @@ export interface EscalationData {
   selector: 'app-deactivate-deco-notifications',
   templateUrl: './deactivate-deco-notifications.component.html',
   styleUrls: ['./deactivate-deco-notifications.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, SharedModule],
 })
-export class DeactivateDECONotificationsComponent implements OnInit {
+export class DeactivateDECONotificationsComponent implements OnInit, OnDestroy {
   /** Whether layout is RTL */
-  readonly isRtl = toSignal(this.sharedVariableService.isRtl$, {
-    initialValue: false,
-  });
+  isRtl = false;
 
   /** Table data source */
-  readonly dataSource = new MatTableDataSource<EscalationData>([]);
+  dataSource!: MatTableDataSource<EscalationData>;
 
   /** Columns to display in table */
   displayedColumns: string[] = [
@@ -60,15 +51,22 @@ export class DeactivateDECONotificationsComponent implements OnInit {
   /** Simple loading flag if needed for local UI feedback */
   isLoading = false;
 
+  /** Destroy notifier for unsubscribing */
+  private readonly destroy$ = new Subject<void>();
+
   constructor(
-    private readonly coreService: CoreService,
-    private readonly notification: NzNotificationService,
-    private readonly sharedVariableService: SharedVariableService,
-    private readonly loadingService: LoadingService,
-    private readonly destroyRef: DestroyRef
+    private coreService: CoreService,
+    private notification: NzNotificationService,
+    private sharedVariableService: SharedVariableService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {
+    // Subscribe to RTL changes
+    this.sharedVariableService.isRtl$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => (this.isRtl = value));
+
     // Fetch the data from the server
     this.getDeactiveDECONotifications();
   }
@@ -81,15 +79,13 @@ export class DeactivateDECONotificationsComponent implements OnInit {
     this.isLoading = true;
     this.loadingService.setLoading(true, url);
 
-    this.coreService
-      .get<EscalationData[]>(url)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
+    this.coreService.get<EscalationData[]>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.loadingService.setLoading(false, url);
 
-        this.dataSource.data = response;
+        this.dataSource = new MatTableDataSource(response);
+        // Assign the sorter
         this.dataSource.sort = this.sort;
       },
       error: (err) => {
@@ -97,7 +93,7 @@ export class DeactivateDECONotificationsComponent implements OnInit {
         this.loadingService.setLoading(false, url);
         console.error('Error fetching DECO notifications:', err);
       },
-      });
+    });
   }
 
   /**
@@ -111,10 +107,7 @@ export class DeactivateDECONotificationsComponent implements OnInit {
 
     this.loadingService.setLoading(true, url);
 
-    this.coreService
-      .get<void>(url)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
+    this.coreService.get<any>(url).subscribe({
       next: () => {
         this.loadingService.setLoading(false, url);
         this.notification.create(
@@ -135,7 +128,11 @@ export class DeactivateDECONotificationsComponent implements OnInit {
         );
         console.error('Error updating notification:', err);
       },
-      });
+    });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }
