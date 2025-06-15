@@ -1,55 +1,52 @@
-import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, OnInit, LOCALE_ID } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { SharedVariableService } from 'src/app/services/shared-variable.service';
-import * as moment from 'moment';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { DraggableDialogDirective } from '../../../shared/directives/draggable-dialog.directive';
+import { format } from 'date-fns';
 import { CoreService } from 'src/app/services/core.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-export const MY_FORMATS = {
-  parse: {
-    dateInput: 'LL'
-  },
-  display: {
-    dateInput: 'DD/MM/YYYY',
-    monthYearLabel: 'YYYY',
-    dateA11yLabel: 'LL',
-    monthYearA11yLabel: 'YYYY'
-  }
-};
+import { DelegatedUser } from '../../../models/delegation.model';
 @Component({
   selector: 'app-edit-delegation-dialog',
+  standalone: true,
   templateUrl: './edit-delegation-dialog.component.html',
   styleUrls: ['./edit-delegation-dialog.component.scss'],
-  providers: [
-    {
-      provide: DateAdapter,
-      useClass: MomentDateAdapter,
-      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
-    },
-    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
-  ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    DraggableDialogDirective
+  ],
+  providers: [{ provide: LOCALE_ID, useValue: 'en-GB' }]
 })
 export class EditDelegationDialogComponent implements OnInit {
-  delegateFrom: any;
   minDate = new Date();
   minToDate = new Date();
   isToDisable = true;
-  editDelegateUserForm: FormGroup;
   isLoading: boolean = false;
-  fromDate: any;
-  toDate: any;
-  updateData: any;
+  updateData!: DelegatedUser;
   isButtonDisabled = false;
-  msg: any = '';
-  constructor(private sharedVariableService: SharedVariableService, private fb: FormBuilder, private coreService: CoreService,
+  msg = '';
+  constructor(
+    private coreService: CoreService,
     private _loading: LoadingService,
     private notification: NzNotificationService,
-    public dialogRef: MatDialogRef<EditDelegationDialogComponent>, private ref: ChangeDetectorRef,
-    @Inject(MAT_DIALOG_DATA) public data: any) { }
+    public dialogRef: MatDialogRef<EditDelegationDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
 
   ngOnInit(): void {
     const updateData = this.data;
@@ -99,21 +96,21 @@ export class EditDelegationDialogComponent implements OnInit {
   }
 
   editDelegateUser() {
-    let url = 'UserController/updateDelegation'
-    let body = {
+    const url = 'UserController/updateDelegation';
+    const body = {
       id: this.updateData.id,
       addedLoginId: this.updateData.addedByLoginId,
       addedUserName: this.updateData.addedByUserName,
-      delegateFrom: moment(new Date(this.updateData.delegationFrom).toString()).format('DD/MM/YYYY'),
+      delegateFrom: format(new Date(this.updateData.delegationFrom), 'dd/MM/yyyy'),
       delegateReason: this.updateData.delegationReason,
-      delegateTo: moment(new Date(this.updateData.delegationTo).toString()).format('DD/MM/YYYY'),
+      delegateTo: format(new Date(this.updateData.delegationTo), 'dd/MM/yyyy'),
       fromJobTitle: this.updateData.fromJobTitle,
       fromLoginId: this.updateData.fromLoginId,
       fromUserName: this.updateData.fromUserName,
       toJobTitle: this.updateData.toJobTitle,
       toLoginId: this.updateData.toLoginId,
       toUserName: this.updateData.toUserName
-    }
+    };
     this.coreService.post(url, body).subscribe(response => {
       console.log(response);
       
