@@ -26,30 +26,7 @@ import { EditDelegationDialogComponent } from './edit-delegation-dialog/edit-del
 import { CoreService } from '../../services/core.service';
 import { LoadingService } from '../../services/loading.service';
 import { SharedVariableService } from '../../services/shared-variable.service';
-
-export interface Users {
-  loginId: number | string;
-  userName: string;
-  directorateName: string;
-  department: string;
-  designation: string;
-}
-
-export interface DelegatedUsers {
-  id: number;
-  fromLoginId: string;
-  toLoginId: string;
-  fromUserName: string;
-  toUserName: string;
-  delegationFrom: string; // 'DD/MM/YYYY'
-  delegationTo: string;   // 'DD/MM/YYYY'
-  delegateFrom: string;
-  active: boolean;
-  deleted: boolean;
-  delegationReason: string;
-  createDate: string;
-  addedByUserName: string;
-}
+import { DelegatedUser, UserLookup } from '../../models/delegation.model';
 
 @Component({
   standalone: true,
@@ -57,7 +34,7 @@ export interface DelegatedUsers {
   templateUrl: './delegation.component.html',
   styleUrls: ['./delegation.component.scss'],
   imports: [
-    // Import your SharedModule or the needed Angular Material modules, etc.
+    SharedModule
   ],
   providers: [
     // Remove any MomentDateAdapter references and custom date providers if not needed
@@ -70,8 +47,20 @@ export class DelegationComponent implements OnInit, OnDestroy {
   isRtl = false;
 
   /** Main forms for “self” delegation & “others” delegation */
-  addDelegateUserForm!: FormGroup;
-  addToDelegateForm!: FormGroup;
+  addDelegateUserForm!: FormGroup<{
+    delegateUser: FormControl<UserLookup | null>;
+    from: FormControl<Date | null>;
+    to: FormControl<Date | null>;
+    reason: FormControl<string | null>;
+  }>;
+
+  addToDelegateForm!: FormGroup<{
+    userData: FormControl<UserLookup | null>;
+    delegateUserData: FormControl<UserLookup | null>;
+    from: FormControl<Date | null>;
+    to: FormControl<Date | null>;
+    reason: FormControl<string | null>;
+  }>;
 
   /** Holds the user info from localStorage */
   userInformation: any;
@@ -90,7 +79,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
   isToDisable = true;
 
   /** Table data sources */
-  dataSource!: MatTableDataSource<DelegatedUsers>;
+  dataSource!: MatTableDataSource<DelegatedUser>;
   displayedColumns: string[] = [
     'delegateFrom',
     'user',
@@ -103,9 +92,9 @@ export class DelegationComponent implements OnInit, OnDestroy {
   displayedColumnsMob: string[] = ['delegateFrom'];
 
   /** Observables for user lookups */
-  filteredUser!: Observable<Users[]>;
-  filteredUserData!: Observable<Users[]>;
-  filteredDelegateData!: Observable<Users[]>;
+  filteredUser!: Observable<UserLookup[]>;
+  filteredUserData!: Observable<UserLookup[]>;
+  filteredDelegateData!: Observable<UserLookup[]>;
 
   /** Additional state / flags */
   innerWidth = 0; // track window size
@@ -114,9 +103,6 @@ export class DelegationComponent implements OnInit, OnDestroy {
   isDisable = true;
   selectedTab: 'self' | 'others' = 'self';
 
-  /** Form controls for “others” delegation */
-  userData = new FormControl();          // from
-  delegateUserData = new FormControl();  // to
 
   /** Local references for user input elements */
   @ViewChild('userInput') userInput!: ElementRef<HTMLInputElement>;
@@ -127,6 +113,10 @@ export class DelegationComponent implements OnInit, OnDestroy {
 
   /** A subject for unsubscribing from streams on destroy */
   private readonly destroy$ = new Subject<void>();
+
+  private get delegateUserDataControl(): FormControl<UserLookup | null> {
+    return this.addToDelegateForm.get('delegateUserData') as FormControl<UserLookup | null>;
+  }
 
   constructor(
     @Inject(LOCALE_ID) private locale: string,
@@ -202,25 +192,30 @@ export class DelegationComponent implements OnInit, OnDestroy {
     this.innerWidth = window.innerWidth;
   }
 
+  /** Display function for autocomplete selections */
+  displayFn(user: UserLookup | null): string {
+    return user ? `${user.userName} (${user.loginId})` : '';
+  }
+
   /**
    * Construct reactive forms for “self” delegation & “others” delegation.
    */
   private buildForms(): void {
     // Self Delegation Form
     this.addDelegateUserForm = this.fb.group({
-      delegateUser: [null, [Validators.required]],
-      from: [null, [Validators.required]],
-      to: [null, [Validators.required]],
-      reason: [null]
+      delegateUser: this.fb.control<UserLookup | null>(null, Validators.required),
+      from: this.fb.control<Date | null>(null, Validators.required),
+      to: this.fb.control<Date | null>(null, Validators.required),
+      reason: this.fb.control<string | null>(null)
     });
 
     // Delegation to Others
     this.addToDelegateForm = this.fb.group({
-      userData: [null, [Validators.required]],
-      delegateUserData: [{ value: null, disabled: this.isDisable }, [Validators.required]],
-      from: [null, [Validators.required]],
-      to: [null, [Validators.required]],
-      reason: [null]
+      userData: this.fb.control<UserLookup | null>(null, Validators.required),
+      delegateUserData: this.fb.control<UserLookup | null>({ value: null, disabled: this.isDisable }, Validators.required),
+      from: this.fb.control<Date | null>(null, Validators.required),
+      to: this.fb.control<Date | null>(null, Validators.required),
+      reason: this.fb.control<string | null>(null)
     });
   }
 
@@ -245,7 +240,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
     this.loadingService.setLoading(true, url);
-    this.coreService.get<DelegatedUsers[]>(url).subscribe({
+    this.coreService.get<DelegatedUser[]>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.loadingService.setLoading(false, url);
@@ -283,7 +278,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
     this.loadingService.setLoading(true, url);
-    this.coreService.get<DelegatedUsers[]>(url).subscribe({
+    this.coreService.get<DelegatedUser[]>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.loadingService.setLoading(false, url);
@@ -509,7 +504,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
     }
 
     this.loadingService.setLoading(true, url);
-    this.coreService.get<Users[]>(url).subscribe({
+    this.coreService.get<UserLookup[]>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.loadingService.setLoading(false, url);
@@ -572,7 +567,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
     }
 
     const url = `UserController/getDelegationUsersList?currentUserId=${selected.loginId}`;
-    this.coreService.get<Users[]>(url).subscribe({
+    this.coreService.get<UserLookup[]>(url).subscribe({
       next: (response) => {
         // This is the "to" user array
         const allDelegateUsers = response;
@@ -619,7 +614,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
   /**
    * Delete an existing delegation after user confirmation.
    */
-  deleteDelegation(delegation: DelegatedUsers): void {
+  deleteDelegation(delegation: DelegatedUser): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         dialogHeader: 'DELETE',
@@ -670,7 +665,7 @@ export class DelegationComponent implements OnInit, OnDestroy {
   /**
    * Edit an existing delegation. Opens a dialog, then refreshes data upon close.
    */
-  editDelegation(delegation: DelegatedUsers): void {
+  editDelegation(delegation: DelegatedUser): void {
     const dialogRef = this.dialog.open(EditDelegationDialogComponent, {
       width: '800px',
       data: JSON.stringify(delegation)
