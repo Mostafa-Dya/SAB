@@ -6,14 +6,14 @@
   </div>
 
   <!-- FILTERS -->
-  <div class="row">
+  <div class="row" [formGroup]="form">
     <!-- OBS TITLE -->
     <div class="col-12 col-xl-4">
       <mat-form-field class="w-100" [class.text-right]="isRtl()">
         <mat-label [ngClass]="isRtl() ? 'main-label-rtl' : 'main-label'">
           {{ "OBSERVATION_TITLE" | translate }}
         </mat-label>
-        <input matInput [(ngModel)]="obsTitle" />
+        <input matInput formControlName="obsTitle" />
       </mat-form-field>
     </div>
 
@@ -23,7 +23,7 @@
         <mat-label [ngClass]="isRtl() ? 'main-label-rtl' : 'main-label'">
           {{ "FISCAL_YEAR" | translate }}
         </mat-label>
-        <mat-select [(ngModel)]="selectedYear">
+        <mat-select formControlName="selectedYear">
           @for (year of years; track year) {
           <mat-option
             [value]="year.value"
@@ -46,9 +46,9 @@
         <input
           matInput
           type="number"
-          [(ngModel)]="obsSequence"
+          formControlName="obsSequence"
           min="0"
-          (input)="obsSequence = mathOBS"
+          (input)="form.controls.obsSequence.setValue(mathOBS)"
         />
       </mat-form-field>
     </div>
