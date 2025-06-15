@@ -1,8 +1,10 @@
-import { BaseAction } from "./shared/base-action.model";
-
-export interface Comment extends BaseAction {
+export class Comment{
+  id: number;
+  stepName: string;
+  responseTaken: string;
   sender: string;
   sentTo: string;
   comment: string;
   commentDate: string;
+  
 }

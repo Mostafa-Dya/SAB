@@ -33,7 +33,7 @@ export interface NewOrRepeated {
 @Component({
   selector: 'app-initial-or-final-observation-titles',
   templateUrl: './initial-or-final-observation-titles.component.html',
-  styleUrls: ['./initial-or-final-observation-titles.component.scss']
+  styleUrls: ['./initial-or-final-observation-titles.component.css']
 })
 export class InitialOrFinalObservationTitlesComponent implements OnInit {
   isRtl: any;

@@ -24,7 +24,7 @@ let ELEMENT_DATA:  UserListData[] = [];
 @Component({
   selector: 'app-pending-observations-dceo',
   templateUrl: './pending-observations-dceo.component.html',
-  styleUrls: ['./pending-observations-dceo.component.scss']
+  styleUrls: ['./pending-observations-dceo.component.css']
 })
 export class PendingObservationsDCEOComponent implements OnInit {
  

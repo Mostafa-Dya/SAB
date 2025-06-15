@@ -33,7 +33,7 @@ export interface UsersData {
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss']
+  styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
   

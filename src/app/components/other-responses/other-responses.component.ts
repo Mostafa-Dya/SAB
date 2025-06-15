@@ -5,7 +5,7 @@ import { SharedVariableService } from 'src/app/services/shared-variable.service'
 @Component({
   selector: 'app-other-responses',
   templateUrl: './other-responses.component.html',
-  styleUrls: ['./other-responses.component.scss']
+  styleUrls: ['./other-responses.component.css']
 })
 export class OtherResponsesComponent implements OnInit {
   isRtl: any;

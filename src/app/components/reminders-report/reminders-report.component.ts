@@ -58,7 +58,7 @@ export interface DateTable {
 @Component({
   selector: 'app-reminders-report',
   templateUrl: './reminders-report.component.html',
-  styleUrls: ['./reminders-report.component.scss']
+  styleUrls: ['./reminders-report.component.css']
 })
 
 export class RemindersReportComponent implements OnInit {

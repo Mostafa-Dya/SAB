@@ -1,63 +1,37 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { ConfigService } from './config.service';
-import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class CoreService {
-  private readonly baseUrl: string = environment.baseUrl;
+  mainUrl: string;
 
-  constructor(private http: HttpClient, private config: ConfigService) {}
-
-  get<T>(
-    endpoint: string,
-    params?: HttpParams | { [param: string]: string | string[] },
-    headers?: HttpHeaders | { [header: string]: string | string[] }
-  ): Observable<T> {
-    return this.http.get<T>(this.baseUrl + endpoint, { params, headers });
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) {
+    this.mainUrl = configService.baseUrl;
   }
 
-  post<T>(
-    endpoint: string,
-    body: any,
-    headers?: HttpHeaders | { [header: string]: string | string[] }
-  ): Observable<T> {
-    return this.http.post<T>(this.baseUrl + endpoint, body, { headers });
+  get(url: string) {
+    return this.http.get<any>(this.mainUrl + url);
   }
 
-  /**
-   * Simple PUT, with optional headers.
-   */
-  put<T>(
-    endpoint: string,
-    body: any,
-    headers?: HttpHeaders | { [header: string]: string | string[] }
-  ): Observable<T> {
-    return this.http.put<T>(this.baseUrl + endpoint, body, { headers });
+  post(url: string, object: any) {
+    return this.http.post(this.mainUrl + url, object);
   }
 
-  /**
-   * Simple PATCH, with optional headers.
-   */
-  patch<T>(
-    endpoint: string,
-    body: any,
-    headers?: HttpHeaders | { [header: string]: string | string[] }
-  ): Observable<T> {
-    return this.http.patch<T>(this.baseUrl + endpoint, body, { headers });
+  put(url: string, object: any) {
+    return this.http.put(this.mainUrl + url, object);
+  }  
+
+  patch(url: string, object: any) {
+    return this.http.patch(this.mainUrl + url, object);
   }
 
-  /**
-   * Simple DELETE, with optional query params & headers.
-   */
-  delete<T>(
-    endpoint: string,
-    params?: HttpParams | { [param: string]: string | string[] },
-    headers?: HttpHeaders | { [header: string]: string | string[] }
-  ): Observable<T> {
-    return this.http.delete<T>(this.baseUrl + endpoint, { params, headers });
+  delete(url: string, object: any) {
+    return this.http.delete(this.mainUrl + url, object);
   }
 }

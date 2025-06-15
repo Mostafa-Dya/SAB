@@ -1,0 +1,84 @@
+.add-left-div {
+    top: 50%;
+    position: absolute;
+    cursor: pointer;
+}
+
+.add-left-icon {
+    background: #3f51b5;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    text-align: center;
+    padding: 13px;
+    color: #fff;
+}
+
+.tab-div {
+    border: solid 1px black;
+    height: 288px;
+}
+
+.tab-content-div {
+    /* margin-top: 10px; */
+    margin: 10px 10px 0 10px;
+}
+
+.show-mobile {
+    display: none;
+}
+
+.tab-div>.mat-tab-group {
+    height: 285px;
+}
+
+.tab-year-div {
+    padding: 10px;
+    background: #d9d9d9;
+    margin: 25px;
+}
+
+.div-classification {
+    display: inline-flex;
+    background: #dee2e6;
+    padding: 2px;
+    width: 115px;
+    margin-left: 10px;
+}
+
+
+
+.w-150-c{
+    width: calc(100% - 100px);
+}
+
+
+@media(max-width: 991px) {
+    .hide-mobile {
+        display: none;
+    }
+
+    .show-mobile {
+        display: block;
+    }
+
+    .add-left-div {
+        position: unset;
+        margin-left: 45%;
+    }
+}
+
+.add-left-div .mat-icon { 
+    height: 50px !important;
+ }
+ .bt-position{
+    margin-left: 20px;
+    position: relative;
+    right: 10px;
+    z-index: 1;
+ }
+ .sendBackReason {
+    font-weight: 600;
+    font-weight: bold;
+    color:red;
+  }

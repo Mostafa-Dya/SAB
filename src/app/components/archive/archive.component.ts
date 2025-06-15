@@ -1,39 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  MatCardModule
-} from '@angular/material/card';
-import {
-  MatFormFieldModule
-} from '@angular/material/form-field';
-import {
-  MatInputModule
-} from '@angular/material/input';
-import {
-  MatSelectModule
-} from '@angular/material/select';
-import {
-  MatButtonModule
-} from '@angular/material/button';
-import {
-  MatDividerModule
-} from '@angular/material/divider';
-import {
-  MatTableModule
-} from '@angular/material/table';
-import {
-  MatIconModule
-} from '@angular/material/icon';
-import {
-  TranslateModule
-} from '@ngx-translate/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable } from 'rxjs';
-import { SharedVariableService } from '../../services/shared-variable.service';
-import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { CoreService } from 'src/app/services/core.service';
+import { SharedVariableService } from 'src/app/services/shared-variable.service';
 
-export interface YearOption { value: string; }
-export interface CycleOption { value: string; }
+export interface Years {
+  value: string;
+}
+
+export interface Cycles {
+  value: string;
+}
 
 export interface ObservationData {
   cycle: string;
@@ -50,86 +27,79 @@ export interface ObservationData {
 
 @Component({
   selector: 'app-archive',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDividerModule,
-    MatTableModule,
-    MatIconModule,
-    TranslateModule,
-  ],
   templateUrl: './archive.component.html',
-  styleUrls: ['./archive.component.scss']
+  styleUrls: ['./archive.component.css']
 })
 export class ArchiveComponent implements OnInit {
-  isRtl$: Observable<boolean>;
+  isRtl: any;
+  obsTitle: string;
 
-  obsTitle = '';
-  years: YearOption[] = [
+  years: Years[] = [
     { value: 'Select Year' },
     { value: '2019-2020' },
     { value: '2020-2021' }
   ];
-  selectedYear = this.years[0].value;
-
-  cycles: CycleOption[] = [
+  selectedYear: string;
+  cycles: Cycles[] = [
     { value: 'All' },
     { value: 'SA1' },
     { value: 'SA2' }
   ];
-  selectedCycle = this.cycles[0].value;
-
+  selectedCycle: string;  
   observationData: ObservationData[] = [
     {
-      cycle: 'SA1', from: 'S.Engineer', to: 'TL', stepName: 'N/A',
-      department: 'N/A', date: '2021-06-20T06:12:31Z', attachment: true,
-      completionDate: '2021-06-20T06:12:31Z', adjustmentMadeOnBehalf: 'N/A',
-      GAndPAAttachment: 'N/A'
-    },
-    {
-      cycle: 'SA1', from: 'TL', to: 'Manager', stepName: 'N/A',
-      department: 'N/A', date: '2021-06-20T06:12:31Z', attachment: true,
-      completionDate: '2021-06-20T06:12:31Z', adjustmentMadeOnBehalf: 'N/A',
-      GAndPAAttachment: 'N/A'
-    },
-    {
-      cycle: 'SA1', from: 'Manager', to: 'G&PA', stepName: 'N/A',
-      department: 'N/A', date: '2021-06-20T06:12:31Z', attachment: true,
-      completionDate: '2021-06-20T06:12:31Z', adjustmentMadeOnBehalf: 'ديوان المحاس بة',
-      GAndPAAttachment: 'N/A'
+      "cycle": "SA1",
+      "from": "S.Engineer",
+      "to": "TL",
+      "stepName": "N/A",
+      "department": "N/A",
+      "date": "2021-06-20T06:12:31Z",
+      "attachment": true,
+      "completionDate": "2021-06-20T06:12:31Z",
+      "adjustmentMadeOnBehalf": "N/A",
+      "GAndPAAttachment": "N/A"
+    }, {
+      "cycle": "SA1",
+      "from": "TL",
+      "to": "Manager",
+      "stepName": "N/A",
+      "department": "N/A",
+      "date": "2021-06-20T06:12:31Z",
+      "attachment": true,
+      "completionDate": "2021-06-20T06:12:31Z",
+      "adjustmentMadeOnBehalf": "N/A",
+      "GAndPAAttachment": "N/A"
+    }, {
+      "cycle": "SA1",
+      "from": "Manager",
+      "to": "G&PA",
+      "stepName": "N/A",
+      "department": "N/A",
+      "date": "2021-06-20T06:12:31Z",
+      "attachment": true,
+      "completionDate": "2021-06-20T06:12:31Z",
+      "adjustmentMadeOnBehalf": "ديوان المحاس بة",
+      "GAndPAAttachment": "N/A"
     }
-  ];
-
-  dataSource = new MatTableDataSource<ObservationData>(this.observationData);
-
-  displayedColumns = [
-    'cycle', 'from', 'to', 'stepName',
-    'department', 'date', 'attachment',
-    'completionDate', 'adjustmentMadeOnBehalf',
-    'GAndPAAttachment'
-  ];
-  displayedColumnsTablet = [
-    'cycle', 'from', 'to', 'department', 'date', 'attachment'
-  ];
-  displayedColumnsMob = ['cycle'];
+  ]
+  dataSource: MatTableDataSource<ObservationData>;
+  displayedColumns: string[] = ['cycle', 'from', 'to', 'stepName', 'department', 'date', 'attachment', 'completionDate', 'adjustmentMadeOnBehalf', 'GAndPAAttachment'];
+  displayedColumnsTablet: string[] = ['cycle', 'from', 'to', 'department', 'date', 'attachment'];
+  displayedColumnsMob: string[] = ['cycle'];
 
   constructor(
-    private readonly sharedVariableService: SharedVariableService
-  ) {
-    this.isRtl$ = this.sharedVariableService.isRtl$;
-  }
+    private coreService: CoreService,
+    private router: Router,
+    private sharedVariableService: SharedVariableService
+  ) { }
 
   ngOnInit(): void {
-    // nothing else needed—async pipe will pick up RTL changes
+    this.sharedVariableService.getRtlValue().subscribe((value) => {
+      this.isRtl = value;
+    });
+    this.selectedYear = this.years[0].value;
+    // this.selectedCycle = this.cycles[0].value;
+    this.dataSource = new MatTableDataSource(this.observationData);
   }
 
-  trackByValue<T extends { value: string }>(_: number, item: T) {
-    return item.value;
-  }
 }

@@ -22,7 +22,7 @@ export interface EscalationData {
 @Component({
   selector: "app-g&pa-contact-details",
   templateUrl: "./g&pa-contact-details.component.html",
-  styleUrls: ["./g&pa-contact-details.component.scss"],
+  styleUrls: ["./g&pa-contact-details.component.css"],
 })
 export class GPAContactDetailsComponent implements OnInit {
   isRtl: any;

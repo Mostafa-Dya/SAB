@@ -1,156 +1,113 @@
-// auth.guard.ts
 import { Injectable } from '@angular/core';
-import {
-  CanActivate,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  UrlTree,
-  Router,
-} from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { SharedVariableService } from './shared-variable.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
-  private selectedDelegateUserInfo: any = null;
-
-  // all the routes that only admins may visit
-  private adminOnly = new Set([
-    'escalation-settings',
-    'users',
-    'observations-per-department-report',
-  ]);
-
+  selectedDelegateUserInfo: any;
   constructor(
     private sharedVariableService: SharedVariableService,
-    private router: Router
-  ) {}
+    private router: Router) { }
 
   canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean | UrlTree | Observable<boolean | UrlTree> {
-    return this.checkUserLogin(route, state.url);
+    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+    let url: string = state.url;
+    return this.checkUserLogin(route, url);
   }
 
-  private checkUserLogin(route: ActivatedRouteSnapshot, url: string): boolean {
-    // Must be logged in
-    if (!this.sharedVariableService.getLoginValue()) {
-      return this.deny();
-    }
-
-    const isAdmin = this.sharedVariableService.getIsAdmin() ?? '';
-    const userRole = this.sharedVariableService.getRole() ?? '';
-    const userInformation = this.sharedVariableService.userInformation;
-    this.loadDelegateInfo();
-
-    const path = route.url[0]?.path;
-
-    // map of path → handler
-    const handlers: Record<string, () => boolean> = {
-      'sent-items': () => this.canAccessSentItems(isAdmin),
-      archive: () => this.deny(),
-      'running-observations': () => this.deny(),
-      delegation: () => this.canAccessDelegation(isAdmin, userInformation),
-      'response-progress': () =>
-        this.canAccessResponseProgress(route, isAdmin, userRole),
-      'user-list-report': () => this.canAccessUserListReport(userInformation),
-    };
-
-    // 1) explicit handler
-    if (path in handlers) {
-      return handlers[path]();
-    }
-
-    // 2) admin-only group
-    if (this.adminOnly.has(path)) {
-      return this.canAccessAdminOnly(isAdmin);
-    }
-
-    // 3) fallback role guard
-    if (
-      route.data['role'] &&
-      (route.data['role'] as string[]).indexOf(isAdmin) === -1
-    ) {
-      return this.deny();
-    }
-
-    return true;
-  }
-
-  private loadDelegateInfo(): void {
-    const raw = localStorage.getItem('sabDelegateUser');
-    if (raw) {
-      this.selectedDelegateUserInfo = JSON.parse(raw);
-    }
-  }
-
-  private deny(): boolean {
-    this.router.navigate(['/inbox']);
-    return false;
-  }
-
-  private canAccessSentItems(isAdmin: string): boolean {
-    if (isAdmin === 'admin') {
-      return this.deny();
-    }
-    return true;
-  }
-
-  private canAccessDelegation(isAdmin: string, info: any): boolean {
-    // admins always; non-admins only if delegationAdminPageEnabled
-    if (isAdmin !== 'admin' && !info.delegationAdminPageEnabled) {
-      return this.deny();
-    }
-    return true;
-  }
-
-  private canAccessResponseProgress(
-    route: ActivatedRouteSnapshot,
-    isAdmin: string,
-    userRole: string
-  ): boolean {
-    const delegate = this.selectedDelegateUserInfo;
-    const job = delegate?.userJobTitle;
-    const allowedRoles = route.data['role'] as string[] | undefined;
-
-    // if roles restricted and current user/delegate not in them, block
-    if (allowedRoles && allowedRoles.indexOf(isAdmin) === -1) {
-      if (delegate) {
-        if (job === 'ENG' || job === 'SENG') {
-          return this.deny();
+  checkUserLogin(route: ActivatedRouteSnapshot, url: any): boolean {
+    if (this.sharedVariableService.getLoginValue()) {
+      const userRole = this.sharedVariableService.getRole();
+      const isAdmin = this.sharedVariableService.getIsAdmin();
+      const userInformation = this.sharedVariableService.userInformation;
+      let data: any = localStorage.getItem('sabDelegateUser');
+      if (data) {
+        this.selectedDelegateUserInfo = JSON.parse(data);
+      }
+      if (route.url[0].path == 'sent-items') {
+        if (isAdmin == 'admin') {
+          this.router.navigate(['/inbox']);
+          return false;
+        }
+        return true;
+      } else if (route.url[0].path == 'archive' || route.url[0].path == 'running-observations') {
+        this.router.navigate(['/inbox']);
+        return false;
+      } else if (route.url[0].path == 'delegation' && (isAdmin != 'admin' ||  (isAdmin == 'admin' && userInformation.delegationAdminPageEnabled))) {
+        // if (route.data.role && route.data.role.indexOf(userRole) === -1) {
+        return true;
+        // }
+        // this.router.navigate(['/inbox']);
+        // return false;
+      } else if (route.url[0].path == 'response-progress') {
+        let data: any = localStorage.getItem('sabDelegateUser');
+        if (data) {
+          this.selectedDelegateUserInfo = JSON.parse(data);
+          if (route.data.role && route.data.role.indexOf(isAdmin) === -1) {
+            if (this.selectedDelegateUserInfo.userJobTitle == 'ENG' || this.selectedDelegateUserInfo.userJobTitle == 'SENG') {
+              this.router.navigate(['/inbox']);
+              return false;
+            }
+            return true;
+          }
+          return true;
+        } else {
+          if (route.data.role && route.data.role.indexOf(isAdmin) === -1) {
+            if (userRole == 'ENG' || userRole == 'SENG') {
+              this.router.navigate(['/inbox']);
+              return false;
+            }
+            return true;
+          }
+          return true;
+        }
+      } else if (route.url[0].path == 'escalation-settings') {
+        if (isAdmin != 'admin') {
+          this.router.navigate(['/inbox']);
+          return false;
         }
         return true;
       }
-      if (userRole === 'ENG' || userRole === 'SENG') {
-        return this.deny();
+      else if (route.url[0].path == 'users') {
+        if (isAdmin != 'admin') {
+          this.router.navigate(['/inbox']);
+          return false;
+        }
+        return true;
+      } else if (route.url[0].path == 'observations-per-department-report') {
+        if (isAdmin != 'admin') {
+          this.router.navigate(['/inbox']);
+          return false;
+        }
+        return true;
+      }if (route.url[0].path == 'user-list-report'){
+        if(userInformation.admin || userInformation.sabMember.userJobTitle == 'MGR' || ( userInformation.sabMember.userJobTitle == 'SEC' && userInformation.supervisorDetails.userJobTitle == 'MGR' )|| ( this.selectedDelegateUserInfo && this.selectedDelegateUserInfo.userJobTitle == 'MGR' )){
+          return true;
+        }else{
+          return false;
+        }
       }
-    }
-    return true;
-  }
-
-  private canAccessAdminOnly(isAdmin: string): boolean {
-    if (isAdmin !== 'admin') {
-      return this.deny();
-    }
-    return true;
-  }
-
-  private canAccessUserListReport(info: any): boolean {
-    const job = info.sabMember.userJobTitle;
-    const supJob = info.supervisorDetails?.userJobTitle;
-    const delegateJob = this.selectedDelegateUserInfo?.userJobTitle;
-
-    if (
-      info.admin ||
-      job === 'MGR' ||
-      (job === 'SEC' && supJob === 'MGR') ||
-      delegateJob === 'MGR'
-    ) {
+      // if (route.url[0].path == 'pending-observations-report'){
+      //   if(
+      //     userInformation.sabMember.userJobTitle == 'DCEO' || userInformation.sabMember.userJobTitle == 'CEO' || (userInformation.sabMember.userJobTitle == 'SEC' &&   (userInformation.supervisorDetails.userJobTitle == 'DCEO' || 
+      //     userInformation.supervisorDetails.userJobTitle == 'CEO' ))
+      //   ){
+      //     return true;
+      //   }else{
+      //     return false;
+      //   }
+      // }
+      else if (route.data.role && route.data.role.indexOf(isAdmin) === -1) {
+        this.router.navigate(['/inbox']);
+        return false;
+      }
       return true;
     }
+    this.router.navigate(['/inbox']);
     return false;
   }
 }

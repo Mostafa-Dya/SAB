@@ -1,202 +1,153 @@
-/****************************************************************************************
- *  Classification-Change-Report  ·  Component logic (stand-alone, OnPush)
- ****************************************************************************************/
-import {
-  ChangeDetectionStrategy,
-  Component,
-  HostListener,
-  ViewChild,
-  inject,
-} from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { yearsPerPage } from '@angular/material/datepicker';
 import { MatPaginator } from '@angular/material/paginator';
-import { BehaviorSubject, finalize } from 'rxjs';
+import { MatTableDataSource } from '@angular/material/table';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { ConfigService } from 'src/app/services/config.service';
+import { CoreService } from 'src/app/services/core.service';
+import { LoadingService } from 'src/app/services/loading.service';
+import { SharedVariableService } from 'src/app/services/shared-variable.service';
 
-import { ConfigService } from '../../services/config.service';
-import { CoreService } from '../../services/core.service';
-import { LoadingService } from '../../services/loading.service';
-import { SharedVariableService } from '../../services/shared-variable.service';
-import { environment } from '../../../environments/environment';
-import { SharedModule } from '../../shared/modules/shared.module';
-
-/* ────────────────────────────────────────────────────────────────────────── */
-/* ■ Typed DTOs ­–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
-export interface YearOption {
+export interface Years {
   value: string;
 }
-export interface DepartmentOption {
+
+export interface Department {
   id: string;
   name: string;
 }
 
-export interface ClassificationRow {
+export interface Data {
+  // obsSequence: string;
   obsSequence: number;
   obsTitle: string;
+  q1Classification: string;
+  q2Classification: string;
+  q3Classification: string;
+  q4Classification: string;
   reportYear: string;
-
-  /* SA sections kept; other quarterly columns are optional */
   sa1Classification: string;
-  sa1CompletionYear: string;
-  sa1Entities: string;
   sa2Classification: string;
-  sa2CompletionYear: string;
-  sa2Entities: string;
-
-  q1Classification?: string;
-  q2Classification?: string;
-  q3Classification?: string;
-  q4Classification?: string;
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/* ■ Component ­––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
 @Component({
   selector: 'app-classification-change-report',
   templateUrl: './classification-change-report.component.html',
-  styleUrls: ['./classification-change-report.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
-  imports: [SharedModule],
+  styleUrls: ['./classification-change-report.component.css']
 })
-export class ClassificationChangeReportComponent {
-  /* ───────────── Dependencies */
-  private readonly core = inject(CoreService);
-  private readonly shared = inject(SharedVariableService);
-  private readonly loader = inject(LoadingService);
+export class ClassificationChangeReportComponent implements OnInit {
+  isRtl: any;
+  dataSource: MatTableDataSource<any>;
+  // displayedColumns: string[] = ['obsSequence', 'reportYear', 'obsTitle', 'q1Classification', 'sa1Classification', 'q2Classification', 'q3Classification', 'sa2Classification', 'q4Classification'];
+   displayedColumns: string[] = ['obsSequence', 'reportYear', 'obsTitle', 'sa1Classification','sa1CompletionYear','sa1Entities',  'sa2Classification','sa2CompletionYear','sa2Entities'];
 
-  /* ───────────── Template refs */
-  @ViewChild(MatPaginator, { static: true }) paginator?: MatPaginator;
-
-  /* ───────────── Reactive state */
-  readonly isRtl$ = this.shared.isRtl$; // RTL as observable
-  readonly years$ = new BehaviorSubject<YearOption[]>([]); // FY dropdown
-  readonly departments$ = new BehaviorSubject<DepartmentOption[]>([ // Dept dropdown
-    { id: '0', name: 'All' },
-  ]);
-
-  selectedYear = '';
-  selectedDepartment = '0';
-  obsSequence = '';
-  observationTitle = '';
-
-  /* data-table */
-  dataSource = new MatTableDataSource<ClassificationRow>([]);
-  readonly displayedColumns = [
-    'obsSequence',
-    'reportYear',
-    'obsTitle',
-    'sa1Classification',
-    'sa1CompletionYear',
-    'sa1Entities',
-    'sa2Classification',
-    'sa2CompletionYear',
-    'sa2Entities',
+  displayedColumnsMob: string[] = ['obsTitle'];
+  displayedColumnsSmallMob: string[] = ['obsTitle'];
+  selectedYear: string = '';
+  selectedDepartment: string = '0';
+  isLoading: boolean = false;
+  mainUrl: string;
+  obsSequence: string;
+  observationTitle: string;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  years: Years[] = [];
+  departmentValue: Department[] = [
+    { id: "0", name: "All" }
   ];
-  readonly displayedColumnsMob = ['obsTitle'];
-  readonly displayedColumnsSmallMob = ['obsTitle'];
+  innerWidth = 0;
+  constructor(
+    private coreService: CoreService,
+    private sharedVariableService: SharedVariableService,
+    private configService: ConfigService,
+    private notification: NzNotificationService,
+    private _loading: LoadingService) { }
 
-  /* UI helpers */
-  innerWidth = window.innerWidth;
-  isLoading = false;
-  private readonly mainUrl = environment.baseUrl;
-
-  /* ───────────── Lifecycle */
-  constructor() {
-    this.bootstrap();
+  ngOnInit(): void {
+    this.sharedVariableService.getRtlValue().subscribe((value) => {
+      this.isRtl = value;
+    });
+    this.mainUrl = this.configService.baseUrl;
+    this.getYear();
+    this.getDepartmentData();
+    this.innerWidth =  window.innerWidth;
   }
 
-  /** initial data fetch */
-  private bootstrap(): void {
-    this.fetchYears();
-    this.fetchDepartments();
+
+  onResize(event:any) {
+    this.innerWidth =  window.innerWidth;
+   }
+  getYear() {
+    let url = 'uploadReportController/getReportYears';
+    this._loading.setLoading(true, url);
+    this.coreService.get(url).subscribe(response => {
+      this._loading.setLoading(false, url);
+      let years: any[] = [];
+      response.map((data: any) => {
+        years.push({ value: data })
+      })
+      years.reverse();
+      this.years = [...this.years, ...years];
+      this.selectedYear = this.years[0].value;
+    }, error => {
+      this._loading.setLoading(false, url);
+      console.log('error :' , error);
+    });
   }
 
-  /* ───────────── Remote calls – Years & Departments */
-  private fetchYears(): void {
-    const url = 'uploadReportController/getReportYears';
-    this.loader.setLoading(true, url);
-    this.core
-      .get<string[]>(url)
-      .pipe(finalize(() => this.loader.setLoading(false, url)))
-      .subscribe({
-        next: (list) => {
-          const opts = list.map((v) => ({ value: v })).reverse();
-          this.years$.next(opts);
-          this.selectedYear = opts[0]?.value ?? '';
-        },
-        error: (err) => console.error('fetchYears', err),
+  getDepartmentData() {
+    this.departmentValue = [
+      { id: "0", name: "All" }
+    ];
+    let url = 'UserController/getsabDepartments?directorateId=0';
+    this._loading.setLoading(true, url);
+    this.coreService.get(url).subscribe(response => {
+      this._loading.setLoading(false, url);
+      Object.keys(response).forEach((key) => {
+        this.departmentValue.push({ id: key, name: response[key] })
+      })
+      this.departmentValue.sort((a, b) => {
+        let fa = a.name.toLowerCase(),
+          fb = b.name.toLowerCase();
+        if (fa < fb) {
+          return -1;
+        }
+        if (fa > fb) {
+          return 1;
+        }
+        return 0;
       });
+    }, error => {
+      this._loading.setLoading(false, url);
+      console.log('error :' , error);
+    });
   }
 
-  private fetchDepartments(): void {
-    const url = 'UserController/getsabDepartments?directorateId=0';
-    this.loader.setLoading(true, url);
-    this.core
-      .get<Record<string, string>>(url)
-      .pipe(finalize(() => this.loader.setLoading(false, url)))
-      .subscribe({
-        next: (map) => {
-          const opts = Object.entries(map)
-            .map(([id, name]) => ({ id, name }))
-            .sort((a, b) => a.name.localeCompare(b.name));
-          this.departments$.next([{ id: '0', name: 'All' }, ...opts]);
-        },
-        error: (err) => console.error('fetchDepartments', err),
-      });
-  }
-
-  /* ───────────── Search */
-  search(): void {
+  search() {
     this.isLoading = true;
-    const url =
-      'settingsController/getClassicationDetails' +
-      `?reportYear=${this.selectedYear}` +
-      `&departmentCode=${this.selectedDepartment}` +
-      `&obsTitle=${encodeURIComponent(this.observationTitle ?? '')}` +
-      `&obsSeq=${this.obsSequence ?? ''}`;
-
-    this.loader.setLoading(true, url);
-    this.core
-      .get<ClassificationRow[]>(url)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.loader.setLoading(false, url);
-        })
-      )
-      .subscribe({
-        next: (rows) => {
-          this.dataSource = new MatTableDataSource(rows);
-          if (this.paginator) this.dataSource.paginator = this.paginator;
-        },
-        error: (err) => console.error('search', err),
-      });
+    let url = 'settingsController/getClassicationDetails?reportYear=' + this.selectedYear + '&departmentCode=' + this.selectedDepartment + '&obsTitle=' + this.observationTitle + '&obsSeq=' + this.obsSequence;
+    this._loading.setLoading(true, url);
+    this.coreService.get(url).subscribe(response => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      // response = [{"obsId":"2020-2021-1","obsSequence":1,"obsTitle":"أولا: \tOBI1الملاحظات المتعلقة بمشروع sالوقود البيئيA:","q1Classification":"B","q2Classification":"BD","q3Classification":"A","q4Classification":"B","reportYear":"2020-2021","sa1Classification":"C","sa2Classification":"C"},{"obsId":"2020-2021-2","obsSequence":2,"obsTitle":"2- OBI2استمرار الملاحظات المتعلقة بالعقود الاستشارية الخاصة بتمويل مشروع للوقود البيئي:","reportYear":"2020-2021"},{"obsId":"2020-2021-3","obsSequence":3,"obsTitle":"   3- \tOBI3الملاحظات التي شابت العقد الاستشاري الرئيسي لمشروع الوقود البيئيOB3:","reportYear":"2020-2021"},{"obsId":"2020-2021-4","obsSequence":4,"obsTitle":"أولا: \tOBI1الملاحظات المتعلقة بمشروع sالوقود البيئيA:","reportYear":"2020-2021"},{"obsId":"2020-2021-5","obsSequence":5,"obsTitle":"2- OBI2استمرار الملاحظات المتعلقة بالعقود الاستشارية الخاصة بتمويل مشروع للوقود البيئي:","reportYear":"2020-2021"},{"obsId":"2020-2021-6","obsSequence":6,"obsTitle":"   3- \tOBI3الملاحظات التي شابت العقد الاستشاري الرئيسي لمشروع الوقود البيئيOB3:","reportYear":"2020-2021"},{"obsId":"2020-2021-7","obsSequence":7,"obsTitle":"أولا: \tOBI1الملاحظات المتعلقة بمشروع sالوقود البيئيA:","reportYear":"2020-2021"},{"obsId":"2020-2021-8","obsSequence":8,"obsTitle":"2- OBI2استمرار الملاحظات المتعلقة بالعقود الاستشارية الخاصة بتمويل مشروع للوقود البيئي:","reportYear":"2020-2021"},{"obsId":"2020-2021-9","obsSequence":9,"obsTitle":"   3- \tOBI3الملاحظات التي شابت العقد الاستشاري الرئيسي لمشروع الوقود البيئيOB3:","reportYear":"2020-2021"}];
+      this.dataSource = new MatTableDataSource(response);
+      setTimeout(() => {
+        this.dataSource.paginator = this.paginator;
+      })
+    }, error => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      console.log('error :' , error);
+    });
   }
 
-  /* ───────────── Export helpers */
-  exportMSExcel(): void {
-    const url =
-      'ReminderAndClassificationExportController/exportClassificationDetailsToExcel' +
-      `?reportYear=${this.selectedYear}` +
-      `&departmentCode=${this.selectedDepartment}` +
-      `&obsTitle=${encodeURIComponent(this.observationTitle ?? '')}` +
-      `&obsSeq=${this.obsSequence ?? ''}`;
+  exportMSExcel() {
+    let url = 'ReminderAndClassificationExportController/exportClassificationDetailsToExcel?reportYear=' + this.selectedYear + '&departmentCode=' + this.selectedDepartment + '&obsTitle=' + this.observationTitle + '&obsSeq=' + this.obsSequence;
     window.open(this.mainUrl + url, '_parent');
   }
 
-  exportMSWord(): void {
-    const url =
-      'ReminderAndClassificationExportController/exportClassificationDetailsToWord' +
-      `?reportYear=${this.selectedYear}` +
-      `&departmentCode=${this.selectedDepartment}` +
-      `&obsTitle=${encodeURIComponent(this.observationTitle ?? '')}` +
-      `&obsSeq=${this.obsSequence ?? ''}`;
+  exportMSWord() {
+    let url = 'ReminderAndClassificationExportController/exportClassificationDetailsToWord?reportYear=' + this.selectedYear + '&departmentCode=' + this.selectedDepartment + '&obsTitle=' + this.observationTitle + '&obsSeq=' + this.obsSequence;
     window.open(this.mainUrl + url, '_parent');
-  }
-
-  /* ───────────── Responsive helper */
-  @HostListener('window:resize')
-  onResize(): void {
-    this.innerWidth = window.innerWidth;
   }
 }

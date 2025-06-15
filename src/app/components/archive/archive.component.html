@@ -1,310 +1,215 @@
-<!-- src/app/archive/archive.component.html -->
-<mat-card class="main-card">
-  <div class="row">
-    <!-- Page heading -->
-    <div class="col-12 mb-3" [class.text-right]="isRtl$ | async">
-      <mat-icon class="bread-page-heading-icon">inventory_2</mat-icon>
-      <span class="page-heading">{{ "ARCHIVE" | translate }}</span>
-    </div>
-
-    <!-- Filters: Title -->
-    <div class="col-12 col-lg-4 col-xl-3">
-      <mat-form-field class="w-100" [class.text-right]="isRtl$ | async">
-        <mat-label
-          [class.main-label-rtl]="isRtl$ | async"
-          [class.main-label]="!(isRtl$ | async)"
-        >
-          {{ "TITLE" | translate }}
-        </mat-label>
-        <input matInput [(ngModel)]="obsTitle" />
-      </mat-form-field>
-    </div>
-
-    <!-- Filters: Year -->
-    <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
-      <mat-form-field class="w-100" [class.text-right]="isRtl$ | async">
-        <mat-label
-          [class.main-label-rtl]="isRtl$ | async"
-          [class.main-label]="!(isRtl$ | async)"
-        >
-          {{ "YEAR" | translate }}
-        </mat-label>
-        <mat-select [(value)]="selectedYear">
-          <mat-option
-            *ngFor="let y of years; trackBy: trackByValue"
-            [value]="y.value"
-            [class.rtl-direction]="isRtl$ | async"
-            [class.text-right]="isRtl$ | async"
-          >
-            {{ y.value }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <!-- Filters: Cycle -->
-    <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
-      <mat-form-field class="w-100" [class.text-right]="isRtl$ | async">
-        <mat-label
-          [class.main-label-rtl]="isRtl$ | async"
-          [class.main-label]="!(isRtl$ | async)"
-        >
-          {{ "CYCLE" | translate }}
-        </mat-label>
-        <mat-select [(value)]="selectedCycle">
-          <mat-option
-            *ngFor="let c of cycles; trackBy: trackByValue"
-            [value]="c.value"
-            [class.rtl-direction]="isRtl$ | async"
-            [class.text-right]="isRtl$ | async"
-          >
-            {{ c.value }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <!-- Search button -->
-    <div class="col-12 col-lg-2">
-      <button
-        mat-raised-button
-        class="search-btn b-blue c-white"
-        [class.float-right]="!(isRtl$ | async)"
-        [class.float-left]="isRtl$ | async"
-      >
-        {{ "SEARCH" | translate }}
-      </button>
-      <button
-        mat-raised-button
-        class="search-btn-mob b-blue c-white"
-        [class.float-left]="isRtl$ | async"
-        [class.float-right]="!(isRtl$ | async)"
-      >
-        {{ "SEARCH" | translate }}
-      </button>
-    </div>
-
-    <!-- Divider -->
-    <div class="col-12 p-0 mt-4 mb-2">
-      <mat-divider></mat-divider>
-    </div>
-
-    <!-- Summary details -->
-    <div class="col-4 col-sm-3 col-lg-2" [class.text-right]="isRtl$ | async">
-      <label class="page-sub-title">{{ "TITLE" | translate }}:</label>
-    </div>
-    <div class="col-8 col-sm-9 col-lg-10" [class.text-right]="isRtl$ | async">
-      <span>ئي بالوقود المتعلقة الما</span>
-    </div>
-    <div class="col-4 col-sm-3 col-lg-2" [class.text-right]="isRtl$ | async">
-      <label class="page-sub-title">{{ "YEAR" | translate }}:</label>
-    </div>
-    <div class="col-8 col-sm-9 col-lg-10" [class.text-right]="isRtl$ | async">
-      <span>2018-2019</span>
-    </div>
-
-    <!-- Desktop/Table view -->
-    <div class="col-12 hide-tablet" [class.text-right]="isRtl$ | async">
-      <table mat-table [dataSource]="dataSource">
-        <!-- Cycle Column -->
-        <ng-container matColumnDef="cycle">
-          <th mat-header-cell *matHeaderCellDef>{{ "CYCLE" | translate }}</th>
-          <td mat-cell *matCellDef="let e">{{ e.cycle }}</td>
-        </ng-container>
-
-        <!-- From Column -->
-        <ng-container matColumnDef="from">
-          <th mat-header-cell *matHeaderCellDef>{{ "FROM" | translate }}</th>
-          <td mat-cell *matCellDef="let e">{{ e.from }}</td>
-        </ng-container>
-
-        <!-- To Column -->
-        <ng-container matColumnDef="to">
-          <th mat-header-cell *matHeaderCellDef>{{ "TO" | translate }}</th>
-          <td mat-cell *matCellDef="let e">{{ e.to }}</td>
-        </ng-container>
-
-        <!-- Step Name Column -->
-        <ng-container matColumnDef="stepName">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ "STEP_NAME" | translate }}
-          </th>
-          <td mat-cell *matCellDef="let e">{{ e.stepName }}</td>
-        </ng-container>
-
-        <!-- Department Column -->
-        <ng-container matColumnDef="department">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ "DEPARTMENT" | translate }}
-          </th>
-          <td mat-cell *matCellDef="let e">{{ e.department }}</td>
-        </ng-container>
-
-        <!-- Date Column -->
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef>{{ "DATE" | translate }}</th>
-          <td mat-cell *matCellDef="let e">
-            {{ e.date | date : "d/M/yyyy h:mm a" }}
-          </td>
-        </ng-container>
-
-        <!-- Attachment Column -->
-        <ng-container matColumnDef="attachment">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ "ATTACHMENT" | translate }}
-          </th>
-          <td mat-cell *matCellDef="let e">
-            <ng-container *ngIf="e.attachment; else noAttach">
-              <mat-icon class="page-heading-icon">download</mat-icon>
-            </ng-container>
-            <ng-template #noAttach>N/A</ng-template>
-          </td>
-        </ng-container>
-
-        <!-- Completion Date Column -->
-        <ng-container matColumnDef="completionDate">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ "COMPLETION_DATE" | translate }}
-          </th>
-          <td mat-cell *matCellDef="let e">
-            {{ e.completionDate | date : "yyyy" }}
-          </td>
-        </ng-container>
-
-        <!-- Adjustment Column -->
-        <ng-container matColumnDef="adjustmentMadeOnBehalf">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ "ADJUSTMENT_MADE_ON_BEHALF" | translate }}
-          </th>
-          <td mat-cell *matCellDef="let e">{{ e.adjustmentMadeOnBehalf }}</td>
-        </ng-container>
-
-        <!-- G&P Attachment Column -->
-        <ng-container matColumnDef="GAndPAAttachment">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ "GANDPA_ATTACHMENT" | translate }}
-          </th>
-          <td mat-cell *matCellDef="let e">{{ e.GAndPAAttachment }}</td>
-        </ng-container>
-
-        <!-- Header & Row Definitions -->
-        <tr
-          mat-header-row
-          *matHeaderRowDef="displayedColumns; sticky: true"
-        ></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns"
-          style="cursor: pointer"
-        ></tr>
-      </table>
-    </div>
-
-    <!-- Tablet view -->
-    <div class="col-12 hide-mob" [class.text-right]="isRtl$ | async">
-      <table mat-table [dataSource]="dataSource">
-        <!-- Same columns except fewer for tablet -->
-        <ng-container matColumnDef="cycle">
-          <th mat-header-cell *matHeaderCellDef>{{ "CYCLE" | translate }}</th>
-          <td mat-cell *matCellDef="let e">{{ e.cycle }}</td>
-        </ng-container>
-        <ng-container matColumnDef="from">
-          <th mat-header-cell *matHeaderCellDef>{{ "FROM" | translate }}</th>
-          <td mat-cell *matCellDef="let e">{{ e.from }}</td>
-        </ng-container>
-        <ng-container matColumnDef="to">
-          <th mat-header-cell *matHeaderCellDef>{{ "TO" | translate }}</th>
-          <td mat-cell *matCellDef="let e">{{ e.to }}</td>
-        </ng-container>
-        <ng-container matColumnDef="department">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ "DEPARTMENT" | translate }}
-          </th>
-          <td mat-cell *matCellDef="let e">{{ e.department }}</td>
-        </ng-container>
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef>{{ "DATE" | translate }}</th>
-          <td mat-cell *matCellDef="let e">
-            {{ e.date | date : "d/M/yyyy h:mm a" }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="attachment">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let e">
-            <ng-container *ngIf="e.attachment; else naTablet">
-              <mat-icon class="page-heading-icon">download</mat-icon>
-            </ng-container>
-            <ng-template #naTablet>N/A</ng-template>
-          </td>
-        </ng-container>
-        <tr
-          mat-header-row
-          *matHeaderRowDef="displayedColumnsTablet; sticky: true"
-        ></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumnsTablet"
-          style="cursor: pointer"
-        ></tr>
-      </table>
-    </div>
-
-    <!-- Mobile view -->
-    <div class="col-12 show-mob" [class.text-right]="isRtl$ | async">
-      <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
-        <ng-container matColumnDef="cycle">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let e" class="title-td">
-            {{ e.cycle }}
-            <mat-icon
-              *ngIf="e.attachment"
-              [class.attachment-rtl]="isRtl$ | async"
-              [class.attachment]="!(isRtl$ | async)"
-            >
-              download
-            </mat-icon>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="expandedDetail">
-          <td
-            mat-cell
-            *matCellDef="let e"
-            [attr.colspan]="displayedColumnsMob.length"
-            class="expanded-td"
-          >
-            <div
-              [class.expanded-div-rtl]="isRtl$ | async"
-              [class.expanded-div]="!(isRtl$ | async)"
-            >
-              <div class="expanded-content">
-                <span>{{ "FROM" | translate }}:</span> {{ e.from }}
-              </div>
-              <div class="expanded-content">
-                <span>{{ "TO" | translate }}:</span> {{ e.to }}
-              </div>
-              <div class="expanded-content">
-                <span>{{ "DEPARTMENT" | translate }}:</span> {{ e.department }}
-              </div>
-              <div class="expanded-content">
-                <span>{{ "DATE" | translate }}:</span>
-                {{ e.date | date : "d/M/yyyy h:mm a" }}
-              </div>
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+                <mat-icon class="bread-page-heading-icon">inventory_2</mat-icon>
+                <span class="page-heading">{{ 'ARCHIVE' | translate }}</span>
             </div>
-          </td>
-        </ng-container>
-
-        <tr
-          mat-header-row
-          *matHeaderRowDef="displayedColumnsMob; sticky: true"
-        ></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumnsMob"
-          style="cursor: pointer"
-        ></tr>
-        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
-      </table>
-    </div>
-  </div>
-</mat-card>
+            <!-- <div class="col-12">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-12 col-md-10 col-lg-8">
+                        <div class="row"> -->
+                            <div class="col-12 col-lg-4 col-xl-3">
+                                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                        {{ 'TITLE' | translate }}
+                                    </mat-label>
+                                    <input matInput [(ngModel)]="obsTitle">
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                                        {{ 'YEAR' | translate }}
+                                    </mat-label>
+                                    <mat-select [(value)]="selectedYear">
+                                        <mat-option *ngFor="let year of years" [value]="year.value"
+                                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                                            {{year.value}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">{{ 'CYCLE' |
+                                        translate }}</mat-label>
+                                    <mat-select [(value)]="selectedCycle">
+                                        <mat-option *ngFor="let cycle of cycles" [value]="cycle.value"
+                                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                                            {{cycle.value}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12 col-lg-2">
+                                <button class="search-btn b-blue c-white" mat-raised-button [ngClass]="{'float-right': isRtl}">
+                                    {{ 'SEARCH' | translate }}
+                                </button>
+                                <button class="search-btn-mob b-blue c-white" mat-raised-button [ngClass]="isRtl ? 'float-left' : 'float-right'">
+                                    {{ 'SEARCH' | translate }}
+                                </button>
+                            </div>
+                        <!-- </div>
+                    </div>
+                </div>
+            </div> -->
+            <div class="col-12 p-0 mt-4 mb-2">
+                <mat-divider></mat-divider>
+            </div>
+            <div class="col-4 col-sm-3 col-lg-2" [ngClass]="{'text-right': isRtl}">
+                <label class="page-sub-title">{{ 'TITLE' | translate }}:</label>
+            </div>
+            <div class="col-8 col-sm-9 col-lg-10" [ngClass]="{'text-right': isRtl}">
+                <span>ئي بالوقود المتعلقة الما</span>
+            </div>
+            <div class="col-4 col-sm-3 col-lg-2" [ngClass]="{'text-right': isRtl}">
+                <label class="page-sub-title">{{ 'YEAR' | translate }}:</label>
+            </div>
+            <div class="col-8 col-sm-9 col-lg-10" [ngClass]="{'text-right': isRtl}">
+                <span>2018-2019</span>
+            </div>
+            <!-- <div class="col-4 col-sm-3 col-lg-2" [ngClass]="{'text-right': isRtl}">
+                <label class="page-sub-title">{{ 'CYCLE' | translate }}:</label>
+            </div>
+            <div class="col-8 col-sm-9 col-lg-10" [ngClass]="{'text-right': isRtl}">
+                <span>SA1</span>
+            </div> -->
+            <div class="col-12 hide-tablet">
+                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}">
+                    <ng-container matColumnDef="cycle">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'CYCLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.cycle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="from">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'FROM' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.from}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="to">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'TO' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.to}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="stepName">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'STEP_NAME' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.stepName}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="department">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'DEPARTMENT' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.department}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="date">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'DATE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.date | date:'d/M/yyyy h:mm a'}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="attachment">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'ATTACHMENT' | translate }} </th>
+                        <td mat-cell *matCellDef="let element">
+                            <span *ngIf="element.attachment">
+                                <mat-icon class="page-heading-icon">download</mat-icon>
+                            </span>
+                            <span *ngIf="!element.attachment">N/A</span>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="completionDate">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'COMPLETION_DATE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.completionDate | date:"yyyy"}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="adjustmentMadeOnBehalf">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'ADJUSTMENT_MADE_ON_BEHALF' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.adjustmentMadeOnBehalf}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="GAndPAAttachment">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'GANDPA_ATTACHMENT' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.GAndPAAttachment}} </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="cursor: pointer;"></tr>
+                </table>
+            </div>
+            <div class="col-12 hide-mob">
+                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}">
+                    <ng-container matColumnDef="cycle">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'CYCLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.cycle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="from">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'FROM' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.from}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="to">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'TO' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.to}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="department">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'DEPARTMENT' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.department}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="date">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}">
+                            {{ 'DATE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.date | date:'d/M/yyyy h:mm a'}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="attachment">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"></th>
+                        <td mat-cell *matCellDef="let element">
+                            <span *ngIf="element.attachment">
+                                <mat-icon class="page-heading-icon">download</mat-icon>
+                            </span>
+                            <span *ngIf="!element.attachment">N/A</span>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsTablet; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsTablet;" style="cursor: pointer;"></tr>
+                </table>
+            </div>
+            <div class="col-12 show-mob">
+                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}" multiTemplateDataRows>
+                    <ng-container matColumnDef="cycle">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element" class="title-td"> {{element.cycle}}
+                            <span *ngIf="element.attachment" [ngClass]="isRtl ? 'attachment-rtl' : 'attachment'">
+                                <mat-icon class="page-heading-icon">download</mat-icon>
+                            </span>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="expandedDetail">
+                        <td class="expanded-td" mat-cell *matCellDef="let element"
+                            [attr.colspan]="displayedColumnsMob.length">
+                            <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                                <div class="col-12 expanded-content">
+                                    <span>{{ 'FROM' | translate }}:</span> {{element.from}}
+                                </div>
+                                <div class="col-12 expanded-content">
+                                    <span>{{ 'TO' | translate }}:</span> {{element.to}}
+                                </div>
+                                <div class="col-12 expanded-content">
+                                    <span>{{ 'DEPARTMENT' | translate }}:</span> {{element.department}}
+                                </div>
+                                <div class="col-12 expanded-content">
+                                    <span>{{ 'DATE' | translate }}:</span> {{element.date | date:'d/M/yyyy h:mm a'}}
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;" style="cursor: pointer;"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+                </table>
+            </div>
+        </div>
+    </mat-card>
+</div>

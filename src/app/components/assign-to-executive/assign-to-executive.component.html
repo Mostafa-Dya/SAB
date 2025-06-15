@@ -1,392 +1,392 @@
-<div [class.rtl-direction]="isRtl()">
-  <div
-    class="dialog-heading-div"
-    [class.text-right]="isRtl()"
-    appDraggableDialog
-  >
-    <span class="page-title" [class.mr-4]="isRtl()" [class.ml-4]="!isRtl()">
-      {{
-        dialougeType === "Assign"
-          ? ("ASSIGN_TO_EXECUTIVE" | translate)
-          : ("RE_ASSIGN_EXECUTIVE" | translate)
-      }}
-      ({{ selectedCount() }})
+<div [ngClass]="{'rtl-direction' : isRtl}" >
+  <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+    <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'" *ngIf="dialougeType =='Assign'">
+      {{ 'ASSIGN_TO_EXECUTIVE' | translate }} ({{selectedExecutive.length}})
+    </span>
+    <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'" *ngIf="dialougeType =='ReAssign'">
+      {{ 'RE_ASSIGN_EXECUTIVE' | translate }} ({{selectedExecutive.length}})
     </span>
   </div>
-
-  <mat-dialog-content class="mat-typography" [class.text-right]="isRtl()">
-    <mat-tab-group [dir]="isRtl() ? 'rtl' : 'ltr'">
-      <!-- ======================  DCEO TAB  ====================== -->
-      <mat-tab label="DCEO" *ngIf="dceosDS.data.length">
-        <!-- filter -->
+  <mat-dialog-content class="mat-typography" [ngClass]="{'text-right': isRtl}">
+    <mat-tab-group *ngIf="!isRtl">
+      <mat-tab label="DCEO" *ngIf="dceosDS.data.length > 0">
         <div class="mt-2">
           <mat-form-field class="w-100">
-            <mat-label>{{ "FILTER" | translate }}</mat-label>
-            <input matInput (keyup)="filterDCEO($event)" />
+            <mat-label>{{ 'FILTER' | translate }}</mat-label>
+            <input matInput (keyup)="filterDCEO($event)" #input>
           </mat-form-field>
         </div>
-
-        <!-- ======== DESKTOP TABLE ======== -->
         <div class="hide-mob">
           <table mat-table [dataSource]="dceosDS">
-            <!-- select -->
             <ng-container matColumnDef="select">
-              <th mat-header-cell></th>
+              <th mat-header-cell *matHeaderCellDef>
+              </th>
               <td mat-cell *matCellDef="let row">
-                <mat-checkbox
-                  [(ngModel)]="row.checked"
-                  (change)="onExecutiveSelection(row)"
-                  color="primary"
-                ></mat-checkbox>
+                <mat-checkbox [(ngModel)]="row.checked" (change)="onExecutiveSelection(row)" color="primary">
+                </mat-checkbox>
               </td>
             </ng-container>
-
-            <!-- loginId -->
             <ng-container matColumnDef="loginId">
-              <th mat-header-cell>{{ "LOGIN_ID" | translate }}</th>
-              <td mat-cell *matCellDef="let e">{{ e.loginId }}</td>
+              <th mat-header-cell *matHeaderCellDef> {{ 'LOGIN_ID' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.loginId}} </td>
             </ng-container>
-
-            <!-- userName -->
             <ng-container matColumnDef="userName">
-              <th mat-header-cell>{{ "USER_NAME" | translate }}</th>
-              <td mat-cell *matCellDef="let e">{{ e.userName }}</td>
+              <th mat-header-cell *matHeaderCellDef> {{ 'USER_NAME' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
             </ng-container>
-
-            <!-- departmentName -->
             <ng-container matColumnDef="departmentName">
-              <th mat-header-cell>{{ "DEPARTMENT" | translate }}</th>
-              <td mat-cell *matCellDef="let e">{{ e.departmentName }}</td>
+              <th mat-header-cell *matHeaderCellDef> {{ 'DEPARTMENT' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.departmentName}} </td>
             </ng-container>
-
-            <!-- comment column -->
-            <ng-container
-              *ngIf="isGeneralCmntEnabled(); else dceoRowTextarea"
-              matColumnDef="cmntButton"
-            >
-              <th mat-header-cell>{{ "COMMENTS" | translate }}</th>
-              <td mat-cell>
-                <button
-                  mat-raised-button
-                  class="b-blue c-white"
-                  (click)="enableRowComments()"
-                >
-                  {{ "COMMENT" | translate }}
-                </button>
+            <ng-container matColumnDef="cmntButton">
+              <th mat-header-cell *matHeaderCellDef> {{ 'COMMENTS' | translate }} </th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-raised-button class="b-blue c-white" (click)="addTableComments()">
+                  {{ 'COMMENT' | translate}}</button>
               </td>
             </ng-container>
-
-            <ng-template #dceoRowTextarea>
-              <ng-container matColumnDef="cmntText">
-                <th mat-header-cell>{{ "COMMENTS" | translate }}</th>
-                <td mat-cell *matCellDef="let e">
-                  <mat-form-field class="text-right">
-                    <mat-label>{{ "ADD_COMMENT" | translate }}</mat-label>
-                    <textarea
-                      matInput
-                      [(ngModel)]="e.comment"
-                      (change)="onAddExecutiveComment(e)"
-                      maxlength="256"
-                    ></textarea>
-                  </mat-form-field>
-                </td>
-              </ng-container>
-            </ng-template>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+            <ng-container matColumnDef="cmntText">
+              <th mat-header-cell *matHeaderCellDef> {{ 'COMMENTS' | translate }} </th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field class="text-right">
+                  <mat-label>{{ 'ADD_COMMENT' | translate }}</mat-label>
+                  <textarea matInput [(ngModel)]="element.comment" (change)="onAddExecutiveComment(element)" #message
+                    maxlength="256"></textarea>
+                  <mat-hint align="end">{{(message.value).trim().length}} / 256</mat-hint>
+                </mat-form-field>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
         </div>
-
-        <!-- ======== MOBILE TABLE ======== -->
         <div class="show-mob">
           <table mat-table [dataSource]="dceosDS" multiTemplateDataRows>
-            <!-- select -->
             <ng-container matColumnDef="select">
-              <th mat-header-cell></th>
+              <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row" class="w-30">
-                <mat-checkbox
-                  [(ngModel)]="row.checked"
-                  (change)="onExecutiveSelection(row)"
-                  color="primary"
-                ></mat-checkbox>
+                <mat-checkbox [(ngModel)]="row.checked" (change)="onExecutiveSelection(row)" color="primary">
+                </mat-checkbox>
               </td>
             </ng-container>
-
-            <!-- loginId (collapsed row header) -->
             <ng-container matColumnDef="loginId">
-              <th mat-header-cell></th>
-              <td mat-cell *matCellDef="let row" class="title-td">
-                {{ row.loginId }}
-              </td>
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let element" class="title-td"> {{element.loginId}} </td>
             </ng-container>
-
-            <!-- expanded content -->
             <ng-container matColumnDef="expandedDetail">
-              <td
-                mat-cell
-                *matCellDef="let e"
-                [attr.colspan]="displayedColumnsMob.length"
-                class="expanded-td"
-              >
-                <div
-                  class="row"
-                  [class.expanded-div-rtl]="isRtl()"
-                  [class.expanded-div]="!isRtl()"
-                >
-                  <div class="col-12 expanded-content">{{ e.userName }}</div>
-                  <div class="col-12 expanded-content">
-                    {{ e.departmentName }}
+              <td class="expanded-td" mat-cell *matCellDef="let element" [attr.colspan]="displayedColumnsMob.length">
+                <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                  <div class="col-12 expanded-content">{{element.userName}}</div>
+                  <div class="col-12 expanded-content">{{element.departmentName}}</div>
+                  <div class="col-12 expanded-content" *ngIf="isGeneralCmntEnabled">
+                    <button mat-raised-button class="b-blue c-white" (click)="addTableComments()">
+                      {{ 'COMMENT' | translate }}</button>
                   </div>
-
-                  <!-- mobile comment widget -->
-                  <div
-                    class="col-12 expanded-content"
-                    *ngIf="isGeneralCmntEnabled(); else dceoMobTextarea"
-                  >
-                    <button
-                      mat-raised-button
-                      class="b-blue c-white"
-                      (click)="enableRowComments()"
-                    >
-                      {{ "COMMENT" | translate }}
-                    </button>
+                  <div class="col-12 expanded-content" *ngIf="!isGeneralCmntEnabled">
+                    <mat-form-field class="w-90" [ngClass]="{'text-right': isRtl}">
+                      <mat-label>{{ 'ADD_COMMENT' | translate }}</mat-label>
+                      <textarea matInput [(ngModel)]="element.comment" (change)="onAddExecutiveComment(element)"
+                        #message maxlength="256"></textarea>
+                      <mat-hint align="end">{{message.value.trim().length}} / 256</mat-hint>
+                    </mat-form-field>
                   </div>
-                  <ng-template #dceoMobTextarea>
-                    <div class="col-12 expanded-content">
-                      <mat-form-field class="w-90" [class.text-right]="isRtl()">
-                        <mat-label>{{ "ADD_COMMENT" | translate }}</mat-label>
-                        <textarea
-                          matInput
-                          [(ngModel)]="e.comment"
-                          (change)="onAddExecutiveComment(e)"
-                          maxlength="256"
-                        ></textarea>
-                      </mat-form-field>
-                    </div>
-                  </ng-template>
                 </div>
               </td>
             </ng-container>
-
             <tr mat-header-row *matHeaderRowDef="displayedColumnsMob"></tr>
-            <tr mat-row *matRowDef="let r; columns: displayedColumnsMob"></tr>
-            <tr mat-row *matRowDef="let r; columns: ['expandedDetail']"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
           </table>
         </div>
       </mat-tab>
-
-      <!-- ====================  MANAGER TAB  ==================== -->
-      <mat-tab *ngIf="!hideManagerTab" label="{{ 'Manager' | translate }}">
-        <!-- filter -->
+      <mat-tab label="{{ 'Manager' | translate }}" *ngIf="!data.isManagerTabHide">
         <div class="mt-2">
           <mat-form-field class="w-100">
-            <mat-label>{{ "FILTER" | translate }}</mat-label>
-            <input matInput (keyup)="filterManagers($event)" />
+            <mat-label>{{ 'FILTER' | translate }}</mat-label>
+            <input matInput (keyup)="filterManagers($event)" #input>
           </mat-form-field>
         </div>
-
-        <!-- ======== DESKTOP TABLE ======== -->
         <div class="hide-mob">
           <table mat-table [dataSource]="managersDS">
-            <!-- select -->
             <ng-container matColumnDef="select">
-              <th mat-header-cell></th>
+              <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
-                <mat-checkbox
-                  [(ngModel)]="row.checked"
-                  (change)="onExecutiveSelection(row)"
-                  color="primary"
-                ></mat-checkbox>
+                <mat-checkbox [(ngModel)]="row.checked" (change)="onExecutiveSelection(row)" color="primary">
+                </mat-checkbox>
               </td>
             </ng-container>
-
-            <!-- loginId -->
             <ng-container matColumnDef="loginId">
-              <th mat-header-cell>{{ "LOGIN_ID" | translate }}</th>
-              <td mat-cell *matCellDef="let e">{{ e.loginId }}</td>
+              <th mat-header-cell *matHeaderCellDef> {{ 'LOGIN_ID' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.loginId}} </td>
             </ng-container>
-
-            <!-- userName -->
             <ng-container matColumnDef="userName">
-              <th mat-header-cell>{{ "USER_NAME" | translate }}</th>
-              <td mat-cell *matCellDef="let e">{{ e.userName }}</td>
+              <th mat-header-cell *matHeaderCellDef> {{ 'USER_NAME' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
             </ng-container>
-
-            <!-- departmentName -->
             <ng-container matColumnDef="departmentName">
-              <th mat-header-cell>{{ "DEPARTMENT" | translate }}</th>
-              <td mat-cell *matCellDef="let e">{{ e.departmentName }}</td>
+              <th mat-header-cell *matHeaderCellDef> {{ 'DEPARTMENT' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.departmentName}} </td>
             </ng-container>
-
-            <!-- comment -->
-            <ng-container
-              *ngIf="isGeneralCmntEnabled(); else mgrRowTextarea"
-              matColumnDef="cmntButton"
-            >
-              <th mat-header-cell>{{ "COMMENTS" | translate }}</th>
-              <td mat-cell>
-                <button
-                  mat-raised-button
-                  class="b-blue c-white"
-                  (click)="enableRowComments()"
-                >
-                  {{ "COMMENT" | translate }}
-                </button>
+            <ng-container matColumnDef="cmntButton">
+              <th mat-header-cell *matHeaderCellDef> {{ 'COMMENTS' | translate }} </th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-raised-button class="b-blue c-white" (click)="addTableComments()">
+                  {{ 'COMMENT' | translate }}</button>
               </td>
             </ng-container>
-
-            <ng-template #mgrRowTextarea>
-              <ng-container matColumnDef="cmntText">
-                <th mat-header-cell>{{ "COMMENTS" | translate }}</th>
-                <td mat-cell *matCellDef="let e">
-                  <mat-form-field class="text-right">
-                    <mat-label>{{ "ADD_COMMENT" | translate }}</mat-label>
-                    <textarea
-                      matInput
-                      [(ngModel)]="e.comment"
-                      (change)="onAddExecutiveComment(e)"
-                      maxlength="256"
-                    ></textarea>
-                  </mat-form-field>
-                </td>
-              </ng-container>
-            </ng-template>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+            <ng-container matColumnDef="cmntText">
+              <th mat-header-cell *matHeaderCellDef> {{ 'COMMENTS' | translate }} </th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field class="text-right">
+                  <mat-label>{{ 'ADD_COMMENT' | translate }}</mat-label>
+                  <textarea matInput [(ngModel)]="element.comment" (change)="onAddExecutiveComment(element)" #message
+                    maxlength="256"></textarea>
+                  <mat-hint align="end">{{message.value.trim().length}} / 256</mat-hint>
+                </mat-form-field>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
         </div>
-
-        <!-- ======== MOBILE TABLE ======== -->
         <div class="show-mob">
           <table mat-table [dataSource]="managersDS" multiTemplateDataRows>
-            <!-- select -->
             <ng-container matColumnDef="select">
-              <th mat-header-cell></th>
+              <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row" class="w-30">
-                <mat-checkbox
-                  [(ngModel)]="row.checked"
-                  (change)="onExecutiveSelection(row)"
-                  color="primary"
-                ></mat-checkbox>
+                <mat-checkbox [(ngModel)]="row.checked" (change)="onExecutiveSelection(row)" color="primary">
+                </mat-checkbox>
               </td>
             </ng-container>
-
-            <!-- loginId (collapsed header) -->
             <ng-container matColumnDef="loginId">
-              <th mat-header-cell></th>
-              <td mat-cell *matCellDef="let row" class="title-td">
-                {{ row.loginId }}
-              </td>
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let element" class="title-td"> {{element.loginId}} </td>
             </ng-container>
-
-            <!-- expanded detail -->
             <ng-container matColumnDef="expandedDetail">
-              <td
-                mat-cell
-                *matCellDef="let e"
-                [attr.colspan]="displayedColumnsMob.length"
-                class="expanded-td"
-              >
-                <div
-                  class="row"
-                  [class.expanded-div-rtl]="isRtl()"
-                  [class.expanded-div]="!isRtl()"
-                >
-                  <div class="col-12 expanded-content">{{ e.userName }}</div>
-                  <div class="col-12 expanded-content">
-                    {{ e.departmentName }}
+              <td class="expanded-td" mat-cell *matCellDef="let element" [attr.colspan]="displayedColumnsMob.length">
+                <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                  <div class="col-12 expanded-content">{{element.userName}}</div>
+                  <div class="col-12 expanded-content">{{element.departmentName}}</div>
+                  <div class="col-12 expanded-content" *ngIf="isGeneralCmntEnabled">
+                    <button mat-raised-button class="b-blue c-white" (click)="addTableComments()">
+                      {{ 'COMMENT' | translate }}</button>
                   </div>
-
-                  <!-- comment widget -->
-                  <div
-                    class="col-12 expanded-content"
-                    *ngIf="isGeneralCmntEnabled(); else mgrMobTextarea"
-                  >
-                    <button
-                      mat-raised-button
-                      class="b-blue c-white"
-                      (click)="enableRowComments()"
-                    >
-                      {{ "COMMENT" | translate }}
-                    </button>
+                  <div class="col-12 expanded-content" *ngIf="!isGeneralCmntEnabled">
+                    <mat-form-field class="w-90" [ngClass]="{'text-right': isRtl}">
+                      <mat-label>{{ 'ADD_COMMENT' | translate }}</mat-label>
+                      <textarea matInput [(ngModel)]="element.comment" (change)="onAddExecutiveComment(element)"
+                        #message maxlength="256"></textarea>
+                      <mat-hint align="end">{{message.value.trim().length}} / 256</mat-hint>
+                    </mat-form-field>
                   </div>
-                  <ng-template #mgrMobTextarea>
-                    <div class="col-12 expanded-content">
-                      <mat-form-field class="w-90" [class.text-right]="isRtl()">
-                        <mat-label>{{ "ADD_COMMENT" | translate }}</mat-label>
-                        <textarea
-                          matInput
-                          [(ngModel)]="e.comment"
-                          (change)="onAddExecutiveComment(e)"
-                          maxlength="256"
-                        ></textarea>
-                      </mat-form-field>
-                    </div>
-                  </ng-template>
                 </div>
               </td>
             </ng-container>
-
             <tr mat-header-row *matHeaderRowDef="displayedColumnsMob"></tr>
-            <tr mat-row *matRowDef="let r; columns: displayedColumnsMob"></tr>
-            <tr mat-row *matRowDef="let r; columns: ['expandedDetail']"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
           </table>
         </div>
       </mat-tab>
     </mat-tab-group>
-
-    <!-- ============ GENERAL COMMENT SECTION ============ -->
-    <button
-      class="mt-3 b-blue c-white"
-      mat-raised-button
-      [class.float-right]="!isRtl()"
-      *ngIf="isGeneralCmntEnabled()"
-      (click)="enableRowComments()"
-    >
-      {{ "ENABLE_GENERAL_COMMENT" | translate }}
+    <mat-tab-group dir="rtl" *ngIf="isRtl">
+      <mat-tab label="DCEO" *ngIf="dceosDS.data.length > 0">
+        <div class="mt-2">
+          <mat-form-field class="w-100">
+            <mat-label>{{ 'FILTER' | translate }}</mat-label>
+            <input matInput (keyup)="filterDCEO($event)" #input>
+          </mat-form-field>
+        </div>
+        <div class="hide-mob">
+          <table mat-table [dataSource]="dceosDS">
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox [(ngModel)]="row.checked" (change)="onExecutiveSelection(row)" color="primary">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="loginId">
+              <th mat-header-cell *matHeaderCellDef> {{ 'LOGIN_ID' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.loginId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="userName">
+              <th mat-header-cell *matHeaderCellDef> {{ 'USER_NAME' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
+            </ng-container>
+            <ng-container matColumnDef="departmentName">
+              <th mat-header-cell *matHeaderCellDef> {{ 'DEPARTMENT' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.departmentName}} </td>
+            </ng-container>
+            <ng-container matColumnDef="cmntButton">
+              <th mat-header-cell *matHeaderCellDef> {{ 'COMMENTS' | translate }} </th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-raised-button class="b-blue c-white" (click)="addTableComments()">{{ 'COMMENT' | translate
+                  }}</button>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="cmntText">
+              <th mat-header-cell *matHeaderCellDef> {{ 'COMMENTS' | translate }} </th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field class="text-right">
+                  <mat-label>{{ 'ADD_COMMENT' | translate }}</mat-label>
+                  <textarea matInput [(ngModel)]="element.comment" (change)="onAddExecutiveComment(element)" #message
+                    maxlength="256"></textarea>
+                  <mat-hint align="end">{{message.value.trim().length}} / 256</mat-hint>
+                </mat-form-field>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+        <div class="show-mob">
+          <table mat-table [dataSource]="dceosDS" multiTemplateDataRows>
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row" class="w-30">
+                <mat-checkbox [(ngModel)]="row.checked" (change)="onExecutiveSelection(row)" color="primary">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="loginId">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let element" class="title-td"> {{element.loginId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="expandedDetail">
+              <td class="expanded-td" mat-cell *matCellDef="let element" [attr.colspan]="displayedColumnsMob.length">
+                <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                  <div class="col-12 expanded-content">{{element.userName}}</div>
+                  <div class="col-12 expanded-content">{{element.departmentName}}</div>
+                  <div class="col-12 expanded-content" *ngIf="isGeneralCmntEnabled">
+                    <button mat-raised-button class="b-blue c-white" (click)="addTableComments()">
+                      {{ 'COMMENT' | translate }}</button>
+                  </div>
+                  <div class="col-12 expanded-content" *ngIf="!isGeneralCmntEnabled">
+                    <mat-form-field class="w-90" [ngClass]="{'text-right': isRtl}">
+                      <mat-label>{{ 'ADD_COMMENT' | translate }}</mat-label>
+                      <textarea matInput [(ngModel)]="element.comment"
+                        (change)="onAddExecutiveComment(element)"></textarea>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsMob"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+          </table>
+        </div>
+      </mat-tab>
+      <mat-tab label="{{ 'Manager' | translate }}" *ngIf="!data.isManagerTabHide">
+        <div class="mt-2">
+          <mat-form-field class="w-100">
+            <mat-label>{{ 'FILTER' | translate }}</mat-label>
+            <input matInput (keyup)="filterManagers($event)" #input>
+          </mat-form-field>
+        </div>
+        <div class="hide-mob">
+          <table mat-table [dataSource]="managersDS">
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox [(ngModel)]="row.checked" (change)="onExecutiveSelection(row)" color="primary">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="loginId">
+              <th mat-header-cell *matHeaderCellDef> {{ 'LOGIN_ID' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.loginId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="userName">
+              <th mat-header-cell *matHeaderCellDef> {{ 'USER_NAME' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
+            </ng-container>
+            <ng-container matColumnDef="departmentName">
+              <th mat-header-cell *matHeaderCellDef> {{ 'DEPARTMENT' | translate }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.departmentName}} </td>
+            </ng-container>
+            <ng-container matColumnDef="cmntButton">
+              <th mat-header-cell *matHeaderCellDef> {{ 'COMMENTS' | translate }} </th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-raised-button class="b-blue c-white" (click)="addTableComments()">{{ 'COMMENT' | translate
+                  }}</button>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="cmntText">
+              <th mat-header-cell *matHeaderCellDef> {{ 'COMMENTS' | translate }} </th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field class="text-right">
+                  <mat-label>{{ 'ADD_COMMENT' | translate }}</mat-label>
+                  <textarea matInput [(ngModel)]="element.comment" (change)="onAddExecutiveComment(element)" #message
+                    maxlength="256"></textarea>
+                  <mat-hint align="end">{{message.value.trim().length}} / 256</mat-hint>
+                </mat-form-field>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+        <div class="show-mob">
+          <table mat-table [dataSource]="managersDS" multiTemplateDataRows>
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row" class="w-30">
+                <mat-checkbox [(ngModel)]="row.checked" (change)="onExecutiveSelection(row)" color="primary">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="loginId">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let element" class="title-td"> {{element.loginId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="expandedDetail">
+              <td class="expanded-td" mat-cell *matCellDef="let element" [attr.colspan]="displayedColumnsMob.length">
+                <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                  <div class="col-12 expanded-content">{{element.userName}}</div>
+                  <div class="col-12 expanded-content">{{element.departmentName}}</div>
+                  <div class="col-12 expanded-content" *ngIf="isGeneralCmntEnabled">
+                    <button mat-raised-button class="b-blue c-white" (click)="addTableComments()">
+                      {{ 'COMMENT' | translate }}</button>
+                  </div>
+                  <div class="col-12 expanded-content" *ngIf="!isGeneralCmntEnabled">
+                    <mat-form-field class="w-90" [ngClass]="{'text-right': isRtl}">
+                      <mat-label>{{ 'ADD_COMMENT' | translate }}</mat-label>
+                      <textarea matInput [(ngModel)]="element.comment" (change)="onAddExecutiveComment(element)"
+                        #message maxlength="256"></textarea>
+                      <mat-hint align="end">{{message.value.trim().length}} / 256</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsMob"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+          </table>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+    <button class="mt-3 b-blue c-white" [ngClass]="{'float-right' : !isRtl}" mat-raised-button
+      *ngIf="!isGeneralCmntEnabled" (click)="removeTableComments()"> {{ 'ENABLE_GENERAL_COMMENT' | translate }}
     </button>
-
-    <mat-toolbar
-      class="gen-comment-toolbar mt-3 b-blue c-white"
-      *ngIf="!isGeneralCmntEnabled()"
-    >
-      <span>{{ "GENERAL_COMMENT" | translate }}</span>
+    <mat-toolbar class="gen-comment-toolbar mt-3 b-blue c-white" *ngIf="isGeneralCmntEnabled">
+      <span>{{ 'GENERAL_COMMENT' | translate }}</span>
     </mat-toolbar>
-
     <div class="rtl-direction h-120">
-      <mat-form-field
-        class="w-100 text-right border-textarea"
-        *ngIf="!isGeneralCmntEnabled()"
-      >
-        <textarea
-          matInput
-          [(ngModel)]="groupComment"
-          matTextareaAutosize
-          matAutosizeMinRows="3"
-          matAutosizeMaxRows="5"
-          maxlength="256"
-        ></textarea>
+      <mat-form-field class="w-100 text-right border-textarea" *ngIf="isGeneralCmntEnabled">
+        <textarea matInput [(ngModel)]="groupComment" [matTextareaAutosize]=true [matAutosizeMinRows]=3
+          [matAutosizeMaxRows]=5 #message maxlength="256"></textarea>
+        <mat-hint align="end">{{message.value.trim().length}} / 256</mat-hint>
       </mat-form-field>
     </div>
   </mat-dialog-content>
-
-  <!-- FOOTER ------------------------------------------------------->
   <mat-dialog-actions align="end">
-    <button mat-raised-button mat-dialog-close>
-      {{ "CLOSE" | translate }}
-    </button>
-
-    <button
-      mat-raised-button
-      class="b-blue c-white"
-      (click)="onSendToExecutives()"
-      [disabled]="assignDisabled()"
-      [class.ml-0]="isRtl()"
-      [class.mr-2]="!isRtl()"
-    >
-      {{ "ASSIGN" | translate }}
-    </button>
+    <button mat-raised-button mat-dialog-close>{{ 'CLOSE' | translate }}</button>
+    <button mat-raised-button class="b-blue c-white" (click)="onSendToExecutives()" [ngClass]="{'ml-0 mr-2' : isRtl}"
+      [disabled]="isAssignButtonEnabled">
+      {{ 'ASSIGN' | translate }}</button>
   </mat-dialog-actions>
 </div>

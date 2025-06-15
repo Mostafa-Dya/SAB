@@ -32,7 +32,7 @@ export interface NatureType {
 @Component({
   selector: 'app-edit-observation',
   templateUrl: './edit-observation.component.html',
-  styleUrls: ['./edit-observation.component.scss']
+  styleUrls: ['./edit-observation.component.css']
 })
 export class EditObservationComponent implements OnInit {
   isRtl: any;

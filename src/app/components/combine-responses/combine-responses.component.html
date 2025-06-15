@@ -1,423 +1,303 @@
-<div class="container-flud" *ngIf="!isLoading(); else spinner">
+<div class="container-flud">
   <mat-card class="main-card">
-    <!-- ───────────────────────────── Header row ────────────────────────────── -->
     <div class="row">
-      <div
-        class="col-8 col-sm-8 col-m-6 col-l-6 col-lg-6 col-xl-6"
-        [ngClass]="{ 'text-right': isRtl() }"
-      >
-        <span
-          class="page-heading-icon pointer"
-          routerLink="/inbox"
-          matTooltip="{{ 'BACK' | translate }}"
-          (click)="clearLocalFilters(); router.navigate(['/inbox'])"
-        >
-          {{ "BACK_HEADING" | translate }}
-        </span>
-        <span class="page-sub-heading">
-          / {{ "COMBINE_RESPONSES" | translate }}
-        </span>
+      <div class="col-8 col-sm-8 col-m-6 col-l-6 col-lg-6 col-xl-6" [ngClass]="{'text-right': isRtl}">
+      
+        <span class="page-heading-icon pointer" routerLink="/inbox" matTooltip="{{ 'BACK' | translate }}"
+          (click)="goToInbox()"> {{ 'BACK_HEADING' | translate }}</span>
+        <span class="page-sub-heading"> / {{ 'COMBINE_RESPONSES' | translate }}</span>
       </div>
-
-      <div
-        class="col-4 col-sm-4 col-m-6 col-l-6 col-lg-6 col-xl-6"
-        [ngClass]="{ 'text-right': isRtl() }"
-      >
-        <span [ngClass]="{ 'float-right': !isRtl() }">
-          <button
-            mat-mini-fab
-            class="b-blue c-white ml-2"
-            (click)="onShowContactPerson()"
-            matTooltip="{{ 'CONTACT' | translate }}"
-            aria-label="contact"
-          >
-            <mat-icon>perm_contact_calendar</mat-icon>
-          </button>
-
-          <button
-            mat-raised-button
-            class="bt-position b-blue c-white"
-            (click)="resoponseContent()"
-            matTooltip="{{ 'OBSERVATION_DETAILS' | translate }}"
-          >
-            {{ "OBSERVATION_DETAILS" | translate }}
-          </button>
-        </span>
-      </div>
+      <div class="col-4 col-sm-4 col-m-6 col-l-6 col-lg-6 col-xl-6">
+   <span [ngClass]="{'float-right': !isRtl}">
+    <button mat-mini-fab class="b-blue c-white ml-2" aria-label="Example icon button with a menu icon"
+    (click)="onShowContactPerson()" matTooltip="{{ 'CONTACT' | translate }}">
+   <mat-icon>perm_contact_calendar</mat-icon>
+    </button>
+   <!-- <button mat-mini-fab class="b-blue c-white ml-2" aria-label="Example icon button with a menu icon"
+    *ngIf="isAdmin" (click)="onShowOverview(workItem)" matTooltip="{{ 'OVERVIEW' | translate }}">
+    <mat-icon>assignment</mat-icon>
+  </button> -->
+      <button
+      mat-raised-button
+      class="bt-position b-blue c-white"
+      (click)="resoponseContent()"
+      matTooltip="{{ 'OBSERVATION_DETAILS' | translate }}"
+    >
+      {{ "OBSERVATION_DETAILS" | translate }}
+    </button>
+   
+  </span>
+  </div>
     </div>
-
-    <!-- ────────────────────────── Observation meta ─────────────────────────── -->
-    <div class="row" *ngIf="mergeData().length > 0">
-      <div
-        class="col-12"
-        *ngFor="
-          let field of [
-            { lbl: 'OBSERVATION_TITLE', val: selectedResponse()?.title },
-            { lbl: 'SEQUENCE_ID', val: selectedResponse()?.obsSeq },
-            { lbl: 'REPORT_NAME', val: selectedResponse()?.reportName }
-          ]
-        "
-      >
-        <label
-          class="page-sub-title mb-0 min-w-140 mr-2"
-          [ngClass]="{ 'text-right': isRtl() }"
-          >{{ field.lbl | translate }}:</label
-        >
-        <span [ngClass]="isRtl() ? 'text-right' : 'rtl-direction'">{{
-          field.val
-        }}</span>
+    <div class="row" *ngIf="mergeData.length > 0">
+     
+      <div class="col-12">
+        <label class="page-sub-title mb-0 min-w-140 mr-2" [ngClass]="{'text-right': isRtl}">{{ 'OBSERVATION_TITLE' | translate }}:</label>
+        <span [ngClass]="isRtl? 'text-right':'rtl-direction'">{{ title }}</span>
       </div>
 
-      <div class="col-12" [ngClass]="{ 'text-right': isRtl() }">
-        <label class="page-sub-title mb-0 min-w-140 mr-2"
-          >{{ "NEW_REPEATED_REPORTS" | translate }}:</label
-        >
-        <span>{{ obsType | translate }}</span>
+      <div class="col-12">
+        <label class="page-sub-title mb-0 min-w-140 mr-2" [ngClass]="{'text-right': isRtl}">{{ 'SEQUENCE_ID' | translate }}:</label>
+        <span [ngClass]="isRtl? 'text-right':'rtl-direction'">{{obsSeq}}</span>
       </div>
 
-      <!-- Send-back count (admins only) -->
-      <div
-        class="col-12 hide-mobile d-flex justify-content-end mb-1"
-        *ngIf="isAdmin"
-        [ngClass]="{ 'text-right': isRtl() }"
-      >
-        <label class="sendBackReason mb-0">
-          {{ "SEND_BACK_COUNT" | translate }}:
-        </label>
-        <span class="ml-2 sendBackReason">
-          <a
-            href="javascript:;"
-            title="{{ 'SEND_BACK_COUNT' | translate }}"
-            (click)="openGPASenBackHistoryModel()"
-            >{{ sabContent.gpaSendBackCount || 0 }}</a
-          >
+      <div class="col-12">
+        <label class="page-sub-title mb-0 min-w-140 mr-2" [ngClass]="{'text-right': isRtl}">{{ 'REPORT_NAME' | translate }}:</label>
+        <span [ngClass]="isRtl? 'text-right':'rtl-direction'">{{reportName}}</span>
+      </div>
+	  <div class="col-12" [ngClass]="{'text-right': isRtl}">
+        <label class="page-sub-title mb-0 min-w-140 mr-2">{{ 'NEW_REPEATED_REPORTS' | translate }}:</label>
+        <span>{{obsType | translate }}</span>
+      </div>
+       <!-- added by venkat-->
+       <div class="col-12  hide-mobile  d-flex justify-content-end mb-1" *ngIf="isAdmin" [ngClass]="{'text-right': isRtl}">   
+        <label class="sendBackReason mb-0">{{ 'SEND_BACK_COUNT' | translate }}:</label>
+       <span class="ml-2 sendBackReason"><a href="javascript:;" title="{{ 'SEND_BACK_COUNT' | translate }}"
+              (click)="openGPASenBackHistoryModel()"> {{sabContent.gpaSendBackCount || 0}} </a>
         </span>
-      </div>
-
+      </div> 
       <div class="col-12 mb-3">
         <mat-divider></mat-divider>
       </div>
-
-      <!-- ─────────────── Mobile-first “Responses from departments” ────────────── -->
-      <div class="col-12 show-mobile" [ngClass]="{ 'text-right': isRtl() }">
-        <label class="page-title">
-          {{ "RESPONSES_FROM_DEPARTMENTS" | translate }}:
-        </label>
-
-        <div class="tab-div" [dir]="isRtl() ? 'rtl' : 'ltr'">
-          <mat-tab-group
-            (selectedTabChange)="selectionChange($event)"
-            [dir]="isRtl() ? 'rtl' : 'ltr'"
-          >
-            <mat-tab *ngFor="let d of mergeData()">
-              <ng-template mat-tab-label>{{ d.displayName }}</ng-template>
-
-              <div
-                class="tab-content-div rtl-direction text-right"
-                [innerHTML]="d.obsResponse | safeHtml"
-              ></div>
-
-              <ng-container
-                *ngIf="
-                  reportCycle !== 'KNPC Response Report' && d.completionYear
-                "
-              >
-                <div
-                  class="tab-year-div rtl-direction text-right"
-                  *ngIf="d.isDateFieldSelected; else noDate"
-                >
-                  {{ "COMPLETION_YEAR_IS" | translate }}
-                  {{ d.completionYear | date : "yyyy" }}
-                  <div *ngIf="d.govtEntity">
-                    {{ "GOVT_ENTITIES" | translate }}:
-                    {{ d.govtEntity.replaceAll(",", ", ") }}
-                  </div>
+      <div class="col-12 show-mobile" [ngClass]="{'text-right': isRtl}">
+        <label class="page-title">{{ 'RESPONSES_FROM_DEPARTMENTS' | translate }}:</label>
+        <div class="tab-div" dir="ltr">
+          <mat-tab-group (selectedTabChange)="selectionChange($event)" *ngIf="!isRtl">
+            <mat-tab *ngFor="let data of mergeData">
+              <ng-template mat-tab-label>{{data.displayName}} </ng-template>
+              <div class="tab-content-div rtl-direction text-right">
+                <p [innerHTML]="data.obsResponse | safeHtml"></p>
+              </div>
+              <div class="tab-year-div rtl-direction text-right"
+                *ngIf="reportCycle != 'KNPC Response Report' && data.completionYear && data.isDateFieldSelected">
+                <span>{{'COMPLETION_YEAR_IS' | translate}} {{data.completionYear | date:'yyyy'}}</span>
+                <div *ngIf="data.govtEntity">
+                  {{ 'GOVT_ENTITIES' | translate }}: {{data.govtEntity?.replaceAll(",",", ")}}
                 </div>
-
-                <ng-template #noDate>
-                  <div class="tab-year-div rtl-direction text-right">
-                    {{ "COMPLETION_YEAR_IS" | translate }}
-                    {{ d.completionYear }}
-                    <div *ngIf="d.govtEntity">
-                      {{ "GOVT_ENTITIES" | translate }}:
-                      {{ d.govtEntity.replaceAll(",", ", ") }}
-                    </div>
-                  </div>
-                </ng-template>
-              </ng-container>
+              </div>
+              <div class="tab-year-div text-right"
+                *ngIf="reportCycle != 'KNPC Response Report' && data.completionYear && !data.isDateFieldSelected">
+                <span>{{'COMPLETION_YEAR_IS' | translate}} {{data.completionYear}}</span>
+                <div *ngIf="data.govtEntity">
+                  {{ 'GOVT_ENTITIES' | translate }}: {{data.govtEntity?.replaceAll(",",", ")}}
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+          <mat-tab-group (selectedTabChange)="selectionChange($event)" dir="rtl" *ngIf="isRtl">
+            <mat-tab *ngFor="let data of mergeData">
+              <ng-template mat-tab-label>{{data.displayName}} </ng-template>
+              <div class="tab-content-div">
+                <p [innerHTML]="data.obsResponse | safeHtml"></p>
+              </div>
+              <div class="tab-year-div"
+                *ngIf="reportCycle != 'KNPC Response Report' && data.completionYear && data.isDateFieldSelected">
+                <span>{{'COMPLETION_YEAR_IS' | translate}} {{data.completionYear | date:'yyyy'}}</span>
+                <div *ngIf="data.govtEntity">
+                  {{ 'GOVT_ENTITIES' | translate }}: {{data.govtEntity?.replaceAll(",",", ")}}
+                </div>
+              </div>
+              <div class="tab-year-div"
+                *ngIf="reportCycle != 'KNPC Response Report' && data.completionYear && !data.isDateFieldSelected">
+                <span>{{'COMPLETION_YEAR_IS' | translate}} {{data.completionYear}}</span>
+                <div *ngIf="data.govtEntity">
+                  {{ 'GOVT_ENTITIES' | translate }}: {{data.govtEntity?.replaceAll(",",", ")}}
+                </div>
+              </div>
             </mat-tab>
           </mat-tab-group>
         </div>
       </div>
-
-      <!-- ───────────────────── Desktop split-pane editor / tabs ────────────────── -->
-      <div class="col-12 hide-mobile">
+      <div class="col-12 show-mobile mt-2 mb-2">
+        <div class="add-left-div">
+          <mat-icon class="add-left-icon" (click)="addCombinedata()">expand_more</mat-icon>
+        </div>
+      </div>
+      <div class="col-12">
         <div class="row">
-          <!-- CKEditor pane -->
-          <div
-            class="col-12 col-lg-6 pr-5"
-            [ngClass]="{ 'text-right': isRtl() }"
-          >
-            <label class="page-title">
-              {{ "COMBINE_RESPONSES" | translate }}:
-            </label>
-
-            <ckeditor
-              [config]="editorConfig"
-              [editor]="Editor"
-              [ngModel]="combineDataRTL()"
-              (ngModelChange)="combineDataRTL.set($event)"
-              (change)="change($event.editor.getData())"
-            ></ckeditor>
+          <div class="col-12 col-lg-6 pr-5" [ngClass]="{'text-right': isRtl}">
+            <label class="page-title">{{ 'COMBINE_RESPONSES' | translate }}:</label>
+            <div>
+              
+              <ckeditor [config]="config" [(ngModel)]="combineDataRTL" [editor]="Editor" (change)="change(combineDataRTL)">
+              </ckeditor>
+            </div>
           </div>
-
-          <!-- “add” arrow -->
-          <div
-            class="col-1 hide-mobile justify-content-center add-left-div"
-            [style.left.%]="isRtl() ? 47.5 : 47.5"
-          >
-            <mat-icon class="add-left-icon" (click)="addCombinedata()">{{
-              isRtl() ? "chevron_right" : "chevron_left"
-            }}</mat-icon>
+          <div class="col-1 hide-mobile justify-content-center" style="position: absolute;top: 147px;left: 47.5%;z-index: 777;">
+            <div class="add-left-div">
+              <mat-icon class="add-left-icon" (click)="addCombinedata()" *ngIf="!isRtl">chevron_left</mat-icon>
+              <mat-icon class="add-left-icon" (click)="addCombinedata()" *ngIf="isRtl">chevron_right</mat-icon>
+            </div>
           </div>
-
-          <!-- Tabs pane -->
-          <div
-            class="pl-5 col-6 hide-mobile"
-            [ngClass]="{ 'text-right': isRtl() }"
-          >
-            <label class="page-title">
-              {{ "RESPONSES_FROM_DEPARTMENTS" | translate }}:
-            </label>
-
-            <div class="tab-div" [dir]="isRtl() ? 'rtl' : 'ltr'">
-              <!-- Re-use same TAB markup -->
-              <mat-tab-group
-                (selectedTabChange)="selectionChange($event)"
-                [dir]="isRtl() ? 'rtl' : 'ltr'"
-              >
-                <mat-tab *ngFor="let d of mergeData()">
-                  <ng-template mat-tab-label>{{ d.displayName }}</ng-template>
-
-                  <div
-                    class="tab-content-div rtl-direction text-right"
-                    [innerHTML]="d.obsResponse | safeHtml"
-                  ></div>
-
-                  <ng-container
-                    *ngIf="
-                      reportCycle !== 'KNPC Response Report' && d.completionYear
-                    "
-                  >
-                    <div
-                      class="tab-year-div rtl-direction text-right"
-                      *ngIf="d.isDateFieldSelected; else noDate2"
-                    >
-                      {{ "COMPLETION_YEAR_IS" | translate }}
-                      {{ d.completionYear }}
-                      <div *ngIf="d.govtEntity">
-                        {{ "GOVT_ENTITIES" | translate }}:
-                        {{ d.govtEntity.replaceAll(",", ", ") }}
-                      </div>
+          <div class="pl-5 col-6 hide-mobile" [ngClass]="{'text-right': isRtl}">
+            <label class="page-title">{{ 'RESPONSES_FROM_DEPARTMENTS' | translate }}:</label>
+            <div class="tab-div" dir="ltr">
+              <mat-tab-group (selectedTabChange)="selectionChange($event)" *ngIf="!isRtl">
+                <mat-tab *ngFor="let data of mergeData">
+                  <ng-template mat-tab-label>{{data.displayName}} </ng-template>
+                  <div class="tab-content-div rtl-direction text-right">
+                    <p [innerHTML]="data.obsResponse | safeHtml"></p>
+                  </div>
+                  <div class="tab-year-div rtl-direction text-right"
+                    *ngIf="reportCycle != 'KNPC Response Report' && data.completionYear && data.isDateFieldSelected">
+                    <span>{{'COMPLETION_YEAR_IS' | translate}} {{data.completionYear }}</span>
+                    <div *ngIf="data.govtEntity">
+                      {{ 'GOVT_ENTITIES' | translate }}: {{data.govtEntity?.replaceAll(",",", ")}}
                     </div>
-
-                    <ng-template #noDate2>
-                      <div class="tab-year-div rtl-direction text-right">
-                        {{ "COMPLETION_YEAR_IS" | translate }}
-                        {{ d.completionYear }}
-                        <div *ngIf="d.govtEntity">
-                          {{ "GOVT_ENTITIES" | translate }}:
-                          {{ d.govtEntity.replaceAll(",", ", ") }}
-                        </div>
-                      </div>
-                    </ng-template>
-                  </ng-container>
+                  </div>
+                  <div class="tab-year-div text-right"
+                    *ngIf="reportCycle != 'KNPC Response Report' && data.completionYear && !data.isDateFieldSelected">
+                    <span>{{'COMPLETION_YEAR_IS' | translate}} {{data.completionYear}}</span>
+                    <div *ngIf="data.govtEntity">
+                      {{ 'GOVT_ENTITIES' | translate }}: {{data.govtEntity?.replaceAll(",",", ")}}
+                    </div>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+              <mat-tab-group (selectedTabChange)="selectionChange($event)" dir="rtl" *ngIf="isRtl">
+                <mat-tab *ngFor="let data of mergeData">
+                  <ng-template mat-tab-label>{{data.displayName}} </ng-template>
+                  <div class="tab-content-div">
+                    <p [innerHTML]="data.obsResponse | safeHtml"></p>
+                  </div>
+                  <div class="tab-year-div"
+                    *ngIf="reportCycle != 'KNPC Response Report' && data.completionYear && data.isDateFieldSelected">
+                    <span>{{'COMPLETION_YEAR_IS' | translate}} {{data.completionYear }}</span>
+                    <div *ngIf="data.govtEntity">
+                      {{ 'GOVT_ENTITIES' | translate }}: {{data.govtEntity?.replaceAll(",",", ")}}
+                    </div>
+                  </div>
+                  <div class="tab-year-div"
+                    *ngIf="reportCycle != 'KNPC Response Report' && data.completionYear && !data.isDateFieldSelected">
+                    <span>{{'COMPLETION_YEAR_IS' | translate}} {{data.completionYear}}</span>
+                    <div *ngIf="data.govtEntity">
+                      {{ 'GOVT_ENTITIES' | translate }}: {{data.govtEntity?.replaceAll(",",", ")}}
+                    </div>
+                  </div>
                 </mat-tab>
               </mat-tab-group>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- ───────────────────────────── Form footer ───────────────────────────── -->
-      <div class="col-12 col-md-8 col-lg-6 pr-5 custom-width">
+      <div class="col-12 col-md-8 col-lg-6 pr-5 custom-width" >
         <div class="row">
-          <!-- Completion-year select -->
-          <div
-            class="col-lg-6 col-sm-6 col-md-6 mt-3 pr-0"
-            *ngIf="reportCycle !== 'KNPC Response Report'"
-          >
-            <label class="page-sub-title">
-              {{ "COMPLETION_YEAR" | translate }}
-              <span class="required">*</span>:
-            </label>
-
-            <mat-form-field [ngClass]="isRtl() ? 'mr-2' : 'ml-2'">
-              <mat-select
-                [ngModel]="date()"
-                (ngModelChange)="dateChange($event)"
-              >
-                <mat-option
-                  *ngFor="let year of fiscalYears()"
-                  [value]="year.date"
-                  (click)="checkSelected(year.date)"
-                  [ngClass]="{ 'rtl-direction text-right': isRtl() }"
-                >
+          <div class="col-lg-6 col-sm-6 col-md-6 mt-3 pr-0" *ngIf="reportCycle != 'KNPC Response Report'">
+            <label class="page-sub-title">{{ 'COMPLETION_YEAR' | translate }} <span class="required">*</span>:</label>
+            <mat-form-field [ngClass]="isRtl ? 'mr-2' : 'ml-2'">
+              <mat-select [(ngModel)]="date" (selectionChange)="dateChange($event.value)">
+                <mat-option *ngFor="let year of fiscaalYear" [value]="year.date" (click)="checkSelected(year.date)"
+                  [ngClass]="{'rtl-direction text-right': isRtl}">
                   {{ year.date }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
           </div>
+          
+          <div class="col-lg-6 col-sm-6 col-md-6 mt-3 pl-0 mt-3 pt-3" *ngIf="reportCycle != 'KNPC Response Report'">
+            <ng-container  *ngIf="isAdmin">
+              <label class="page-sub-title">  {{ 'OBSERVATIONS_CLASSIFICATION' | translate }} :</label>          
+              <div class="div-classification"  >
+                <span style="padding-left: 2px; height: 24px;">{{ date ? classification : '' }}</span>
+              </div>
+            </ng-container>
+              <!-- <span class="ms-auto" *ngIf="isPreviouseDataPresent && reportCycle != 'KNPC Response Report'"
+               >
+                <button mat-button 
+                style="background-color: #FFFFFF;position: absolute;right: 12px;top: 6px; border-radius: 0px;" 
+                (click)="previousEntityDialog(selectedResponse)"  matTooltip="{{ 'PREVIOUS_CYCLE_COMPLETTION_YEAR_DETAILS' | translate }}">
+                  <img src="assets/images/calendar.png" style="width:25px ;"/>
+                </button>
+              </span> -->
 
-          <!-- Classification (admins/managers) -->
-          <div
-            class="col-lg-6 col-sm-6 col-md-6 mt-3 pl-0 pt-3"
-            *ngIf="reportCycle !== 'KNPC Response Report' && isAdmin"
-          >
-            <label class="page-sub-title"
-              >{{ "OBSERVATIONS_CLASSIFICATION" | translate }}:</label
-            >
-
-            <div class="div-classification">
-              <span>{{ date() ? classification : "" }}</span>
-            </div>
-          </div>
-
-          <!-- Previous-cycle details link -->
-          <div class="col-12">
-            <span
-              class="ms-auto"
-              *ngIf="
-                isPreviouseDataPresent && reportCycle !== 'KNPC Response Report'
-              "
-            >
-              <a
-                class="h-t-decoration-n"
-                href="javascript:;"
-                (click)="previousEntityDialog()"
-                [matTooltip]="
-                  'PREVIOUS_CYCLE_COMPLETTION_YEAR_DETAILS' | translate
-                "
-              >
-                {{ "PREVIOUS_CLASSIFICATION" | translate }}
-              </a>
-            </span>
-          </div>
-
-          <!-- Govt entities chips / field -->
-          <div class="col-lg-12 col-sm-12 col-md-12">
-            <ng-container
-              *ngIf="
-                date() === 'تتعلق بجهات حكومية/اخرى' && !isDateFieldSelected()
-              "
-            >
-              <div
-                class="mt-3 float-left"
-                [ngClass]="{ 'text-right': isRtl() }"
-                style="width: 65px"
-              >
-                <label class="page-sub-title">
-                  {{ "GOVT_ENTITIES" | translate }}
-                  <span class="text-danger font-weight-bold">*</span>:
-                </label>
+          </div>  
+    <div class="col-12">
+          <span class="ms-auto" *ngIf="isPreviouseDataPresent && reportCycle != 'KNPC Response Report'" >           
+            <a  href="javascript:;" class="h-t-decoration-n"
+              
+              (click)="previousEntityDialog(selectedResponse)" matTooltip="{{ 'PREVIOUS_CYCLE_COMPLETTION_YEAR_DETAILS' | translate }}"> 
+              
+                <span >{{'PREVIOUS_CLASSIFICATION' | translate}}</span>
+          </a>
+          </span>
+        </div>
+          <div class="col-lg-12 col-sm-12 col-md-12" >
+            <ng-container *ngIf="date == 'تتعلق بجهات حكومية/اخرى' && !isDateFieldSelected">
+              <div class="mt-3 float-left" [ngClass]="{'text-right': isRtl}" style="width:65px !important ;">
+                <label class="page-sub-title">{{ 'GOVT_ENTITIES' | translate }}
+                  <span class="text-danger font-weight-bold">*</span>: </label>
               </div>
 
               <div class="float-left pl-0 w-150-c">
-                <!-- Chip list -->
-                <div class="row mt-2 pt-1">
-                  <div class="col-12">
-                    <ng-container *ngFor="let chip of entities()">
-                      <div
-                        class="chip"
-                        [ngStyle]="{
-                          'margin-left': entities().length > 1 ? '6px' : null
-                        }"
-                        [ngClass]="entities().length > 1 ? 'mt-1' : ''"
-                      >
-                        <div class="chip-content">{{ chip }}</div>
-                        <div class="chip-close">
-                          <svg
-                            class="chip-svg"
-                            (click)="remove(chip)"
-                            viewBox="0 0 30 30"
-                            aria-hidden="true"
-                          >
-                            <path
-                              d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                            />
-                          </svg>
-                        </div>
+                <div class="row  mt-2 pt-1">
+                <div class="col-12">
+                  <ng-container *ngFor="let item of entities">
+                  
+                    <div class="chip" [ngStyle]="{'margin-left':entities.length > 1 ? '6px' :''  }" [ngClass]="entities.length > 1 ? 'mt-1' : ''">
+                      <div class="chip-content"> {{item}}</div>
+                      <div class="chip-close">
+                        <svg class="chip-svg" (click)="remove(item)" focusable="false" viewBox="0 0 30 30" aria-hidden="true">
+                          <path
+                            d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z">
+                          </path>
+                        </svg>
+      
                       </div>
-                    </ng-container>
-                  </div>
+                    </div>
+                   
+                  </ng-container>
                 </div>
-
-                <!-- Input + add button -->
-                <mat-form-field
-                  class="text-right w-88"
-                  [ngClass]="isRtl() ? 'mr-2' : 'ml-2'"
-                >
-                  <input matInput [(ngModel)]="govtEntity" />
-                </mat-form-field>
-
-                <button
-                  class="ml-4"
-                  style="border: none; background: transparent"
-                  [disabled]="!govtEntity"
-                  (click)="addChip(govtEntity); govtEntity = ''"
-                  [ngClass]="{
-                    'cursor-pointer': govtEntity,
-                    'cursor-disable': !govtEntity
-                  }"
-                >
-                  <img src="assets/images/add-svg.svg" style="width: 30px" />
-                </button>
               </div>
-            </ng-container>
+                <mat-form-field class="text-right w-88" [ngClass]="isRtl ? 'mr-2' : 'ml-2'">
+                  <input matInput [(ngModel)]="govtEntity">
+    
+                </mat-form-field>
+                <button  style="border: none; background: transparent" [ngClass]="govtEntity == '' ? 'cursor-disable': 'cursor-pointer'" class="ml-4" (click)="addChip(govtEntity)"
+                  [disabled]="(govtEntity == '')"><img style="width:30px;" src="assets/images/add-svg.svg" /></button>
+    
+              </div>
+              <!-- <div class="float-left pl-0 w-150-c">
+                <mat-form-field class="text-right w-100" [ngClass]="isRtl ? 'mr-2' : 'ml-2'">
+                  <input matInput [(ngModel)]="govtEntity">
+                </mat-form-field>
+              </div> -->
+            </ng-container> 
+            <!-- <span class="ms-auto"  style="float: right;margin-top: -51px;margin-right: -19px;" *ngIf="date == 'تتعلق بجهات حكومية/اخرى' && !isDateFieldSelected"
+                 >
+              <button mat-button style="font-size: 18px; " (click)="previousEntityDialog(selectedResponse)">
+                <mat-icon>calendar_today</mat-icon>
+              </button>
+            </span>
+    
+            <span class="ms-auto"  style="float: right;margin-top: 0px;margin-right: -19px;" *ngIf="date != 'تتعلق بجهات حكومية/اخرى' ">
+              <button mat-button style="font-size: 18px; " (click)="previousEntityDialog(selectedResponse)">
+                <mat-icon>calendar_today</mat-icon>
+              </button>
+            </span> -->
           </div>
 
-          <div
-            class="col-12 mt-2 d-flex justify-content-center align-items-center"
-          >
-            <button
-              mat-flat-button
-              class="b-blue c-white"
-              (click)="onComplete()"
-              [disabled]="
-                isSecretary === 'Yes' ||
-                combineDataRTL().trim().length === 0 ||
-                (reportCycle !== 'KNPC Response Report' &&
-                  (!date() ||
-                    (date() === 'تتعلق بجهات حكومية/اخرى' &&
-                      !isDateFieldSelected() &&
-                      entities().length === 0)))
-              "
-              matTooltip="{{ 'COMPLETE_DES' | translate }}"
-              matTooltipPosition="above"
-            >
-              {{ "COMPLETE" | translate }}
+          <div class="col-12 mt-2" style="justify-content: center;align-items: center;display: flex;">
+            <button mat-flat-button class="b-blue c-white"  (click)="onComplete()"
+              [disabled]="isSecretary == 'Yes' || (combineDataRTL.length === 0 || combineDataRTL.trim() == '' || ((!date || date == '' ) && reportCycle != 'KNPC Response Report' ) || ((selectedDateString == 'تتعلق بجهات حكومية/اخرى'  && !isDateFieldSelected) && (entities.length == 0)))"
+              matTooltip="{{ 'COMPLETE_DES' | translate }}" matTooltipPosition="above">
+              {{ 'COMPLETE' | translate }}
             </button>
           </div>
         </div>
       </div>
+      <div class="col-sm-12 col-md-4 col-xl-4 col-lg-4">
+
+      </div>
+      
+     
+
     </div>
 
-    <!-- No-data state -->
-    <div
-      class="row center-block"
-      *ngIf="mergeData().length === 0 && !isLoading()"
-    >
+    <div class="row center-block" *ngIf="mergeData.length == 0 && !isLoading">
       <div class="center mt-5">
         <mat-icon class="center-icon">cloud_queue</mat-icon>
-        <span class="center-text">{{ "NO_DATA" | translate }}</span>
+        <span class="center-text">{{ 'NO_DATA' | translate }}</span>
       </div>
     </div>
   </mat-card>
 </div>
-
-<!-- Spinner -->
-<ng-template #spinner>
-  <div class="spinner-container">
-    <mat-spinner></mat-spinner>
-  </div>
-</ng-template>

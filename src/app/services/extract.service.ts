@@ -1,106 +1,60 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import { ObservationCard } from '../models/observationCard.model';
 import { ConfigService } from './config.service';
-import { ExtractionReport } from '../models/extraction-report.model';
-import { ObservationCard } from '../models/observation-card.model';
+import { ExtractionReport } from '../models/extractionReport.model';
 import { LinkObservations } from '../models/link-observations.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
+
 export class ExtractService {
-  private readonly launchUrl: string;
-  private readonly searchUrl: string;
-  private readonly jsonHeaders = new HttpHeaders({
-    'Content-Type': 'application/json',
-  });
+  launchUrl: string;
+  searchUrl: string;
 
-  constructor(private http: HttpClient, private config: ConfigService) {
-    this.launchUrl = config.launchObservationsUrl;
-    this.searchUrl = config.searchUrl;
+  constructor(
+    private httpClient: HttpClient,
+    private configService: ConfigService) {
+    this.launchUrl = configService.launchUrl;
+    this.searchUrl = configService.searchontroller;
   }
 
-  /** Fetch the list of extractions */
   getObsToBeExtracted(): Observable<ExtractionReport> {
-    return this.http.get<ExtractionReport>(
-      `${this.launchUrl}getExtractionList`
-    );
+    return this.httpClient.get<ExtractionReport>(this.launchUrl + "getExtractionList");
   }
 
-  /** Fetch a specific observation content by ID and report type */
-  getObsContent(
-    obsId: string,
-    reportToBeGenerated: string
-  ): Observable<ObservationCard> {
-    const params = new HttpParams()
-      .set('obsId', obsId)
-      .set('reportToBeGenerated', reportToBeGenerated);
-
-    return this.http.get<ObservationCard>(
-      `${this.searchUrl}getObservationContent`,
-      { params }
-    );
+  getObsContent(obsId: string, reportToBeGenerated: string): Observable<ObservationCard> {
+    return this.httpClient.get<ObservationCard>(this.searchUrl + "getObservationContent?obsId=" + obsId + "&reportToBeGenerated=" + reportToBeGenerated);
   }
 
-  /** Fetch observations by title and year */
-  getObsContentByTitle(
-    obsTitle: string,
-    reportYear: string
-  ): Observable<ObservationCard[]> {
-    const params = new HttpParams()
-      .set('obsTitle', obsTitle)
-      .set('reportYear', reportYear);
-
-    return this.http.get<ObservationCard[]>(
-      `${this.searchUrl}getObsContentByTitle`,
-      { params }
-    );
+  getObsContentByTitle(obsTitle: string, reportYear: string): Observable<ObservationCard[]> {
+    return this.httpClient.get<ObservationCard[]>(this.searchUrl + "getObsContentByTitle?obsTitle=" + obsTitle + "&reportYear=" + reportYear);
   }
 
-  /** Trigger “extract all” action */
   extractAll(userId: string, reportToBeGenerated: string): Observable<string> {
-    const params = new HttpParams()
-      .set('userId', userId)
-      .set('reportToBeGenerated', reportToBeGenerated);
-
-    return this.http.get<string>(`${this.launchUrl}extractAll`, { params });
+    return this.httpClient.get<string>(this.launchUrl + "extractAll?userId=" + userId + "&reportToBeGenerated=" + reportToBeGenerated);
   }
 
-  /** Discard all launched observations */
-  discardAll(userId: string, reportCycle: string): Observable<void> {
-    const params = new HttpParams()
-      .set('userId', userId)
-      .set('reportCycle', reportCycle);
+  discardAll(userId: string, reportCycle: string): Observable<any> {
+    return this.httpClient.get<string>(this.launchUrl + "discardLaunchedObs?userId=" + userId + "&reportCycle=" + reportCycle);
+  }
 
-    // assuming server returns no content
-    return this.http.get<void>(`${this.launchUrl}discardLaunchedObs`, {
-      params,
+  adjustObservation(observation: ObservationCard): Observable<ObservationCard> {
+    return this.httpClient.post<ObservationCard>(this.launchUrl + "adjustObservation", observation, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     });
   }
 
-  /** Adjust a single observation */
-  adjustObservation(observation: ObservationCard): Observable<ObservationCard> {
-    return this.http.post<ObservationCard>(
-      `${this.launchUrl}adjustObservation`,
-      observation,
-      { headers: this.jsonHeaders }
-    );
-  }
-
-  /** Get pending observations for linking */
   getPendingObsToLink(): Observable<LinkObservations> {
-    return this.http.get<LinkObservations>(
-      `${this.launchUrl}getPendingObservationToLink`
-    );
+    return this.httpClient.get<LinkObservations>(this.launchUrl + "getPendingObservationToLink");
   }
-
-  /** Link two observations together */
+  
   linkObservations(linkObs: LinkObservations): Observable<LinkObservations> {
-    return this.http.post<LinkObservations>(
-      `${this.launchUrl}linkObservations`,
-      linkObs,
-      { headers: this.jsonHeaders }
-    );
+    const headers = { 'content-type': 'application/json' }
+    const body = JSON.stringify(linkObs);
+    return this.httpClient.post<LinkObservations>(this.launchUrl + 'linkObservations', body, { 'headers': headers })
+    // return this.httpClient.get<LinkObservations>(this.launchUrl+"linkObservations");
   }
 }

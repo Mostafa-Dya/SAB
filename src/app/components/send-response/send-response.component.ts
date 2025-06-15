@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
 // import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import * as ClassicEditor from '../../../../public/assets/js/ck-editor-plugin/ckeditor';
+import * as ClassicEditor from '../../../assets/js/ck-editor-plugin/ckeditor';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ObsResponse } from 'src/app/models/response.model';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
@@ -25,7 +25,7 @@ export interface Entities {
 @Component({
   selector: 'app-send-response',
   templateUrl: './send-response.component.html',
-  styleUrls: ['./send-response.component.scss']
+  styleUrls: ['./send-response.component.css']
 })
 export class SendResponseComponent implements OnInit {
   public Editor = ClassicEditor;

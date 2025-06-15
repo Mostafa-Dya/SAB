@@ -1,5 +1,8 @@
-import { BasicObservation } from './shared/basic-observation.model';
-
-export interface Observation extends BasicObservation {
+export class Observation{
+  obsTitle: string;
+  obsSeq: number;
+  receievedDate: string;
+  reportName: string;
+  deptName: string;
   responseStatus: string;
 }

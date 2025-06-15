@@ -22,7 +22,7 @@ export interface PeriodicElement {
 @Component({
   selector: 'app-sent-items',
   templateUrl: './sent-items.component.html',
-  styleUrls: ['./sent-items.component.scss']
+  styleUrls: ['./sent-items.component.css']
 })
 export class SentItemsComponent implements OnInit {
   isRtl: any;

@@ -37,7 +37,7 @@ export interface NewOrRepeated {
 @Component({
   selector: 'app-initial-or-initial-comparison-report.component',
   templateUrl: './initial-or-initial-comparison-report.component.html',
-  styleUrls: ['./initial-or-initial-comparison-report.component.scss']
+  styleUrls: ['./initial-or-initial-comparison-report.component.css']
 })
 export class InitialOrInitialComparisonReportComponent implements OnInit {
   isRtl: any;

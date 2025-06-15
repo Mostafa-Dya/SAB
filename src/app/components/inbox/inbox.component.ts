@@ -3,7 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
-import { WorkItem } from '../../models/edited/work-item.model';
+import { WorkItem } from '../../models/workItem.model';
 import { InboxItem } from 'src/app/models/inboxItem.model';
 import { Router } from '@angular/router';
 import { CoreService } from 'src/app/services/core.service';
@@ -44,7 +44,7 @@ export interface PeriodicElement {
 @Component({
   selector: 'app-inbox',
   templateUrl: './inbox.component.html',
-  styleUrls: ['./inbox.component.scss']
+  styleUrls: ['./inbox.component.css']
 })
 export class InboxComponent implements OnInit {
   displayedColumns: string[] = ['select', 'type', 'obsSeq', 'obsTitle', 'receievedDate', 'reportName', 'deptName', 'sentToMultipleDept', 'responseStatus'];

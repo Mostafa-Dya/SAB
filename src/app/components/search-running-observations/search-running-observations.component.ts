@@ -51,7 +51,7 @@ export interface ObservationData {
 @Component({
   selector: 'app-search-running-observations',
   templateUrl: './search-running-observations.component.html',
-  styleUrls: ['./search-running-observations.component.scss']
+  styleUrls: ['./search-running-observations.component.css']
 })
 export class SearchRunningObservationsComponent implements OnInit {
   isRtl: any;

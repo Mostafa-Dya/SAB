@@ -8,13 +8,13 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import * as ClassicEditor from '../../../../public/assets/js/ck-editor-plugin/ckeditor';
+import * as ClassicEditor from '../../../assets/js/ck-editor-plugin/ckeditor';
 import { CoreService } from 'src/app/services/core.service';
 
 @Component({
   selector: 'app-email-document',
   templateUrl: './email-document.component.html',
-  styleUrls: ['./email-document.component.scss']
+  styleUrls: ['./email-document.component.css']
 })
 export class EmailDocumentComponent implements OnInit {
   isRtl: any;

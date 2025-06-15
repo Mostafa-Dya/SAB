@@ -1,3 +1,6 @@
+<div class="col-12" *ngIf="loading" class="loading-indicator">
+    <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+</div>
+<app-unauthorized *ngIf="isError"></app-unauthorized>
+<app-main *ngIf="!isError" (foundError)="foundError($event)"></app-main>
 
-<router-outlet />
-<app-approve></app-approve>

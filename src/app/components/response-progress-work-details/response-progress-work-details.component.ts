@@ -31,7 +31,7 @@ import { UpdateResponseAdminComponent } from '../update-response-admin/update-re
 @Component({
   selector: 'app-response-progress-work-details',
   templateUrl: './response-progress-work-details.component.html',
-  styleUrls: ['./response-progress-work-details.component.scss'],
+  styleUrls: ['./response-progress-work-details.component.css'],
   encapsulation: ViewEncapsulation.None,
 })
 export class ResponseProgressWorkDetailsComponent implements OnInit {

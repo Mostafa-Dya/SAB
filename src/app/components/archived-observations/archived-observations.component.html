@@ -1,218 +1,136 @@
-<mat-card class="main-card">
-  <!-- PAGE-HEADING -->
-  <div class="row mb-3" [class.text-right]="isRtl()">
-    <mat-icon class="bread-page-heading-icon">archive</mat-icon>
-    <span class="page-heading">{{ "ARCHIVED_RESPONSE" | translate }}</span>
-  </div>
-
-  <!-- FILTERS -->
-  <div class="row">
-    <!-- OBS TITLE -->
-    <div class="col-12 col-xl-4">
-      <mat-form-field class="w-100" [class.text-right]="isRtl()">
-        <mat-label [ngClass]="isRtl() ? 'main-label-rtl' : 'main-label'">
-          {{ "OBSERVATION_TITLE" | translate }}
-        </mat-label>
-        <input matInput [(ngModel)]="obsTitle" />
-      </mat-form-field>
-    </div>
-
-    <!-- FISCAL YEAR -->
-    <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
-      <mat-form-field class="w-100" [class.text-right]="isRtl()">
-        <mat-label [ngClass]="isRtl() ? 'main-label-rtl' : 'main-label'">
-          {{ "FISCAL_YEAR" | translate }}
-        </mat-label>
-        <mat-select [(ngModel)]="selectedYear">
-          @for (year of years; track year) {
-          <mat-option
-            [value]="year.value"
-            [class.rtl-direction]="isRtl()"
-            [class.text-right]="isRtl()"
-          >
-            {{ year.value }}
-          </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <!-- SEQUENCE -->
-    <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
-      <mat-form-field class="w-100" [class.text-right]="isRtl()">
-        <mat-label [ngClass]="isRtl() ? 'main-label-rtl' : 'main-label'">
-          {{ "OBSERVATION_SEQUENCE" | translate }}
-        </mat-label>
-        <input
-          matInput
-          type="number"
-          [(ngModel)]="obsSequence"
-          min="0"
-          (input)="obsSequence = mathOBS"
-        />
-      </mat-form-field>
-    </div>
-
-    <!-- ACTION BUTTONS -->
-    <div class="col-12 col-sm-12 col-lg-4 col-xl-4">
-      <button
-        mat-raised-button
-        class="b-blue c-white"
-        (click)="getObsData()"
-        [class.float-left]="isRtl()"
-        [class.float-right]="!isRtl()"
-        [class.mr-2]="!isRtl()"
-      >
-        {{ "SEARCH" | translate }}
-      </button>
-
-      <button
-        mat-raised-button
-        (click)="reset()"
-        [class.float-right]="!isRtl()"
-        [class.mr-2]="!isRtl()"
-      >
-        {{ "RESET" | translate }}
-      </button>
-    </div>
-  </div>
-
-  <!-- DESKTOP TABLE -->
-  @if (dataSource()!.data.length > 0) {
-  <div class="col-12 mt-4 hide-mob" *ngIf="dataSource() as ds">
-    <table mat-table [dataSource]="ds" matSort [class.text-right]="isRtl()">
-      <!-- seq -->
-      <ng-container matColumnDef="obsSequence">
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          [class.text-right]="isRtl()"
-        >
-          {{ "SEQUENCE" | translate }}
-        </th>
-        <td mat-cell *matCellDef="let row">{{ row.obsSequence }}</td>
-      </ng-container>
-
-      <!-- title -->
-      <ng-container matColumnDef="obsTitle">
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          [class.text-right]="isRtl()"
-        >
-          {{ "OBSERVATION_TITLE" | translate }}
-        </th>
-        <td mat-cell *matCellDef="let row" [class.rtl-direction]="!isRtl()">
-          {{ row.obsTitle }}
-        </td>
-      </ng-container>
-
-      <!-- fiscal year -->
-      <ng-container matColumnDef="reportYear">
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          [class.text-right]="isRtl()"
-        >
-          {{ "FISCAL_YEAR" | translate }}
-        </th>
-        <td mat-cell *matCellDef="let row">{{ row.reportYear }}</td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        style="cursor: pointer"
-        (click)="navigateTo(row)"
-      ></tr>
-    </table>
-  </div>
-  }
-
-  <!-- MOBILE TABLE -->
-  @if (dataSource()!.data.length > 0) {
-  <div class="col-12 mt-4 show-mob" *ngIf="dataSource() as ds">
-    <table
-      mat-table
-      [dataSource]="ds"
-      [class.text-right]="isRtl()"
-      multiTemplateDataRows
-    >
-      <!-- collapsed row -->
-      <ng-container matColumnDef="obsTitle">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td
-          mat-cell
-          *matCellDef="let row"
-          class="title-td"
-          [class.title-td-rtl]="isRtl()"
-          [class.rtl-direction]="!isRtl()"
-        >
-          {{ row.obsTitle }}
-        </td>
-      </ng-container>
-
-      <!-- expanded detail -->
-      <ng-container matColumnDef="expandedDetail">
-        <td
-          mat-cell
-          *matCellDef="let row"
-          class="expanded-td"
-          [attr.colspan]="displayedColumnsMob.length"
-        >
-          <div
-            class="row"
-            [class.expanded-div-rtl]="isRtl()"
-            [class.expanded-div]="!isRtl()"
-          >
-            <div class="col-12 expanded-content">
-              {{ row.reportYear }}
-              <span
-                [class.sequence-mob-rtl]="isRtl()"
-                [class.sequence-mob]="!isRtl()"
-              >
-                {{ "SEQUENCE" | translate }}: {{ row.obsSequence }}
-              </span>
+<div class="container-flud">
+    <mat-card class="main-card">
+        <div class="row">
+            <div class="col-12 mb-3" [ngClass]="{'text-right': isRtl}">
+                <mat-icon class="bread-page-heading-icon">archive</mat-icon>
+                <span class="page-heading">{{ 'ARCHIVED_RESPONSE' | translate }}</span>
             </div>
-          </div>
-        </td>
-      </ng-container>
-
-      <tr
-        mat-header-row
-        *matHeaderRowDef="displayedColumnsMob; sticky: true"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumnsMob"
-        style="cursor: pointer"
-        (click)="navigateTo(row)"
-      ></tr>
-      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
-    </table>
-  </div>
-  }
-
-  <!-- EMPTY / SEARCH PROMPTS -->
-  @if (!dataSource()) {
-  <div class="row center-block">
-    <div class="center mt-5">
-      <mat-icon class="center-icon">search</mat-icon>
-      <span class="center-text search-obs">
-        {{ "PLEASE_SEARCH_OBSERVATIONS" | translate }}
-      </span>
-    </div>
-  </div>
-  } @else if (dataSource()!.data.length === 0) {
-  <div class="row center-block">
-    <div class="center mt-5">
-      <mat-icon class="center-icon">cloud_queue</mat-icon>
-      <span class="center-text">{{ "NO_DATA" | translate }}</span>
-    </div>
-  </div>
-  }
-</mat-card>
+            <div class="col-12 col-xl-4">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'OBSERVATION_TITLE' | translate }}
+                    </mat-label>
+                    <input matInput [(ngModel)]="obsTitle">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'FISCAL_YEAR' | translate }}
+                    </mat-label>
+                    <mat-select [(value)]="selectedYear">
+                        <mat-option *ngFor="let year of years" [value]="year.value"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{year.value}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'OBSERVATION_SEQUENCE' | translate }}
+                    </mat-label>
+                    <input matInput [(ngModel)]="obsSequence" type="number" class="example-right-align" min="0" oninput="this.value = 
+                    !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null">
+                </mat-form-field>
+            </div>
+            <!-- <div class="col-12 col-sm-6 col-lg-3 col-xl-2">
+                <mat-form-field class="w-100" [ngClass]="{'text-right': isRtl}">
+                    <mat-label [ngClass]="isRtl ? 'main-label-rtl' : 'main-label'">
+                        {{ 'CYCLE' | translate }}
+                    </mat-label>
+                    <mat-select [(value)]="selectedCycle">
+                        <mat-option *ngFor="let item of cycleValue" [value]="item.value"
+                            [ngClass]="{'rtl-direction text-right': isRtl}">
+                            {{item.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div> -->
+            <div class="col-12 col-sm-12 col-lg-4 col-xl-4">
+                <button [ngClass]="isRtl ? 'float-left mr-2' : 'float-right'" mat-raised-button class="b-blue c-white"
+                    (click)="getObsData()">
+                    {{ 'SEARCH' | translate }}
+                </button>
+                <button mat-raised-button [ngClass]="isRtl ? '' : 'float-right mr-2'" (click)="reset()">
+                    {{ 'RESET' | translate }}
+                </button>
+            </div>
+            <div class="col-12 mt-4 hide-mob" *ngIf="dataSource && dataSource.data.length > 0">
+                <table mat-table [dataSource]="dataSource" matSort [ngClass]="{'text-right': isRtl}">
+                    <ng-container matColumnDef="obsSequence">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'SEQUENCE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.obsSequence}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="obsTitle">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'OBSERVATION_TITLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="{'rtl-direction': !isRtl}">
+                            {{element.obsTitle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="obsType">
+                        <th mat-header-cell *matHeaderCellDef class="text-center">
+                            {{ 'NEW_REPEATED_REPORTS' | translate }} </th>
+                        <td mat-cell *matCellDef="let element" class="text-center"> {{element.obsType | translate}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="reportYear">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'FISCAL_YEAR' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.reportYear}} </td>
+                    </ng-container>
+                    <!-- <ng-container matColumnDef="cycle">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'text-right': isRtl}">
+                            {{ 'CYCLE' | translate }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.cycle}} </td>
+                    </ng-container> -->
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="cursor: pointer;"
+                        (click)="navigateTo(row)"></tr>
+                </table>
+                <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10"  showFirstLastButtons hidePageSize
+                    dir="ltr">
+                </mat-paginator> -->
+            </div>
+            <div class="col-12 mt-4 show-mob" *ngIf="dataSource && dataSource.data.length > 0">
+                <table mat-table [dataSource]="dataSource" [ngClass]="{'text-right': isRtl}" multiTemplateDataRows>
+                    <ng-container matColumnDef="obsTitle">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element" class="title-td"
+                            [ngClass]="isRtl ? 'title-td-rtl' : 'rtl-direction'"> {{element.obsTitle}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="expandedDetail">
+                        <td class="expanded-td" mat-cell *matCellDef="let element"
+                            [attr.colspan]="displayedColumnsMob.length">
+                            <div class="row" [ngClass]="isRtl ? 'expanded-div-rtl' : 'expanded-div'">
+                                <div class="col-12 expanded-content">{{element.reportYear}}
+                                    <span [ngClass]="isRtl ? 'sequence-mob-rtl' : 'sequence-mob'">
+                                        {{ 'SEQUENCE' | translate }}: {{element.obsSequence}}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsMob; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsMob;" style="cursor: pointer;"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"></tr>
+                </table>
+                <!-- <mat-paginator [length]="dataSource.data.length" [pageSize]="10"  showFirstLastButtons hidePageSize
+                    dir="ltr">
+                </mat-paginator> -->
+            </div>
+        </div>
+        <div class="row center-block" *ngIf="!dataSource">
+            <div class="center mt-5">
+                <mat-icon class="center-icon">search</mat-icon>
+                <span class="center-text search-obs">{{ 'PLEASE_SEARCH_OBSERVATIONS' | translate }}</span>
+            </div>
+        </div>
+        <div class="row center-block">
+            <div class="center mt-5" *ngIf="dataSource && dataSource.data.length == 0">
+                <mat-icon class="center-icon">cloud_queue</mat-icon>
+                <span class="center-text">{{ 'NO_DATA' | translate }}</span>
+            </div>
+        </div>
+    </mat-card>
+</div>

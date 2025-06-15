@@ -36,7 +36,7 @@ export interface NatureType {
 @Component({
   selector: 'app-workdetails',
   templateUrl: './workdetails.component.html',
-  styleUrls: ['./workdetails.component.scss'],
+  styleUrls: ['./workdetails.component.css'],
   encapsulation: ViewEncapsulation.None,
 
 })

@@ -1,86 +1,41 @@
-<div [class.rtl-direction]="isRtl">
-  <!-- ───────────── HEADER (draggable) ───────────── -->
-  <div class="dialog-heading-div" [class.text-right]="isRtl" appDraggableDialog>
-    <span class="page-title" [class.mr-4]="isRtl" [class.ml-4]="!isRtl">
-      {{ "ATTACHMENT(S)" | translate }}
-    </span>
-  </div>
-
-  <!-- ───────────────────── BODY ──────────────────── -->
-  <mat-dialog-content class="mat-typography" [class.rtl-direction]="isRtl">
-    <div class="row">
-      <!-- data table -->
-      <div class="col-12 mt-3" *ngIf="dataSource.data.length; else empty">
-        <table mat-table [dataSource]="dataSource" matSort class="w-100">
-          <!-- name -->
-          <ng-container matColumnDef="name">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              class="w-300"
-              [class.text-right]="isRtl"
-              mat-sort-header
-            >
-              {{ "NAME" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let row">{{ row.name }}</td>
-          </ng-container>
-
-          <!-- added by -->
-          <ng-container matColumnDef="attachedBy">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              class="w-275"
-              [class.text-right]="isRtl"
-              mat-sort-header
-            >
-              {{ "ADDED_BY" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let row">{{ row.attachedBy }}</td>
-          </ng-container>
-
-          <!-- date -->
-          <ng-container matColumnDef="createdDate">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              [class.text-right]="isRtl"
-              mat-sort-header
-            >
-              {{ "DATE" | translate }}
-            </th>
-            <td mat-cell *matCellDef="let row">{{ row.createdDate | date }}</td>
-          </ng-container>
-
-          <!-- action -->
-          <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
-              <mat-icon class="pointer" (click)="downloadAttachment(row.docId)">
-                description
-              </mat-icon>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let r; columns: displayedColumns"></tr>
-        </table>
-
-        <!-- paginator -->
-        <mat-paginator
-          [pageSize]="10"
-          [pageSizeOptions]="[10, 20, 50]"
-          showFirstLastButtons
-        ></mat-paginator>
-      </div>
-
-      <!-- empty-state -->
-      <ng-template #empty>
-        <div class="col-12 text-center mt-4 dot">
-          {{ "NO_DATA" | translate }}
-        </div>
-      </ng-template>
+<div [ngClass]="{'rtl-direction' : isRtl}" >
+    <div class="dialog-heading-div" [ngClass]="{'text-right': isRtl}" appDraggableDialog>
+        <span class="page-title" [ngClass]="isRtl ? 'mr-4' : 'ml-4'">
+            {{ 'ATTACHMENT(S)' | translate }}
+        </span>
     </div>
-  </mat-dialog-content>
+    <mat-dialog-content class="mat-typography" [ngClass]="{'rtl-direction': isRtl}">
+        <div class="row">
+            <div class="col-12 mt-3" *ngIf="dataSource && dataSource.data.length > 0">
+                <table mat-table [dataSource]="dataSource">
+                    <ng-container matColumnDef="name" class="pl-2 pr-2">
+                        <th mat-header-cell *matHeaderCellDef class="w-300" [ngClass]="{'text-right': isRtl}"> {{ 'NAME' | translate
+                            }}
+                        </th>
+                        <td mat-cell *matCellDef="let element" > {{element.name}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="attachedBy" class="pl-2 pr-2" >
+                        <th mat-header-cell *matHeaderCellDef class="w-275" [ngClass]="{'text-right': isRtl}"> {{ 'ADDED_BY' |
+                            translate
+                            }} </th>
+                        <td mat-cell *matCellDef="let element"> {{element.attachedBy}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="createdDate" class="pl-2 pr-2">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"> {{ 'DATE' | translate
+                            }}
+                        </th>
+                        <td mat-cell *matCellDef="let element"> {{element.createdDate | date}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="action" class="pl-2 pr-2">
+                        <th mat-header-cell *matHeaderCellDef [ngClass]="{'text-right': isRtl}"></th>
+                        <td mat-cell *matCellDef="let element; let index = index;">
+                            <mat-icon class="pointer" (click)="downloadAttachment(element.docId)">description</mat-icon>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+            </div>
+        </div>
+    </mat-dialog-content>
 </div>

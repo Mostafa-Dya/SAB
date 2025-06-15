@@ -1,7 +1,7 @@
-import { ObservationCard } from './observation-card.model';
+import { ObservationCard } from "./observationCard.model";
 
-export interface LinkObservations {
+export class LinkObservations{
   observationsPending: number;
-  finalObs: ObservationCard;
-  initialObs: ObservationCard;
+  finalObs:ObservationCard;
+	initialObs:ObservationCard;
 }

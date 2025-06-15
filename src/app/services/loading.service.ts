@@ -1,49 +1,39 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class LoadingService {
-  /** Emits `true` whenever any requests are in flight, `false` otherwise */
-  private readonly _loading$ = new BehaviorSubject<boolean>(false);
-  public readonly loading$: Observable<boolean> = this._loading$.asObservable();
+  loadingSub: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  /**
+   * Contains in-progress loading requests
+   */
+  loadingMap: Map<string, boolean> = new Map<string, boolean>();
 
-  /** Tracks URLs of all currently in-flight requests */
-  private readonly inFlight = new Set<string>();
+  constructor() { }
 
   /**
-   * Call this at the start and end of each HTTP request.
-   * @param loading  true to mark the request as in-flight, false to clear it
-   * @param url      the unique request URL (must be non-empty)
+   * Sets the loadingSub property value based on the following:
+   * - If loading is true, add the provided url to the loadingMap with a true value, set loadingSub value to true
+   * - If loading is false, remove the loadingMap entry and only when the map is empty will we set loadingSub to false
+   * This pattern ensures if there are multiple requests awaiting completion, we don't set loading to false before
+   * other requests have completed. At the moment, this function is only called from the @link{HttpRequestInterceptor}
+   * @param loading {boolean}
+   * @param url {string}
    */
   setLoading(loading: boolean, url: string): void {
     if (!url) {
-      throw new Error(
-        'LoadingService: a non-empty URL must be provided to setLoading()'
-      );
+      throw new Error('The request URL must be provided to the LoadingService.setLoading function');
     }
-
-    if (loading) {
-      this.show(url);
-    } else {
-      this.hide(url);
+    if (loading === true) {
+      this.loadingMap.set(url, loading);
+      this.loadingSub.next(true);
+    } else if (loading === false && this.loadingMap.has(url)) {
+      this.loadingMap.delete(url);
     }
-  }
-
-  /** Mark a request as started */
-  private show(url: string): void {
-    this.inFlight.add(url);
-    if (!this._loading$.value) {
-      this._loading$.next(true);
-    }
-  }
-
-  /** Mark a request as finished */
-  private hide(url: string): void {
-    this.inFlight.delete(url);
-    if (this.inFlight.size === 0 && this._loading$.value) {
-      this._loading$.next(false);
+    if (this.loadingMap.size === 0) {
+      this.loadingSub.next(false);
     }
   }
 }

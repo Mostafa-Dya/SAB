@@ -1,23 +1,16 @@
+// This file can be replaced during build by using the `fileReplacements` array.
+// `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
+// The list of file replacements can be found in `angular.json`.
+
 export const environment = {
-  baseUrl: 'https://vmsrefecmts1198.main.knpcdom.net:9443/SABV2Services/Rest/',
-  production: false,
-
-  //  baseUrl : string = "http://localhost:9080/SABV2Services/Rest/";
-  //  baseUrl: string = "http://10.0.1.120:9080/SABV2Services/Rest/ "; //me
-  //baseUrl: string = "http://10.0.1.120:9080/SABV2BackEndServices/Rest/"; //meh working
-  // baseUrl: string = "http://vmsrefecmpr1191:9080/SABV2Services/Rest/"; //me
-
-  //1190 server
-  //baseUrl: string = "https://cknpc.knpc.net:9443/SABV2Services/Rest/"; //me
-  //external portal
-  //  baseUrl: string = "https://ecm.knpc.net:9443/SABV2Services/Rest/"; //me
-
-  //baseUrl: string = "https://cknpc.knpc.net:9443/SABV2Services/Rest/"; //me
-  //baseUrl: string = "https://vmsrefecmts1198.main.knpcdom.net:9443/SABV2Services/Rest/"; //me
-  // baseUrl: string = "https://vms02decmd6123.main.knpcdom.net:9443/SABV2Services/Rest/"; //me
-
-  //https://vmsrefecmpr1929:9080/SAB/
-  //http://vmsrefecmpr1191:9080/SAB/
-  //  baseUrl: string = "https://vmsrefecmdv1141.main.knpcdom.net:9443/SABV2Services/Rest/"; //--- Users
-  //  baseUrl: string = "http://vmsrefecmts1198:9080/SABV2Services/Rest/";  //--- Testing
+  production: false
 };
+
+/*
+ * For easier debugging in development mode, you can import the following file
+ * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
+ *
+ * This import should be commented out in production mode because it will have a negative impact
+ * on performance if an error is thrown.
+ */
+// import 'zone.js/dist/zone-error';  // Included with Angular CLI.

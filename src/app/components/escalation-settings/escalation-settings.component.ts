@@ -20,7 +20,7 @@ export interface EscalationData {
 @Component({
   selector: "app-escalation-settings",
   templateUrl: "./escalation-settings.component.html",
-  styleUrls: ["./escalation-settings.component.scss"],
+  styleUrls: ["./escalation-settings.component.css"],
 })
 export class EscalationSettingsComponent implements OnInit {
   isRtl: any;

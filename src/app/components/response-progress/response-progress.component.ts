@@ -34,7 +34,7 @@ export interface PeriodicElement {
 @Component({
   selector: 'app-response-progress',
   templateUrl: './response-progress.component.html',
-  styleUrls: ['./response-progress.component.scss']
+  styleUrls: ['./response-progress.component.css']
 })
 export class ResponseProgressComponent implements OnInit {
   isRtl: any;

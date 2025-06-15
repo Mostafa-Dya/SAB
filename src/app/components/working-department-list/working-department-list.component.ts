@@ -14,7 +14,7 @@ export interface HistoryData {
 @Component({
   selector: 'app-working-department-list',
   templateUrl: './working-department-list.component.html',
-  styleUrls: ['./working-department-list.component.scss']
+  styleUrls: ['./working-department-list.component.css']
 })
 export class WorkingDepartmentListComponent implements OnInit {
   histortTableColumns: string[] = ['id', 'sentDate', 'deptName','addedByUserName','pendingUserName'];

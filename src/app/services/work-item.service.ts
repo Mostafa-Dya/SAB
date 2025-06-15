@@ -1,201 +1,132 @@
-// src/app/services/work-item.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import { InboxItem } from '../models/inboxItem.model';
 import { ConfigService } from './config.service';
-import { InboxItem } from '../models/inbox-item.model';
-import { ObsResponse } from '../models/obs-response.model';
-import { WorkItem } from '../models/work-item.model';
-
+import { WorkItem } from '../models/workItem.model';
+import { ObsResponse } from '../models/response.model';
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class WorkItemService {
-  private readonly inboxBase: string;
-  private readonly workItemBase: string;
-  private readonly assignBase: string;
-  private readonly jsonHeaders = new HttpHeaders({
-    'Content-Type': 'application/json',
-  });
-
-  constructor(private http: HttpClient, private config: ConfigService) {
-    this.inboxBase = config.inboxUrl;
-    this.workItemBase = config.workItemUrl;
-    this.assignBase = config.assignmentUrl;
+  baseUrl: string = "http://localhost:8087/SampleDBTest/api/getName";
+  inboxUrl: string;
+  workItemControllerUrl: string;
+  assignmentControllerUrl: string;
+  
+  constructor(private httpClient: HttpClient, private configService: ConfigService) {
+    this.inboxUrl = configService.inboxUrl;
+    this.workItemControllerUrl = configService.workItemController;
+    this.assignmentControllerUrl = configService.assignmentControllerUrl;
   }
 
-  /** GET array of work-items for given user */
+  getWorkItems(userId: string) {
+    return this.httpClient.get('http://localhost:9080/SABV2Services/Rest/inboxController/getInboxWorkItems?userLogin=GPAUserId');
+  }
+
   getWorkItemsList(userId: string): Observable<InboxItem[]> {
-    const params = new HttpParams()
-      .set('userLogin', userId)
-      .set('r', `${Math.random() * 100 + 100}`);
-    return this.http.get<InboxItem[]>(`${this.inboxBase}getInboxWorkItems`, {
-      params,
-    });
+    return this.httpClient.get<InboxItem[]>('http://localhost:9080/SABV2Services/Rest/inboxController/getInboxWorkItems?userLogin=GPAUserId');
   }
 
-  /** Alias of getWorkItemsList (kept for compatibility) */
-  getWorkItems(userId: string): Observable<InboxItem[]> {
-    return this.getWorkItemsList(userId);
+  getinboxItems(userId: string): Promise<any> {
+    let URL = this.inboxUrl + "getInboxWorkItems?userLogin=" + userId + "&r=" + (Math.floor(Math.random() * 100) + 100);
+    return this.httpClient.get(URL).toPromise();
   }
 
-  /** GET single work-item details by stepCustomId */
-  getWorkItemInfo(stepCustomId: string): Observable<WorkItem> {
-    const params = new HttpParams()
-      .set('stepCustomId', stepCustomId)
-      .set('r', `${Math.random() * 100 + 100}`);
-    return this.http.get<WorkItem>(`${this.workItemBase}getWorkDetailsInfo`, {
-      params,
-    });
+  getWorkItemInfo1(workItemId: string): Observable<InboxItem[]> {
+    return this.httpClient.get<InboxItem[]>('http://localhost:9080/SABV2Services/Rest/inboxController/getInboxWorkItems?userLogin=GPAUserId');
   }
 
-  /** ASSIGN to department */
-  assignToDepartment(payload: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.assignBase}assignToDepartments`,
-      JSON.stringify(payload),
-      { headers: this.jsonHeaders }
-    );
+  getWorkItemInfo(stepCustomId: string): Promise<WorkItem> {
+    let URL = this.workItemControllerUrl + "getWorkDetailsInfo?stepCustomId=" + stepCustomId + "&r=" + (Math.floor(Math.random() * 100) + 100);
+    return this.httpClient.get<WorkItem>(URL).toPromise();
   }
 
-  /** ASSIGN to executive */
-  assignToExecutive(payload: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.assignBase}assignToExecutive`,
-      JSON.stringify(payload),
-      { headers: this.jsonHeaders }
-    );
+  assignToDepartment(result: any): Observable<any> {
+    const headers = { 'content-type': 'application/json' }
+    const body = JSON.stringify(result);
+    return this.httpClient.post<any>(this.assignmentControllerUrl + 'assignToDepartments', body, { 'headers': headers })
+    // return this.httpClient.get<LinkObservations>(this.launchUrl+"linkObservations");
   }
 
-  /** TRANSFER between departments */
-  transferDepartment(payload: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.assignBase}tansferDepartment`,
-      JSON.stringify(payload),
-      { headers: this.jsonHeaders }
-    );
+  assignToExecutive(result: any): Observable<any> {
+    const headers = { 'content-type': 'application/json' }
+    const body = JSON.stringify(result);
+    return this.httpClient.post<any>(this.assignmentControllerUrl + 'assignToExecutive', body, { 'headers': headers })
+    // return this.httpClient.get<LinkObservations>(this.launchUrl+"linkObservations");
   }
 
-  /** ASSIGN to staff */
-  assignToStaff(payload: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.assignBase}assignToStaff`,
-      JSON.stringify(payload),
-      { headers: this.jsonHeaders }
-    );
+  tansferDepartment(result: any): Observable<any> {
+    const headers = { 'content-type': 'application/json' }
+    const body = JSON.stringify(result);
+    return this.httpClient.post<any>(this.assignmentControllerUrl + 'tansferDepartment', body, { 'headers': headers })
+    // return this.httpClient.get<LinkObservations>(this.launchUrl+"linkObservations");
   }
 
-  /** ASSIGN to committee */
-  assignToCommittee(payload: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.assignBase}assignToCommittee`,
-      JSON.stringify(payload),
-      { headers: this.jsonHeaders }
-    );
+  assignToStaff(result: any): Observable<any> {
+    const headers = { 'content-type': 'application/json' }
+    const body = JSON.stringify(result);
+    return this.httpClient.post<any>(this.assignmentControllerUrl + 'assignToStaff', body, { 'headers': headers })
+    // return this.httpClient.get<LinkObservations>(this.launchUrl+"linkObservations");
   }
 
-  /** SEND a response on a work-item */
-  sendResponse(
-    stepCustomId: string,
-    response: string
-  ): Observable<ObsResponse> {
-    const params = new HttpParams()
-      .set('stepCustomId', stepCustomId)
-      .set('stepResponse', response)
-      .set('r', `${Math.random() * 100 + 100}`);
-    return this.http.get<ObsResponse>(`${this.workItemBase}sendResponse`, {
-      params,
-    });
+  assignToCommittee(result: any): Observable<any> {
+    const headers = { 'content-type': 'application/json' }
+    const body = JSON.stringify(result);
+    return this.httpClient.post<any>(this.assignmentControllerUrl + 'assignToCommittee', body, { 'headers': headers })
+    // return this.httpClient.get<LinkObservations>(this.launchUrl+"linkObservations");
   }
 
-  /** COMBINE & approve in one action */
-  approveAndCombineResponse(
-    stepCustomId: string,
-    response: string
-  ): Observable<ObsResponse> {
-    const params = new HttpParams()
-      .set('stepCustomId', stepCustomId)
-      .set('stepResponse', response)
-      .set('r', `${Math.random() * 100 + 100}`);
-    return this.http.get<ObsResponse>(
-      `${this.workItemBase}approveAndCombineResponse`,
-      { params }
-    );
+  sendResponse(stepCustomId: string, response: string): Observable<any> {
+    let URL = this.workItemControllerUrl + "sendResponse?stepCustomId=" + stepCustomId + "&&stepResponse=" + response + "&r=" + (Math.floor(Math.random() * 100) + 100);
+    return this.httpClient.get<any>(URL);
   }
 
-  /** APPROVE only */
-  approveResponse(
-    stepCustomId: string,
-    response: string
-  ): Observable<ObsResponse> {
-    const params = new HttpParams()
-      .set('stepCustomId', stepCustomId)
-      .set('stepResponse', response)
-      .set('r', `${Math.random() * 100 + 100}`);
-    return this.http.get<ObsResponse>(`${this.workItemBase}approveResponse`, {
-      params,
-    });
+  approveAndCombineResponse(stepCustomId: string, response: string): Observable<any> {
+    let URL = this.workItemControllerUrl + "approveAndCombineResponse?stepCustomId=" + stepCustomId + "&&stepResponse=" + response + "&r=" + (Math.floor(Math.random() * 100) + 100);
+    return this.httpClient.get<any>(URL);
   }
 
-  /** SEND to CEO & mark as exec */
-  sendToCEOAndMarkObsAsExec(
-    stepCustomId: string,
-    userId: string
-  ): Observable<ObsResponse> {
-    const params = new HttpParams()
-      .set('stepCustomId', stepCustomId)
-      .set('userId', userId);
-    return this.http.get<ObsResponse>(
-      `${this.assignBase}sendToCEOAndMarkObsAsExec`,
-      { params }
-    );
+  approveResponse (stepCustomId: string,response: string):Observable<any>{
+    let URL = this.workItemControllerUrl+"approveResponse?stepCustomId="+ stepCustomId+"&&stepResponse="+response+ "&r=" + ( Math.floor( Math.random() * 100 ) + 100 );
+    return this.httpClient.get<any>( URL );
   }
 
-  /** GET existing response */
+  sendToCEOAndMarkObsAsExec(stepCustomId: string, userId: string): Observable<ObsResponse> {
+    // let URL = this.userURL + "getDepartments" + "?r=" + ( Math.floor( Math.random() * 100 ) + 100 );
+    let URL = this.assignmentControllerUrl + "sendToCEOAndMarkObsAsExec?stepCustomId=" + stepCustomId + "&&userId=" + userId;
+    let x = this.httpClient.get<ObsResponse>(URL);
+    return x;
+  }
+
   getResponse(stepCustomId: string): Observable<ObsResponse> {
-    const params = new HttpParams().set('stepCustomId', stepCustomId);
-    return this.http.get<ObsResponse>(`${this.workItemBase}getResponse`, {
-      params,
-    });
+    // let URL = this.userURL + "getDepartments" + "?r=" + ( Math.floor( Math.random() * 100 ) + 100 );
+    let URL = this.workItemControllerUrl + "getResponse?stepCustomId=" + stepCustomId;
+    let x = this.httpClient.get<ObsResponse>(URL);
+    return x;
   }
 
-  /** DECLINE and send back */
-  declineAndSendBack(stepCustomId: string): Observable<ObsResponse> {
-    const params = new HttpParams()
-      .set('stepCustomId', stepCustomId)
-      .set('r', `${Math.random() * 100 + 100}`);
-    return this.http.get<ObsResponse>(
-      `${this.workItemBase}declineAndSendBack`,
-      { params }
-    );
+  declineAndSendBack(stepCustomId: string): Observable<any> {
+    let URL = this.workItemControllerUrl + "declineAndSendBack?stepCustomId=" + stepCustomId + "&r=" + (Math.floor(Math.random() * 100) + 100);
+    return this.httpClient.get<any>(URL);
   }
 
-  /** SIMPLE send-back (without decline) */
-  sendBack(stepCustomId: string): Observable<ObsResponse> {
-    const params = new HttpParams()
-      .set('stepCustomId', stepCustomId)
-      .set('r', `${Math.random() * 100 + 100}`);
-    return this.http.get<ObsResponse>(`${this.workItemBase}sendBack`, {
-      params,
-    });
+  sendBack(stepCustomId: string): Observable<any> {
+    let URL = this.workItemControllerUrl + "sendBack?stepCustomId=" + stepCustomId + "&r=" + (Math.floor(Math.random() * 100) + 100);
+    return this.httpClient.get<any>(URL);
   }
 
-  /** RESPOND on behalf */
-  respondOnBehalf(payload: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.workItemBase}respondOnBehalf`,
-      JSON.stringify(payload),
-      { headers: this.jsonHeaders }
-    );
+  respondOnBhalf(result: any): Observable<any> {
+    const headers = { 'content-type': 'application/json' }
+    const body = JSON.stringify(result);
+    return this.httpClient.post<any>(this.workItemControllerUrl + 'respondOnBehalf', body, { 'headers': headers })
+    // return this.httpClient.get<LinkObservations>(this.launchUrl+"linkObservations");
   }
 
-  /** COMBINE multiple responses */
-  combineResponses(payload: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.workItemBase}combineResponses`,
-      JSON.stringify(payload),
-      { headers: this.jsonHeaders }
-    );
+  combineResponses(result: any): Observable<any> {
+    const headers = { 'content-type': 'application/json' }
+    const body = JSON.stringify(result);
+    return this.httpClient.post<any>(this.workItemControllerUrl + 'combineResponses', body, { 'headers': headers })
+    // return this.httpClient.get<LinkObservations>(this.launchUrl+"linkObservations");
   }
 }

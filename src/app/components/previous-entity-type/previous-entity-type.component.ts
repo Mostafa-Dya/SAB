@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject, NgModule  } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SharedVariableService } from '../../services/shared-variable.service';
+import { SharedVariableService } from 'src/app/services/shared-variable.service';
 
 @Component({
   selector: 'app-previous-entity-type',
   templateUrl: './previous-entity-type.component.html',
-  styleUrls: ['./previous-entity-type.component.scss']
+  styleUrls: ['./previous-entity-type.component.css']
 })
 export class PreviousEntityTypeComponent implements OnInit {
   
