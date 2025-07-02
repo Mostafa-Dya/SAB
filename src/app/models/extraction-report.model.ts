@@ -6,4 +6,7 @@ export interface ExtractionReport {
   firstObsContent: string;
   reportToBeGenerated: string;
   observations: ObservationCard[];
+  firstSabResponse?: string;
+  firstDiwanReply?: string;
+  isComparisionPending?: boolean;
 }

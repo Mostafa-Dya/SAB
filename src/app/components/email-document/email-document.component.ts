@@ -8,13 +8,13 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import * as ClassicEditor from '../../../../public/assets/js/ck-editor-plugin/ckeditor';
+import * as ClassicEditor from '../../../assets/js/ck-editor-plugin/ckeditor';
 import { CoreService } from 'src/app/services/core.service';
 
 @Component({
   selector: 'app-email-document',
   templateUrl: './email-document.component.html',
-  styleUrls: ['./email-document.component.scss']
+  styleUrls: ['./email-document.component.css']
 })
 export class EmailDocumentComponent implements OnInit {
   isRtl: any;
@@ -146,15 +146,15 @@ onChange(val: any) {
     let url = 'UserController/';
     url = url + 'getSabEmployees?userName=' + this.toCtrl.value;
     this.filteredData = this.coreService.get(url).pipe(
-      map(response => this.filterData(response)),
+      map(response => this.filterData(response: any)),
     );
     // this.filteredData = this.coreService.get(url).subscribe(response => {
-    //   return this.filterData(response);
-    //   // this.filteredData= this.filterData(response);
-    //   // this.filterData(response);
+    //   return this.filterData(response: any);
+    //   // this.filteredData= this.filterData(response: any);
+    //   // this.filterData(response: any);
     // },
     // // this.filteredData = this.coreService.get(url).pipe(
-    // //   map(response => this.filterData(response))
+    // //   map(response => this.filterData(response: any))
     // // );
     // error => {
     //   return []
@@ -170,11 +170,11 @@ onChangeToCC(val: any) {
     let url = 'UserController/';
     url = url + 'getSabEmployees?userName=' + this.ccCtrl.value;
     this.filteredCC = this.coreService.get(url).pipe(
-      map(response => this.filterData(response)),
+      map(response => this.filterData(response: any)),
     );
 
   //   this.filteredCC = this.coreService.get(url).subscribe(response => {
-  //     return this.filterData(response);
+  //     return this.filterData(response: any);
   //   }, error => {
   //     return []
   //     console.log('error :', error);

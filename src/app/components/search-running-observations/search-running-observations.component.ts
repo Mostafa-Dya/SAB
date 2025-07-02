@@ -51,7 +51,7 @@ export interface ObservationData {
 @Component({
   selector: 'app-search-running-observations',
   templateUrl: './search-running-observations.component.html',
-  styleUrls: ['./search-running-observations.component.scss']
+  styleUrls: ['./search-running-observations.component.css']
 })
 export class SearchRunningObservationsComponent implements OnInit {
   isRtl: any;
@@ -144,7 +144,7 @@ export class SearchRunningObservationsComponent implements OnInit {
     let url = 'UserController/getsabDirectorates';
     this.coreService.get(url).subscribe(response => {
       // this.isLoading = false;
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.directorateValue.push({ id: key, name: response[key] })
       })
       this.selectedDirectorate = this.directorateValue[0].id;
@@ -163,7 +163,7 @@ export class SearchRunningObservationsComponent implements OnInit {
     let url = 'UserController/getsabDepartments?directorateId=' + this.selectedDirectorate;
     this.coreService.get(url).subscribe(response => {
       this.isLoading = false;
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.departmentValue.push({ id: key, name: response[key] })
       })
       this.selectedDepartment = this.departmentValue[0].id;
@@ -225,7 +225,7 @@ export class SearchRunningObservationsComponent implements OnInit {
         this.isrRespondBehalfFirst = false;
         this.isSendMultiDepartmentFirst = false;
       }, 500)
-      this.dataSource = new MatTableDataSource(response);
+      this.dataSource = new MatTableDataSource(response: any);
     }, error => {
       this.isLoading = false;
       console.log('error :' , error);

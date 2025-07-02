@@ -39,6 +39,10 @@ export class SharedVariableService {
     // no-op
   }
 
+  setRtlValue(value: boolean): void {
+    this._isRtl.next(value);
+  }
+
   // === Inbox count ===
   setInboxCount(count: number): void {
     this._inboxCount.next(count);

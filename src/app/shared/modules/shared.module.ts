@@ -11,38 +11,43 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 import { MatMenuModule } from '@angular/material/menu';
 import { MaterialModule } from './material.module';
+import { RouterModule } from '@angular/router';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
-    declarations: [SafeHtmlPipe],
-    imports: [
-        CommonModule,
-        MaterialModule,
-        FormsModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        CKEditorModule,
-        TranslateModule,
-        NzDatePickerModule,
-        NzAlertModule,
-        NzSelectModule,
-        NzNotificationModule,
-        MatMenuModule
-    ],
-    exports: [
-        CommonModule,
-        MaterialModule,
-        FormsModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        CKEditorModule,
-        TranslateModule,
-        SafeHtmlPipe,
-        NzDatePickerModule,
-        NzAlertModule,
-        NzSelectModule,
-        NzNotificationModule,
-        MatMenuModule
-    ]
+  declarations: [SafeHtmlPipe],
+  imports: [
+    CommonModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    CKEditorModule,
+    TranslateModule,
+    NzDatePickerModule,
+    NzAlertModule,
+    NzSelectModule,
+    NzNotificationModule,
+    MatMenuModule,
+    RouterModule,
+    MatInputModule,
+  ],
+  exports: [
+    CommonModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    CKEditorModule,
+    TranslateModule,
+    SafeHtmlPipe,
+    NzDatePickerModule,
+    NzAlertModule,
+    NzSelectModule,
+    NzNotificationModule,
+    MatMenuModule,
+    RouterModule,
+    MatInputModule,
+  ],
 })
-
-export class SharedModule { }
+export class SharedModule {}

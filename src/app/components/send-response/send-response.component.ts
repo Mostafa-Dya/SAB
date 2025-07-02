@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
 // import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import * as ClassicEditor from '../../../../public/assets/js/ck-editor-plugin/ckeditor';
+import * as ClassicEditor from '../../../assets/js/ck-editor-plugin/ckeditor';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ObsResponse } from 'src/app/models/response.model';
 import { SharedVariableService } from 'src/app/services/shared-variable.service';
@@ -12,7 +12,6 @@ import { CoreService } from 'src/app/services/core.service';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { PreviousEntityTypeComponent } from '../previous-entity-type/previous-entity-type.component';
-import { isArray } from 'lodash';
 
 interface DateStrings {
   date: string;
@@ -25,7 +24,7 @@ export interface Entities {
 @Component({
   selector: 'app-send-response',
   templateUrl: './send-response.component.html',
-  styleUrls: ['./send-response.component.scss']
+  styleUrls: ['./send-response.component.css']
 })
 export class SendResponseComponent implements OnInit {
   public Editor = ClassicEditor;
@@ -242,7 +241,7 @@ export class SendResponseComponent implements OnInit {
   }
 
   onSendResponse(): void {
-    if(isArray(this.entities)){
+    if(this.entities){
       this.entities = this.entities.filter((item: any) => {
         return item.trim();
       })

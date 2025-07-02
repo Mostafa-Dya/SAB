@@ -38,7 +38,7 @@ let ELEMENT_DATA:  committeeData[] = [
 @Component({
   selector: 'app-pending-observations-report',
   templateUrl: './pending-observations-report.component.html',
-  styleUrls: ['./pending-observations-report.component.scss']
+  styleUrls: ['./pending-observations-report.component.css']
 })
 export class PendingObservationsReportComponent implements OnInit {
  
@@ -119,7 +119,7 @@ export class PendingObservationsReportComponent implements OnInit {
       // let response:any  = {"Deputy C.E.O. For Planning & Finance":{"dirCode":101330,"dirName":"Deputy C.E.O. For Planning & Finance","total":1,"deps":{"Corporate Planning":{"deptCode":103010,"deptName":"Corporate Planning","pendingUser":0,"pendingManager":1,"pendingTl":0,"count":0}}}};
       // let response = this.observationReport
       // for(let i = 0 ;i< response.length ;i++){
-        Object.keys(response).forEach((key:any,i:number) => {
+        Object.keys(response: any).forEach((key:any,i:number) => {
         this.observationReportData.push({
           "departmentData":[],
           "dirCode": response[key].dirCode,

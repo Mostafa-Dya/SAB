@@ -6,4 +6,6 @@ export interface ObservationCard {
   obsContent: string;
   reportToBeGenerated: string;
   reportYear: string;
+  sabResponse?: string;
+  diwanReply?: string;
 }

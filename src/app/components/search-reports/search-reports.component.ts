@@ -25,7 +25,7 @@ export interface ReportData {
 @Component({
   selector: 'app-search-reports',
   templateUrl: './search-reports.component.html',
-  styleUrls: ['./search-reports.component.scss']
+  styleUrls: ['./search-reports.component.css']
 })
 export class SearchReportsComponent implements OnInit {
   isRtl: any;
@@ -119,7 +119,7 @@ export class SearchReportsComponent implements OnInit {
           }
         }
       }
-      this.dataSource = new MatTableDataSource(response);
+      this.dataSource = new MatTableDataSource(response: any);
     }, error => {
       this.isLoading = false;
       this._loading.setLoading(false, url);

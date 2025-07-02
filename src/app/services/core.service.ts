@@ -10,14 +10,13 @@ import { environment } from '../../environments/environment';
 export class CoreService {
   private readonly baseUrl: string = environment.baseUrl;
 
-  constructor(private http: HttpClient, private config: ConfigService) {}
+  constructor(private http: HttpClient) {}
 
   get<T>(
-    endpoint: string,
-    params?: HttpParams | { [param: string]: string | string[] },
-    headers?: HttpHeaders | { [header: string]: string | string[] }
+    path: string,
+    options?: { params?: HttpParams | Record<string, string | string[]> }
   ): Observable<T> {
-    return this.http.get<T>(this.baseUrl + endpoint, { params, headers });
+    return this.http.get<T>(`${this.baseUrl}/${path}`, options);
   }
 
   post<T>(

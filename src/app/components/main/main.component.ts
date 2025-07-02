@@ -15,7 +15,7 @@ export interface DelegatedUsers {
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
-  styleUrls: ['./main.component.scss']
+  styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
   @Output() foundError = new EventEmitter<string>();
@@ -139,7 +139,7 @@ export class MainComponent implements OnInit {
 };
 
    this.sharedVariableService.setLoginValue(true);
-   this.sharedVariableService.setSABUserInfo(response);
+   this.sharedVariableService.setSABUserInfo(response: any);
    this.isAdmin = response.admin;
    this.isAddUserPageEnabled = response.addUserPageEnabled;
    if(response.sabMember == null){
@@ -175,7 +175,7 @@ export class MainComponent implements OnInit {
      localStorage.setItem('loginId', response.sabMember.loginId);
      localStorage.setItem('userJobTitle', response.sabMember.userJobTitle);
      localStorage.setItem('departmentCode', response.sabMember.departmentCode.toString());
-     localStorage.setItem('sabUserInformation', JSON.stringify(response));
+     localStorage.setItem('sabUserInformation', JSON.stringify(response: any));
      // localStorage.setItem('sabDelegateUser', JSON.stringify(this.selectedDelegatedUser));
 
      this.sharedVariableService.setUserInfoAvailable(true);
@@ -231,7 +231,7 @@ export class MainComponent implements OnInit {
       //  response = {"attachmentEnabled":true,"sabMember":{"loginId":"ECMTEST_TL_CP_PLANS","userName":"Team Lead Plans Coordination","userTitle":"Team Lead, Plans Coordination","departmentName":"Corporate Planning","departmentCode":103010,"directorateName":"Deputy C.E.O. For Planning & Finance","directorateCode":101330,"divisionCode":103040,"supervisorLogin":"ECMTEST_MGR_CP","userMail":"CRN899@knpc.com","userJobTitle":"TL"},"inboxCount":7,"responseInprogCount":1,"admin":false,"reportYear":"2021-2022","delegateUsers":[{"loginId":"ECMTEST_MGR_CP","userName":"CPD Manager","userJobTitle":"MGR","departmentCode":0}],"reportCycle":"KNPC Response Report","delegationAdminPageEnabled":false,"adminReAssignEnabled":false,"addUserPageEnabled":false}
 
       this.sharedVariableService.setLoginValue(true);
-      this.sharedVariableService.setSABUserInfo(response);
+      this.sharedVariableService.setSABUserInfo(response: any);
       this.isAdmin = response.admin;
       this.isAddUserPageEnabled = response.addUserPageEnabled;
       if(response.sabMember == null){
@@ -267,7 +267,7 @@ export class MainComponent implements OnInit {
         localStorage.setItem('loginId', response.sabMember.loginId);
         localStorage.setItem('userJobTitle', response.sabMember.userJobTitle);
         localStorage.setItem('departmentCode', response.sabMember.departmentCode.toString());
-        localStorage.setItem('sabUserInformation', JSON.stringify(response));
+        localStorage.setItem('sabUserInformation', JSON.stringify(response: any));
         // localStorage.setItem('sabDelegateUser', JSON.stringify(this.selectedDelegatedUser));
 
         this.sharedVariableService.setUserInfoAvailable(true);

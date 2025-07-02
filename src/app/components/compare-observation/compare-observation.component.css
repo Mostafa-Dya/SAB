@@ -1,0 +1,64 @@
+table {
+    width: 100%;
+}
+
+tr.mat-header-row {
+    height: unset;
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: rgba(0, 0, 0, .12);
+}
+
+.mat-header-cell {
+    font-size: 14px;
+    font-weight: 600;
+    color: unset;
+}
+
+th.mat-header-cell:first-of-type,
+td.mat-cell:first-of-type,
+td.mat-footer-cell:first-of-type {
+    padding-left: 10px !important;
+}
+
+th.mat-header-cell:last-of-type,
+td.mat-cell:last-of-type,
+td.mat-footer-cell:last-of-type {
+    padding-right: 10px !important;
+}
+
+th.mat-header-cell,
+td.mat-cell,
+td.mat-footer-cell {
+    padding: 10px !important;
+}
+
+.dialog-heading-div {
+  padding: 15px 0 15px 0px;
+  margin: 0 -24px 0 -24px;
+  background: #3253ab;
+  color: #ffffff;
+}
+
+.close {
+  float: right;
+  margin-top: 4px;
+  margin-right: 10px;
+  font-size: 14px;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.close-rtl {
+  margin-top: 4px;
+  margin-left: 10px;
+  font-size: 14px;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+@media (max-width: 575px) {
+    .hide-mobile {
+        display: none;
+    }
+}

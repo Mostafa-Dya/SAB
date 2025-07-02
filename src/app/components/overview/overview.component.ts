@@ -8,12 +8,12 @@ import { CoreService } from 'src/app/services/core.service';
 import { EmailDocumentComponent } from '../email-document/email-document.component';
 import { MatDialog } from '@angular/material/dialog';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import * as ClassicEditor from '../../../../public/assets/js/ck-editor-plugin/ckeditor';
+import * as ClassicEditor from '../../../assets/js/ck-editor-plugin/ckeditor';
 
 @Component({
   selector: 'app-overview',
   templateUrl: './overview.component.html',
-  styleUrls: ['./overview.component.scss']
+  styleUrls: ['./overview.component.css']
 })
 export class OverviewComponent implements OnInit,AfterViewInit  {
   @ViewChild('topElement') topElement: ElementRef;

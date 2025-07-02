@@ -27,7 +27,7 @@ import { WorkingDepartmentListComponent } from '../working-department-list/worki
 @Component({
   selector: 'app-sent-items-work-details',
   templateUrl: './sent-items-work-details.component.html',
-  styleUrls: ['./sent-items-work-details.component.scss'],
+  styleUrls: ['./sent-items-work-details.component.css'],
   encapsulation: ViewEncapsulation.None,
 })
 export class SentItemsWorkDetailsComponent implements OnInit {

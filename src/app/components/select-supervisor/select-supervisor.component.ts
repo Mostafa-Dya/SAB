@@ -11,7 +11,7 @@ import { CoreService } from 'src/app/services/core.service';
 @Component({
   selector: 'app-select-supervisor',
   templateUrl: './select-supervisor.component.html',
-  styleUrls: ['./select-supervisor.component.scss']
+  styleUrls: ['./select-supervisor.component.css']
 })
 export class SelectSupervisorComponent implements OnInit {
   isRtl: any;
@@ -69,7 +69,7 @@ export class SelectSupervisorComponent implements OnInit {
     this._loading.setLoading(true, url);
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.directorateValue.push({ id: key, name: response[key] })
       })
       this.directorateValue.sort((a:any, b:any) => {
@@ -96,7 +96,7 @@ export class SelectSupervisorComponent implements OnInit {
       this._loading.setLoading(false, url);
       this.departmentValue = [];
       this.departmentValue.push({ id: "0", name: "All" })
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.departmentValue.push({ id: key, name: response[key] })
       })
       this.directorateValue.sort((a:any, b:any) => {

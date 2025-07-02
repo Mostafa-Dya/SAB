@@ -11,7 +11,7 @@ import { LoadingService } from 'src/app/services/loading.service';
 @Component({
   selector: 'app-extract-observation',
   templateUrl: './extract-observation.component.html',
-  styleUrls: ['./extract-observation.component.scss']
+  styleUrls: ['./extract-observation.component.css']
 })
 export class ExtractObservationComponent implements OnInit {
   exractionReport: ExtractionReport;
@@ -49,7 +49,7 @@ export class ExtractObservationComponent implements OnInit {
     let url = 'UserController/getUserInfo?userId=' + this.loginId + '&r=' + (Math.floor(Math.random() * 100) + 100);
     this.coreService.get(url).subscribe((response: any) => {
       this.sharedVariableService.setReportYearValue(response.reportYear);
-      localStorage.setItem('sabUserInformation', JSON.stringify(response));
+      localStorage.setItem('sabUserInformation', JSON.stringify(response: any));
     }, error => {
       console.log('error  :', error);
     })

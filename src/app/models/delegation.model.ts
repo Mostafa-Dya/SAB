@@ -4,8 +4,8 @@ export interface DelegatedUser {
   toLoginId: string;
   fromUserName: string;
   toUserName: string;
-  delegationFrom: string; // 'DD/MM/YYYY'
-  delegationTo: string;   // 'DD/MM/YYYY'
+  delegationFrom: string; 
+  delegationTo: string;
   delegateFrom: string;
   active: boolean;
   deleted: boolean;

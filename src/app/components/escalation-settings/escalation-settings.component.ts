@@ -3,7 +3,6 @@ import { FormControl } from "@angular/forms";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { String } from "lodash";
 import { NzNotificationService } from "ng-zorro-antd/notification";
 import { CoreService } from "src/app/services/core.service";
 import { LoadingService } from "src/app/services/loading.service";
@@ -20,7 +19,7 @@ export interface EscalationData {
 @Component({
   selector: "app-escalation-settings",
   templateUrl: "./escalation-settings.component.html",
-  styleUrls: ["./escalation-settings.component.scss"],
+  styleUrls: ["./escalation-settings.component.css"],
 })
 export class EscalationSettingsComponent implements OnInit {
   isRtl: any;
@@ -73,7 +72,7 @@ export class EscalationSettingsComponent implements OnInit {
     this.isLoading = true;
     this._loading.setLoading(true, url);
     this.coreService.get(url).subscribe(
-      async (response) => {
+      async (response: any) => {
 
         this.isLoading = false;
         this._loading.setLoading(false, url); 
@@ -99,7 +98,7 @@ export class EscalationSettingsComponent implements OnInit {
         this.configurationKeyData.setValue(this.configurationKeyList);
         //  ------------------------------------------------------------------
         this.EscalationData = response;
-        this.dataSource = new MatTableDataSource(response);
+        this.dataSource = new MatTableDataSource(response: any);
         setTimeout(() => {
           this.dataSource.sort = this.sort;
         });
@@ -407,7 +406,7 @@ export class EscalationSettingsComponent implements OnInit {
     let url = "settingsController/updateEscalationSettingList";
     this._loading.setLoading(true, url);
     this.coreService.post(url, data).subscribe(
-      (Response) => {
+      (response: any) => {
         // this.isDialogLoading = false;
         this._loading.setLoading(false, url);
         this.notification.create(

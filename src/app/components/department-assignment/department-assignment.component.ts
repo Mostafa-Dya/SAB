@@ -7,7 +7,7 @@ import { SharedVariableService } from 'src/app/services/shared-variable.service'
 @Component({
   selector: 'app-department-assignment',
   templateUrl: './department-assignment.component.html',
-  styleUrls: ['./department-assignment.component.scss']
+  styleUrls: ['./department-assignment.component.css']
 })
 export class DepartmentAssignmentComponent implements OnInit {
   displayedColumns: string[] = ['select', 'departmentName', 'loginId', 'userName', 'cmntButton'];

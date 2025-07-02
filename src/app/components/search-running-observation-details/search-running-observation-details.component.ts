@@ -19,7 +19,7 @@ import { SendResponseComponent } from '../send-response/send-response.component'
 @Component({
   selector: 'app-search-running-observation-details',
   templateUrl: './search-running-observation-details.component.html',
-  styleUrls: ['./search-running-observation-details.component.scss'],
+  styleUrls: ['./search-running-observation-details.component.css'],
   encapsulation: ViewEncapsulation.None,
 })
 export class SearchRunningObservationDetailsComponent implements OnInit {

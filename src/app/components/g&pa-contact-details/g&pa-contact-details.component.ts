@@ -22,7 +22,7 @@ export interface EscalationData {
 @Component({
   selector: "app-g&pa-contact-details",
   templateUrl: "./g&pa-contact-details.component.html",
-  styleUrls: ["./g&pa-contact-details.component.scss"],
+  styleUrls: ["./g&pa-contact-details.component.css"],
 })
 export class GPAContactDetailsComponent implements OnInit {
   isRtl: any;
@@ -64,7 +64,7 @@ export class GPAContactDetailsComponent implements OnInit {
     // this.isLoading = true;
     // this._loading.setLoading(true, url);
     // this.coreService.get(url).subscribe(
-    //   async (response) => {
+    //   async (response: any) => {
     //     this.isLoading = false;
     //     this._loading.setLoading(false, url); 
       let response:any = [{
@@ -365,17 +365,17 @@ export class GPAContactDetailsComponent implements OnInit {
         "loginName": ""
     }
 ]; 
-this.dataSource = new MatTableDataSource(response); 
+this.dataSource = new MatTableDataSource(response: any); 
 **/
     
     let url = "settingsController/getDepartmentContactList";
      this.isLoading = true;
     this._loading.setLoading(true, url);
-    this.coreService.get(url).subscribe(async (response) => {
+    this.coreService.get(url).subscribe(async (response: any) => {
         this.isLoading = false;
         this._loading.setLoading(false, url); 
       
-        this.dataSource = new MatTableDataSource(response);
+        this.dataSource = new MatTableDataSource(response: any);
         setTimeout(() => {
           this.dataSource.sort = this.sort;
           //this.dataSource.paginator = this.paginator;

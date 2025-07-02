@@ -42,7 +42,7 @@ export interface ObservationData {
 @Component({
   selector: 'app-search-observations',
   templateUrl: './search-observations.component.html',
-  styleUrls: ['./search-observations.component.scss']
+  styleUrls: ['./search-observations.component.css']
 })
 export class SearchObservationsComponent implements OnInit {
   isRtl: any;
@@ -279,7 +279,7 @@ export class SearchObservationsComponent implements OnInit {
     this.directorateList = ['All'];
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.directorateAllValues.push({ id: key, name: response[key] })
         this.directorateList.push(response[key]);
       })
@@ -314,7 +314,7 @@ export class SearchObservationsComponent implements OnInit {
     this.departmentList =['All'];
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.departmentAllValues.push({ id: key, name: response[key] })
           this.departmentList.push(response[key])
       })
@@ -412,11 +412,11 @@ console.log();
     this._loading.setLoading(true, url);
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         obsData.push(response[key]);
       })
       this.dataSource = new MatTableDataSource(obsData);
-      // this.dataSource = new MatTableDataSource(response);
+      // this.dataSource = new MatTableDataSource(response: any);
       setTimeout(() => {
         this.dataSource.sort = this.sort;
         // this.dataSource.paginator = this.paginator;

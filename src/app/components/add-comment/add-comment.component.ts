@@ -1,78 +1,61 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import {
-  ReactiveFormsModule,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import {
-  MatDialogContent,
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { TranslateModule } from '@ngx-translate/core';
-import { SharedVariableService } from '../../services/shared-variable.service';
-import { Observable } from 'rxjs';
-import { ObsResponse } from '../../models/obs-response.model';
+import { FormControl } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ObsResponse } from 'src/app/models/response.model';
+import { SharedVariableService } from 'src/app/services/shared-variable.service';
+
+
 
 @Component({
   selector: 'app-add-comment',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    DragDropModule,
-    TranslateModule,
-  ],
   templateUrl: './add-comment.component.html',
-  styleUrls: ['./add-comment.component.scss'],
+  styleUrls: ['./add-comment.component.css']
 })
 export class AddCommentComponent implements OnInit {
-  form!: FormGroup;
-  isAdmin = false;
-  isRtl$: Observable<any>;
+  isRtl: any;
+  comment: string = '';
+  isReasonFirst: any = true;
+ 
+  showError: boolean;
+  userInformation: any;
+
   constructor(
-    private dialogRef: MatDialogRef<AddCommentComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ObsResponse,
+    public dialogRef: MatDialogRef<AddCommentComponent>,
+    @Inject(MAT_DIALOG_DATA) public responseData: ObsResponse,
     private sharedVariableService: SharedVariableService
   ) {
-    this.dialogRef.disableClose = true;
-    this.isRtl$ = this.sharedVariableService.isRtl$;
+    dialogRef.disableClose = true;
   }
 
   ngOnInit(): void {
-    const userInfo = JSON.parse(
-      localStorage.getItem('sabUserInformation') || '{}'
-    );
-    this.isAdmin = !!userInfo.admin;
-
-    this.form = new FormGroup({
-      comment: new FormControl('', [
-        Validators.required,
-        Validators.maxLength(this.isAdmin ? 1000 : 256),
-      ]),
+    this.sharedVariableService.getRtlValue().subscribe((value) => {
+      this.isRtl = value;
     });
-  }
+   
+    let data: any = localStorage.getItem('sabUserInformation');
+    this.userInformation = JSON.parse(data);
+    this.isReasonFirst = false;
 
-  get maxLen(): number {
-    return this.isAdmin ? 1000 : 256;
+   // this.userInformation.admin = !this.userInformation.admin;
   }
 
   onSend(): void {
-    if (this.form.invalid) {
-      return;
+    var _result;
+    if (this.userInformation.admin) {
+   
+      _result = {
+        comment: this.comment.trim()
+      };
+      this.dialogRef.close({ event: 'Send', data: _result });
+    } else {
+      // if (this.comment == undefined) {
+      //   this.comment = '';
+      // }
+      _result = {
+        comment: this.comment.trim()
+      };
+      this.dialogRef.close({ event: 'Send', data: _result });
     }
-    const result = { comment: this.form.value.comment.trim() };
-    this.dialogRef.close({ event: 'Send', data: result });
   }
+
 }

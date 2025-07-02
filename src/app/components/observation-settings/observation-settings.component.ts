@@ -19,7 +19,7 @@ export interface ObservationSettingsData {
 @Component({
   selector: 'app-observation-settings',
   templateUrl: './observation-settings.component.html',
-  styleUrls: ['./observation-settings.component.scss']
+  styleUrls: ['./observation-settings.component.css']
 })
 export class ObservationSettingsComponent implements OnInit {
   dataSource: MatTableDataSource<ObservationSettingsData>;
@@ -76,7 +76,7 @@ export class ObservationSettingsComponent implements OnInit {
     this._loading.setLoading(true, url);
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      this.dataSource = new MatTableDataSource(response);
+      this.dataSource = new MatTableDataSource(response: any);
       setTimeout(() => {
         this.dataSource.sort = this.sort;
         // this.dataSource.paginator = this.paginator;

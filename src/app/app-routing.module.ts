@@ -25,6 +25,31 @@ import { SendBackCommentsReportComponent } from './components/sendback-comments-
 import { UserListReportComponent } from './components/user-list-report/user-list-report.component';
 import { DeactivateDECONotificationsComponent } from './components/deactive-deco-notifications/deactivate-deco-notifications.component';
 import { DelegationComponent } from './components/delegation/delegation.component';
+import { EscalationSettingsComponent } from './components/escalation-settings/escalation-settings.component';
+import { GPAContactDetailsComponent } from './components/g&pa-contact-details/g&pa-contact-details.component';
+import { CombineResponsesComponent } from './components/combine-responses/combine-responses.component';
+import { ResponseProgressWorkDetailsComponent } from './components/response-progress-work-details/response-progress-work-details.component';
+import { ResponseProgressComponent } from './components/response-progress/response-progress.component';
+import { SearchObservationsComponent } from './components/search-observations/search-observations.component';
+import { ObservationDetailsComponent } from './components/observation-details/observation-details.component';
+import { SearchReportsComponent } from './components/search-reports/search-reports.component';
+import { SearchRunningObservationsComponent } from './components/search-running-observations/search-running-observations.component';
+import { SearchRunningObservationDetailsComponent } from './components/search-running-observation-details/search-running-observation-details.component';
+import { SentItemsWorkDetailsComponent } from './components/sent-items-work-details/sent-items-work-details.component';
+import { SentItemsComponent } from './components/sent-items/sent-items.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { UploadReportsComponent } from './components/upload-reports/upload-reports.component';
+import { UsersComponent } from './components/users/users.component';
+import { InboxComponent } from './components/inbox/inbox.component';
+import { ChangeDepartmentComponent } from './components/change-department/change-department.component';
+import { LaunchReportsComponent } from './components/launch-reports/launch-reports.component';
+import { CompareObservationComponent } from './components/compare-observation/compare-observation.component';
+import { ExtractFinalObservationComponent } from './components/extract-final-observation/extract-final-observation.component';
+import { InitialFinalComparisonReportComponent } from './components/initial-final-comparison-report/initial-final-comparison-report.component';
+import { LinkObservationsComponent } from './components/link-observations/link-observations.component';
+import { ExtractObservationComponent } from './components/extract-observation/extract-observation.component';
+import { EditObservationComponent } from './components/edit-observation/edit-observation.component';
+import { ObservationSettingsComponent } from './components/observation-settings/observation-settings.component';
 
 const routes: Routes = [
   {
@@ -35,24 +60,32 @@ const routes: Routes = [
   },
   {
     path: 'inbox',
-    canActivate: [AuthGuard],
-    loadChildren: () =>
-      import('./components/inbox/inbox.module').then((m) => m.InboxModule),
+    // canActivate: [AuthGuard],
+    component: InboxComponent,
+  },
+  {
+    path: 'combine-responses/:stepCustomId',
+    // canActivate: [AuthGuard],
+    component: CombineResponsesComponent,
   },
   {
     path: 'sent-items',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import('./components/sent-items/sent-items.module').then(
-        (m) => m.SentItemsModule
-      ),
+    component: SentItemsComponent,
+  },
+  {
+    path: 'work-item-details/:stepCustomId',
+    component: SentItemsWorkDetailsComponent,
+    data: {
+      role: 'admin',
+    },
   },
   {
     path: 'archive',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -60,80 +93,127 @@ const routes: Routes = [
   },
   {
     path: 'launchReports',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import('./components/launch-reports/launch-reports.module').then(
-        (m) => m.LaunchReportsModule
-      ),
+    component: LaunchReportsComponent,
+  },
+  {
+    path: 'change-department/:reportId',
+    // canActivate: [AuthGuard],
+    data: {
+      role: 'admin',
+    },
+    component: ChangeDepartmentComponent,
   },
   {
     path: 'extractReports',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import(
-        './components/extract-observation/extract-observation.module'
-      ).then((m) => m.ExtractObservationModule),
+    component: ExtractObservationComponent,
+  },
+  {
+    path: 'compare-observations/:status',
+    // canActivate: [AuthGuard],
+    data: {
+      role: 'admin',
+    },
+    component: CompareObservationComponent,
+  },
+  {
+    path: 'compare-observations/:status/link-observations',
+    // canActivate: [AuthGuard],
+    data: {
+      role: 'admin',
+    },
+    component: LinkObservationsComponent,
+  },
+  {
+    path: 'compare-observations/:status/initial-final-comparison-report',
+    // canActivate: [AuthGuard],
+    data: {
+      role: 'admin',
+    },
+    component: InitialFinalComparisonReportComponent,
+  },
+  {
+    path: 'compare-observations/:status/extract-final-observation/:obsId',
+    // canActivate: [AuthGuard],
+    data: {
+      role: 'admin',
+    },
+    component: ExtractFinalObservationComponent,
   },
   {
     path: 'response-progress',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import('./components/response-progress/response-progress.module').then(
-        (m) => m.ResponseProgressModule
-      ),
+    component: ResponseProgressComponent,
+  },
+
+  {
+    path: 'work-item-details/:stepCustomId',
+    component: ResponseProgressWorkDetailsComponent,
   },
   {
     path: 'settings',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import('./components/settings/settings.module').then(
-        (m) => m.SettingsModule
-      ),
+    component: SettingsComponent,
   },
   {
     path: 'observation-settings',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import(
-        './components/observation-settings/observation-settings.module'
-      ).then((m) => m.ObservationSettingsModule),
+    component: ObservationSettingsComponent,
   },
   {
+    path: 'edit-observation/:obsId',
+    // canActivate: [AuthGuard],
+    data: {
+      role: 'admin',
+    },
+    component: EditObservationComponent,
+  },
+
+  {
     path: 'search-observations',
-    loadChildren: () =>
-      import(
-        './components/search-observations/search-observations.module'
-      ).then((m) => m.SearchObservationsModule),
+
+    component: SearchObservationsComponent,
+  },
+  {
+    path: 'observation-details/:obsId',
+    component: ObservationDetailsComponent,
   },
   {
     path: 'running-observations',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import(
-        './components/search-running-observations/search-running-observations.module'
-      ).then((m) => m.SearchRunningObservationsModule),
+
+    component: SearchRunningObservationsComponent,
   },
   {
+    path: 'observation-details/:stepCustomId',
+    component: SearchRunningObservationDetailsComponent,
+    data: {
+      role: 'admin',
+    },
+  },
+
+  {
     path: 'archived-observations',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     // data: {
     //   role: 'admin'
     // },
@@ -141,29 +221,24 @@ const routes: Routes = [
   },
   {
     path: 'search-reports',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import('./components/search-reports/search-reports.module').then(
-        (m) => m.SearchReportsModule
-      ),
+
+    component: SearchReportsComponent,
   },
   {
     path: 'upload-reports',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import('./components/upload-reports/upload-reports.module').then(
-        (m) => m.UploadReportsModule
-      ),
+    component: UploadReportsComponent,
   },
   {
     path: 'delegation',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'SEC',
     },
@@ -171,44 +246,48 @@ const routes: Routes = [
   },
   {
     path: 'reports',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     // data: {
     //   role: 'admin'
     // },
-    loadChildren: () =>
-      import('./components/reports/reports.module').then(
-        (m) => m.ReportsModule
-      ),
+    component: ReportsComponent,
+  },
+
+  { path: '', component: ResponseProgressComponent },
+  {
+    path: 'combine-responses/:stepCustomId',
+    component: CombineResponsesComponent,
+    // // canActivate: [AuthGuard],
+    data: {
+      role: 'admin',
+    },
+  },
+  {
+    path: 'work-item-details/:stepCustomId',
+    component: ResponseProgressWorkDetailsComponent,
   },
   {
     path: 'escalation-settings',
-    canActivate: [AuthGuard],
-    loadChildren: () =>
-      import(
-        './components/escalation-settings/escalation-settings.module'
-      ).then((m) => m.EscalationSettingsModule),
+    // canActivate: [AuthGuard],
+    component: EscalationSettingsComponent,
   },
   {
     path: 'contact-detail',
-    canActivate: [AuthGuard],
-    loadChildren: () =>
-      import(
-        './components/g&pa-contact-details/g&pa-contact-details.module'
-      ).then((m) => m.GPAContactDetailsModule),
+    // canActivate: [AuthGuard],
+    component: GPAContactDetailsComponent,
   },
   {
     path: 'deactive-deco-notification',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     component: DeactivateDECONotificationsComponent,
   },
   {
     path: 'users',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
-    loadChildren: () =>
-      import('./components/users/users.module').then((m) => m.UsersModule),
+    component: UsersComponent,
   },
   {
     path: 'observation-details/:obsId',
@@ -218,7 +297,7 @@ const routes: Routes = [
   { path: '', component: ReportsComponent },
   {
     path: 'new-or-repeated-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -226,7 +305,7 @@ const routes: Routes = [
   },
   {
     path: 'initial-or-final-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -234,7 +313,7 @@ const routes: Routes = [
   },
   // {
   //   path: 'initial-or-final-observation-titles',
-  //   canActivate: [AuthGuard],
+  //   // canActivate: [AuthGuard],
   //   data: {
   //     role: 'admin'
   //   },
@@ -242,7 +321,7 @@ const routes: Routes = [
   // },
   {
     path: 'initial-or-initial-comparison-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -250,7 +329,7 @@ const routes: Routes = [
   },
   {
     path: 'classification-count-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -259,7 +338,7 @@ const routes: Routes = [
   },
   {
     path: 'reminders-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -268,7 +347,7 @@ const routes: Routes = [
   },
   {
     path: 'sendback-comments-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -277,7 +356,7 @@ const routes: Routes = [
   },
   {
     path: 'classification-change-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -286,7 +365,7 @@ const routes: Routes = [
   },
   {
     path: 'delay-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -298,13 +377,13 @@ const routes: Routes = [
     // data: {
     //   role: 'admin'
     // },
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
 
     component: UserListReportComponent,
   },
   {
     path: 'pending-observations',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -313,7 +392,7 @@ const routes: Routes = [
   },
   {
     path: 'pending-observations-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     // data: {
     //   role: 'admin'
     // },
@@ -321,7 +400,7 @@ const routes: Routes = [
   },
   {
     path: 'observations-per-department-report',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },
@@ -329,7 +408,7 @@ const routes: Routes = [
   },
   {
     path: 'new-or-repeated-report/observation-detail/:obsId',
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
     data: {
       role: 'admin',
     },

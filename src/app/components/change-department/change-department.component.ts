@@ -1,289 +1,296 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { map, shareReplay } from 'rxjs/operators';
-
-import { CoreService } from '../../services/core.service';
-import { LoadingService } from '../../services/loading.service';
-import { SharedVariableService } from '../../services/shared-variable.service';
-import { ConfigService } from '../../services/config.service';
-
-import { UpdateDepartmentsComponent } from '../update-departments/update-departments.component';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { ConfigService } from 'src/app/services/config.service';
+import { CoreService } from 'src/app/services/core.service';
+import { LoadingService } from 'src/app/services/loading.service';
+import { SharedVariableService } from 'src/app/services/shared-variable.service';
 import { ChangeDepartmentInfoDialogComponent } from '../change-department-info-dialog/change-department-info-dialog.component';
-import { environment } from '../../../environments/environment';
-import { SharedModule } from '../../shared/modules/shared.module';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { UpdateDepartmentsComponent } from '../update-departments/update-departments.component';
 
-interface ObservationRow {
-  position: number;
-  obsSequence: number;
+export interface ObservationData {
+  position:number;
   obsTitle: string;
+  // obsId: string;
+  obsSequence: number;
+  completed: boolean;
   directorate: string;
   departments: string;
   isActionDisabled: boolean;
-  completed: boolean;
-  changedDep: unknown;
-  obsId: string;
+  changedDep:any;
 }
 
 @Component({
   selector: 'app-change-department',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './change-department.component.html',
-  styleUrls: ['./change-department.component.scss'],
-  imports: [SharedModule, MatProgressSpinnerModule],
+  styleUrls: ['./change-department.component.css']
 })
-export class ChangeDepartmentComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
-  /* ───────────── static view refs ───────────── */
-  @ViewChild(MatSort, { static: true }) private readonly sort!: MatSort;
+export class ChangeDepartmentComponent implements OnInit {
+  isLoading: boolean = false;
+  reportId: any;
+  isRtl: any;
+  dataSource: MatTableDataSource<ObservationData>;
+  displayedColumns: string[] = ['obsSequence', 'obsTitle', 'departments', 'directorate', 'action','changeDepartment'];
+  displayedColumnsMob: string[] = ['obsTitle'];
+  // @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+  reportYear: any;
+  loginId: any;
+  userName: any;
+  userInformation: any;
+  mainUrl: string;
+  response: any[] = [];
+  innerWidth = 0;
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private coreService: CoreService,
+    private sharedVariableService: SharedVariableService,
+    public dialog: MatDialog,
+    private configService: ConfigService,
+    private _loading: LoadingService,
+    private notification: NzNotificationService
+  ) {
+   }
 
-  /* ───────────── injected services ───────────── */
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly core = inject(CoreService);
-  private readonly loading = inject(LoadingService);
-  private readonly shared = inject(SharedVariableService);
-  private readonly dialog = inject(MatDialog);
-  private readonly notification = inject(NzNotificationService);
-  private readonly bp = inject(BreakpointObserver);
-
-  /* ───────────── observables / signals ───────────── */
-  readonly handset$ = this.bp
-    .observe([Breakpoints.Handset, '(max-width: 991px)'])
-    .pipe(
-      map((state) => state.matches),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-
-  readonly isRtl = this.shared.isRtl$;
-
-  /* ───────────── table & data state ───────────── */
-  readonly displayedDesktop = ['seq', 'title', 'dir', 'dept', 'action', 'info'];
-  readonly dataSource = new MatTableDataSource<ObservationRow>([]);
-  isLoading = true;
-
-  /* ───────────── misc component state ───────────── */
-  reportId = '';
-  mainUrl = environment.baseUrl;
-  private userInfo!: any; // parsed from localStorage
-  private rawBackendRows: any[] = []; // keep untouched
-
-  /* ───────────── life-cycle ───────────── */
   ngOnInit(): void {
-    this.reportId = this.route.snapshot.paramMap.get('reportId') ?? '';
+    this.route.params.subscribe(params => {
+      this.reportId = params['reportId'];
+    });
+    this.sharedVariableService.getRtlValue().subscribe((value) => {
+      this.isRtl = value;
+    });
+    this.mainUrl = this.configService.baseUrl;
+    this.loginId = localStorage.getItem('loginId') || '';
+    let data: any = localStorage.getItem('sabUserInformation');
+    this.userInformation = JSON.parse(data);
+    this.reportYear = this.userInformation.reportYear;
+    this.loginId = this.userInformation.sabMember.loginId;
+    this.userName = this.userInformation.sabMember.userName;
+    this.innerWidth =  window.innerWidth;
+    this.getObservationData()
+  }
+  onResize(event:any) {
+    this.innerWidth =  window.innerWidth;
+   }
 
-    this.userInfo = JSON.parse(
-      localStorage.getItem('sabUserInformation') ?? '{}'
-    );
-
-    this.fetchTableData();
+   getUserInfo() {
+    let url = 'UserController/getUserInfo?userId=' + this.loginId + '&r=' + (Math.floor(Math.random() * 100) + 100);
+    this._loading.setLoading(true, url);
+    this.coreService.get(url).subscribe((response: any) => {
+      this._loading.setLoading(false, url);
+      this.userInformation = response;
+      this.reportYear = response.reportYear;
+      this.loginId = response.sabMember.loginId;
+      this.userName = response.sabMember.userName;
+      localStorage.setItem('sabUserInformation', JSON.stringify(response: any));
+    }, error => {
+      console.log('error  :', error);
+    })
   }
 
-  ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
-  }
-
-  ngOnDestroy(): void {
-    /* destroy subscriptions */
-  }
-
-  /* ───────────── private helpers ───────────── */
-  private fetchTableData(): void {
-    this.isLoading = true;
-
-    const url =
-      `AssigmentsController/getObservationDepartments?` +
-      `reportCycle=${this.userInfo.reportCycle}` +
-      `&reportYear=${this.userInfo.reportYear}` +
-      `&r=${Math.floor(Math.random() * 100) + 100}`;
-
-    this.loading.setLoading(true, url);
-
-    this.core
-      .get<any[]>(url)
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: (rows) => {
-          this.loading.setLoading(false, url);
-          this.isLoading = false;
-          this.rawBackendRows = rows;
-          this.dataSource.data = rows.map((row, idx) =>
-            this.toTableRow(row, idx)
-          );
-        },
-        error: () => {
-          this.loading.setLoading(false, url);
-          this.isLoading = false;
-          this.notification.error('Error', 'Unable to load data');
-        },
-      });
-  }
-
-  private toTableRow(raw: any, idx: number): ObservationRow {
-    const deps = raw.departments.map((d: any) => d.departmentName).join(', ');
-    const dirs = [
-      ...new Set(raw.departments.map((d: any) => d.directorateName)),
-    ].join(', ');
-
-    const departmentIsLocked = raw.departments.some((d: any) =>
-      ['G&PA', 'CategoryGPA'].includes(d.departmentName)
-    );
-
-    return {
-      position: idx,
-      obsSequence: raw.obsSequence,
-      obsTitle: raw.obsTitle,
-      directorate: dirs,
-      departments: deps,
-      completed: raw.completed,
-      changedDep: raw.changedDep,
-      obsId: raw.obsId,
-      isActionDisabled: departmentIsLocked || !raw.completed,
-    };
-  }
-
-  /* ───────────── UI actions ───────────── */
-  changeDepartmentInfo(row: ObservationRow): void {
-    this.dialog.open(ChangeDepartmentInfoDialogComponent, {
-      data: row.changedDep,
+  getObservationData() {
+    this.isLoading = true
+    let url = 'AssigmentsController/getObservationDepartments?reportCycle=' + this.userInformation.reportCycle + '&reportYear=' + this.userInformation.reportYear + '&r=' + (Math.floor(Math.random() * 100) + 100);;
+    this._loading.setLoading(true, url);
+    this.coreService.get(url).subscribe(async response => {
+      this._loading.setLoading(false, url);
+      this.isLoading = false;
+      this.response = response;
+      let data = [];
+      let index= 0;
+      for (let i = 0; i < response.length; i++) {
+        let isChangeDepartmentAvailable = true;
+        let department = '';
+        let directorateName = '';
+        for (let dep = 0; dep < response[i].departments.length; dep++) {
+          department = department + (response[i].departments[dep].departmentName ? response[i].departments[dep].departmentName : '');
+          if(response[i].departments[dep].directorateName && !directorateName.includes(response[i].departments[dep].directorateName)){
+            directorateName = directorateName + (response[i].departments[dep].directorateName ? response[i].departments[dep].directorateName : '');
+          }
+          if (dep != response[i].departments.length - 1) {
+            department = department + ", ";
+            directorateName = directorateName + ", ";
+          }
+          let depName = response[i].departments[dep].departmentName;
+          // if ((depName == 'Special Nature' || depName == 'Committee' || depName == 'G&PA' || depName == "Chief Executive Officer's Office" || depName == 'CategoryGPA')) {
+          if ( depName.departmentName == 'G&PA' || depName == 'CategoryGPA') {
+            isChangeDepartmentAvailable = false;
+          }
+        }        
+        if (isChangeDepartmentAvailable) {
+          if (!response[i].completed) {
+            isChangeDepartmentAvailable = false;
+          }
+        }
+        data.push({
+          "position":index,
+          'obsSequence': response[i].obsSequence,
+          'obsTitle': response[i].obsTitle,
+          'departments': department,
+          'directorate': directorateName,
+          'completed': response[i].completed,
+          'changedDep':response[i].changedDep,
+          'isActionDisabled': !isChangeDepartmentAvailable
+        })
+        index = index + 1
+      }
+      this.dataSource = new MatTableDataSource(data);
+      setTimeout(() => {
+        this.dataSource.sort = this.sort;
+      }, 100)
+    }, error => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      console.log('error :', error);
     });
   }
 
-  updateDepartment(pos: number): void {
-    const row = this.rawBackendRows[pos];
-
-    const url =
-      `UserController/getAllDepartments?userId=${this.userInfo.sabMember.loginId}` +
-      `&obsId=${row.obsId}` +
-      `&reportCycle=${this.userInfo.reportCycle}`;
-
-    this.loading.setLoading(true, url);
-
-    this.core
-      .get(url)
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: (directorates) => {
-          this.loading.setLoading(false, url);
-
-          const dlgRef = this.dialog.open(UpdateDepartmentsComponent, {
-            data: {
-              directoratesList: directorates,
-              departments: row.departments,
-            },
-          });
-
-          dlgRef.afterClosed().subscribe((res) => {
-            if (res?.event === 'Send') {
-              const payload = {
-                obsId: row.obsId,
-                reportYear: this.userInfo.reportYear,
-                managers: res.data.selectedManagers,
-                reportCycle: this.userInfo.reportCycle,
-              };
-              this.assignToDepartment(payload);
-            }
-          });
-        },
-        error: () => {
-          this.loading.setLoading(false, url);
-          this.notification.error('Error', 'Unable to load departments');
-        },
-      });
+  changeDepartmentInfo(data:any){
+    const dialogRef = this.dialog.open(ChangeDepartmentInfoDialogComponent, {
+      data: data.changedDep
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      console.log("Info : Dialog Closed")
+    });
   }
 
-  private assignToDepartment(body: unknown): void {
-    const url = 'AssigmentsController/updateDepartmentBeforeLaunch';
-    this.loading.setLoading(true, url);
-
-    this.core
-      .post(url, body)
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: () => {
-          this.loading.setLoading(false, url);
-          this.fetchTableData();
-        },
-        error: () => {
-          this.loading.setLoading(false, url);
-          this.notification.error('Error', 'Update failed');
-        },
+  updateDepartment(index: any) {
+    this.isLoading = true;
+    let data = this.response[index]
+    let url = 'UserController/getAllDepartments?userId=' + this.loginId + '&obsId=' + data.obsId + '&reportCycle=' + this.userInformation.reportCycle;
+    this._loading.setLoading(true, url);
+    this.coreService.get(url).subscribe(response => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      let _result = {
+        "directoratesList": response,
+        "departments": data.departments
+      }
+      const dialogRef = this.dialog.open(UpdateDepartmentsComponent, {
+        data: _result
       });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result && result.event == 'Send') {
+          var assignToDeptData = {
+            obsId: data.obsId,
+            reportYear: this.userInformation.reportYear,
+            managers: result.data.selectedManagers,
+            reportCycle: this.userInformation.reportCycle
+          }
+          this.assignToDeptartment(assignToDeptData);
+        } else {
+          // this.getObservationData();
+        }
+      });
+    }, error => {
+      this.isLoading = false;
+      this._loading.setLoading(false, url);
+      console.log('err  :', error);
+    });
   }
 
-  launchReport(): void {
-    const diagRef = this.dialog.open(ConfirmationDialogComponent, {
+  assignToDeptartment(result: any): void {
+    let url = 'AssigmentsController/updateDepartmentBeforeLaunch';
+    this._loading.setLoading(true, url);
+    this.coreService.post(url, result).subscribe(response => {
+      this._loading.setLoading(false, url);
+      this.getObservationData();
+    }, error => {
+      this._loading.setLoading(false, url);
+      this.getObservationData();
+      console.log('err  :', error);
+    });
+  }
+
+  launchReport() {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         dialogHeader: 'COMPLETE_LAUNCHING',
         dialogMessage: 'ARE_YOU_SURE_YOU_WANT_TO_LAUNCH_THIS_REPORT',
-        reportCycle: this.reportId,
-      },
+        reportCycle: this.reportId
+      }
     });
-
-    diagRef.afterClosed().subscribe((yes) => {
-      if (!yes) return;
-
-      const fd = new FormData();
-      fd.append('report', this.reportId);
-      fd.append('typeValue', 'DirectLaunch');
-      fd.append('reportYear', this.userInfo.reportYear);
-      fd.append('extractType', '');
-
-      const url = 'launchObservations/launchIntialReport';
-      this.loading.setLoading(true, url);
-
-      this.core
-        .post(url, fd)
-        .pipe(takeUntilDestroyed())
-        .subscribe({
-          next: (res: any) => {
-            this.loading.setLoading(false, url);
-
-            if (res.type !== 'Failure') {
-              this.router.navigate(['/inbox']);
-            } else {
-              this.notification.error('Error', res.message);
-            }
-          },
-          error: () => {
-            this.loading.setLoading(false, url);
-            this.notification.error('Error', 'Launch failed');
-          },
-        });
-    });
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.isLoading = true;
+        let formData: FormData = new FormData();
+        formData.append('report',this.reportId);
+        formData.append('typeValue', 'DirectLaunch');
+        formData.append('reportYear',this.userInformation.reportYear);
+        formData.append('extractType', '');
+        let url = 'launchObservations/launchIntialReport';
+        this._loading.setLoading(true, url);
+        this.coreService.post(url, formData).subscribe((response: any) => {
+          this.isLoading = false;
+          this._loading.setLoading(false, url);         
+          this.clearFilter();
+          if (response.type != 'Failure') {
+            this.getUserInfo();
+            this.router.navigate(['/inbox']);
+          } else {
+            this.notification.create('error', 'Error', response.message);
+          }
+        }, error => {
+          this.isLoading = false;
+          this._loading.setLoading(false, url);
+          console.log("error : ",  error);
+        })
+      }
+    })
   }
 
-  /* ───────────── export helpers ───────────── */
-  exportMSExcel(): void {
-    const url =
-      `ReminderAndClassificationExportController/exportObservationDepartmentsToExcel` +
-      `?reportCycle=${this.userInfo.reportCycle}` +
-      `&reportYear=${this.userInfo.reportYear}`;
+
+  CheckDipartmentType(data: any) {
+    // let data = this.response[index];
+    let isDepartmentMatch = false;
+    for (let i = 0; i < data.departments.length; i++) {
+      // if ((data.departments[i].departmentName == 'Special Nature' || data.departments[i].departmentName == 'Committee' || data.departments[i].departmentName == 'G&PA' || data.departments[i].departmentName == "Chief Executive Officer's Office" || data.departments[i].departmentName == 'CategoryGPA')) {
+        if ( data.departments[i].departmentName == 'G&PA' || data.departments[i].departmentName == 'CategoryGPA') {
+        isDepartmentMatch = true;
+        return false;
+      }
+    }
+    if (!isDepartmentMatch && data.completed) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  clearFilter() {
+    localStorage.removeItem('sabFilterType');
+    localStorage.removeItem('sabFilterSequence');
+    localStorage.removeItem('sabFilterDepartment');
+    localStorage.removeItem('sabFilterStatus');
+    localStorage.removeItem('sabSentItemsFilterType');
+    localStorage.removeItem('sabSentItemsFilterSequence');
+    localStorage.removeItem('sabSentItemsFilterDepartment');
+    localStorage.removeItem('sabSentItemsFilterStatus');
+    localStorage.removeItem('sabSentItemsFilterDirectorate');
+    localStorage.removeItem('sabSentItemsFilterBehalf');
+    localStorage.removeItem('sabSentItemsFilterMultipleDept');
+    localStorage.removeItem('sabResponseProgressFilterType');
+    localStorage.removeItem('sabResponseProgressFilterSequence');
+    localStorage.removeItem('sabResponseProgressFilterDepartment');
+    localStorage.removeItem('sabResponseProgressFilterStatus');
+    localStorage.removeItem('sabResponseProgressFilterDirectorate');
+    localStorage.removeItem('sabResponseProgressFilterBehalf');
+    localStorage.removeItem('sabResponseProgressFilterMultipleDept');
+  }
+
+  exportMSExcel() {
+    let url = 'ReminderAndClassificationExportController/exportObservationDepartmentsToExcel?reportCycle=' + this.userInformation.reportCycle + '&reportYear=' + this.userInformation.reportYear;
     window.open(this.mainUrl + url, '_parent');
   }
-
-  exportMSWord(): void {
-    const url =
-      `ReminderAndClassificationExportController/exportObservationDepartmentsToWord` +
-      `?reportCycle=${this.userInfo.reportCycle}` +
-      `&reportYear=${this.userInfo.reportYear}`;
+  exportMSWord() {
+    let url = 'ReminderAndClassificationExportController/exportObservationDepartmentsToWord?reportCycle=' + this.userInformation.reportCycle + '&reportYear=' + this.userInformation.reportYear;
     window.open(this.mainUrl + url, '_parent');
   }
+  // ReminderAndClassificationExportController/exportObservationDepartmentsToWord?reportCycle=KNPC%20Response%20Report&reportYear=2021-2022
 }

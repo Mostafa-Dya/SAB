@@ -61,7 +61,7 @@ export interface DateTable {
 @Component({
   selector: 'app-sendback-comments-report',
   templateUrl: './sendback-comments-report.component.html',
-  styleUrls: ['./sendback-comments-report.component.scss']
+  styleUrls: ['./sendback-comments-report.component.css']
 })
 
 export class SendBackCommentsReportComponent implements OnInit {
@@ -264,7 +264,7 @@ export class SendBackCommentsReportComponent implements OnInit {
     this.directorateList = ['All'];
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key: any) => {
+      Object.keys(response: any).forEach((key: any) => {
         this.directorateAllValues.push({ id: key, name: response[key] })
         this.directorateList.push(response[key])
       })
@@ -308,7 +308,7 @@ export class SendBackCommentsReportComponent implements OnInit {
     this._loading.setLoading(true, url);
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-     /**  Object.keys(response).forEach((key) => {
+     /**  Object.keys(response: any).forEach((key) => {
 
         this.sabUserValue.push({ id: key, name: response[key] })
       }) **/
@@ -340,7 +340,7 @@ export class SendBackCommentsReportComponent implements OnInit {
     this.departmentList = ['All'];
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.departmentAllValues.push({ id: key, name: response[key] })
         this.departmentList.push(response[key])
       })

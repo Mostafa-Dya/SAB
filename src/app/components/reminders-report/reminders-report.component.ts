@@ -58,7 +58,7 @@ export interface DateTable {
 @Component({
   selector: 'app-reminders-report',
   templateUrl: './reminders-report.component.html',
-  styleUrls: ['./reminders-report.component.scss']
+  styleUrls: ['./reminders-report.component.css']
 })
 
 export class RemindersReportComponent implements OnInit {
@@ -206,7 +206,7 @@ export class RemindersReportComponent implements OnInit {
     this._loading.setLoading(true, url);
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.departmentValue.push({ id: key, name: response[key] })
       })
       this.departmentValue.sort((a, b) => {

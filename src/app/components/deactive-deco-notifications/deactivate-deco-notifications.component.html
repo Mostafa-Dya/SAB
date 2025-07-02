@@ -3,15 +3,13 @@
     <div class="row">
       <div class="col-6 mb-3" [ngClass]="{ 'text-right': isRtl }">
         <mat-icon class="bread-page-heading-icon">notifications_off</mat-icon>
-        <span class="page-heading">
-          {{ "DEACTIVATE_DECO_NOTIFICATIONS" | translate }}
-        </span>
+        <span class="page-heading">{{
+          "DEACTIVATE_DECO_NOTIFICATIONS" | translate
+        }}</span>
       </div>
       <div class="col-6 mb-3" [ngClass]="{ 'text-right': isRtl }"></div>
     </div>
-
     <div class="row" [ngClass]="{ 'text-right': isRtl }">
-      <!-- Desktop/table display -->
       <div
         class="col-12 hide-mob deactive-deco-notification-table"
         *ngIf="dataSource && dataSource.data.length > 0"
@@ -21,7 +19,6 @@
           [dataSource]="dataSource"
           [ngClass]="{ 'text-right': isRtl }"
         >
-          <!-- USER NAME -->
           <ng-container matColumnDef="userName">
             <th
               mat-header-cell
@@ -39,8 +36,6 @@
               {{ element.userName }}
             </td>
           </ng-container>
-
-          <!-- LOGIN ID -->
           <ng-container matColumnDef="loginId">
             <th
               mat-header-cell
@@ -58,8 +53,6 @@
               {{ element.loginId }}
             </td>
           </ng-container>
-
-          <!-- DEPARTMENT NAME -->
           <ng-container matColumnDef="departmetName">
             <th
               mat-header-cell
@@ -77,8 +70,6 @@
               {{ element.departmentName }}
             </td>
           </ng-container>
-
-          <!-- USER JOB TITLE -->
           <ng-container matColumnDef="userJobTitle">
             <th
               mat-header-cell
@@ -96,14 +87,12 @@
               {{ element.userJobTitle }}
             </td>
           </ng-container>
-
-          <!-- REGULAR MAIL DISABLED -->
           <ng-container matColumnDef="regMailDisabled">
             <th
               mat-header-cell
               *matHeaderCellDef
               [ngClass]="{ 'text-right': isRtl }"
-              class="w-170px"
+              class=" w-170px"
             >
               {{ "REGULAREMAILSTATUS" | translate }}
             </th>
@@ -113,31 +102,26 @@
               class="escalation-setting-td"
             >
               <mat-form-field style="width: 100px">
-                <mat-select
-                  [(ngModel)]="element.regMailDisabled"
-                  class="example-right-align {{
-                    !element.regMailDisabled ? 'text-success' : 'text-danger'
-                  }}"
-                  (ngModelChange)="updateNotification(element)"
-                >
-                  <mat-option [value]="false" class="text-success">
-                    Active
-                  </mat-option>
-                  <mat-option [value]="true" class="text-danger">
-                    Inactive
-                  </mat-option>
+               <mat-select
+               [(ngModel)]="element.regMailDisabled"
+               class="example-right-align {{
+                 !element?.regMailDisabled ? 'text-success' : 'text-danger'
+               }}"
+               (ngModelChange)="updateNotification(element)"
+             >
+                  <mat-option [value]="false" class="text-success">Active</mat-option>
+                  <mat-option [value]="true"  class="text-danger">Inactive</mat-option>
                 </mat-select>
               </mat-form-field>
             </td>
           </ng-container>
 
-          <!-- ESCALATIONS MAIL DISABLED -->
           <ng-container matColumnDef="esclatnMailDisabled">
             <th
               mat-header-cell
               *matHeaderCellDef
               [ngClass]="{ 'text-right': isRtl }"
-              class="w-170px"
+              class=" w-170px"
             >
               {{ "ESCALATIONSEMAILSTATUS" | translate }}
             </th>
@@ -147,21 +131,15 @@
               class="escalation-setting-td"
             >
               <mat-form-field style="width: 100px">
-                <mat-select
-                  [(ngModel)]="element.esclatnMailDisabled"
-                  class="example-right-align {{
-                    !element.esclatnMailDisabled
-                      ? 'text-success'
-                      : 'text-danger'
-                  }}"
-                  (ngModelChange)="updateNotification(element)"
-                >
-                  <mat-option [value]="false" class="text-success">
-                    Active
-                  </mat-option>
-                  <mat-option [value]="true" class="text-danger">
-                    Inactive
-                  </mat-option>
+               <mat-select
+               [(ngModel)]="element.esclatnMailDisabled"
+               class="example-right-align {{
+                 !element?.esclatnMailDisabled ? 'text-success' : 'text-danger'
+               }}"
+               (ngModelChange)="updateNotification(element)"
+             >
+                  <mat-option [value]="false" class="text-success">Active</mat-option>
+                  <mat-option [value]="true"  class="text-danger">Inactive</mat-option>
                 </mat-select>
               </mat-form-field>
             </td>
@@ -175,11 +153,9 @@
         </table>
       </div>
     </div>
-
-    <!-- NO DATA -->
     <div
       class="row center-block"
-      *ngIf="!dataSource || (dataSource && dataSource.data.length === 0)"
+      *ngIf="!dataSource || (dataSource && dataSource.data.length == 0)"
     >
       <div class="center mt-5">
         <mat-icon class="center-icon">cloud_queue</mat-icon>

@@ -37,7 +37,7 @@ export interface UserListData {
 @Component({
   selector: 'app-user-list-report',
   templateUrl: './user-list-report.component.html',
-  styleUrls: ['./user-list-report.component.scss']
+  styleUrls: ['./user-list-report.component.css']
 })
 export class UserListReportComponent implements OnInit {
   // data = ELEMENT_DATA;

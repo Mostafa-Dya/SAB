@@ -33,7 +33,7 @@ export interface NewOrRepeated {
 @Component({
   selector: 'app-new-or-repeated-reports',
   templateUrl: './new-or-repeated-reports.component.html',
-  styleUrls: ['./new-or-repeated-reports.component.scss']
+  styleUrls: ['./new-or-repeated-reports.component.css']
 })
 export class NewOrRepeatedReportsComponent implements OnInit {
   isRtl: any;
@@ -116,7 +116,7 @@ export class NewOrRepeatedReportsComponent implements OnInit {
       this.reportTypeValue = this.selectedReportType;
       this.searchReportData = response;
       this.dataSource = new MatTableDataSource(response.observations);
-      console.log(response);
+      console.log(response: any);
       
       setTimeout(() => {
         this.dataSource.sort = this.sort;

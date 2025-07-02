@@ -14,7 +14,7 @@ export interface HistoryData {
 @Component({
   selector: 'app-reminder-history',
   templateUrl: './reminder-history.component.html',
-  styleUrls: ['./reminder-history.component.scss']
+  styleUrls: ['./reminder-history.component.css']
 })
 export class ReminderHistoryComponent implements OnInit {
   histortTableColumns: string[] = ['id', 'sentDate', 'deptName','addedByUserName','pendingUserName'];

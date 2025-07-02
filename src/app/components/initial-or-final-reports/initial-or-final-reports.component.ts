@@ -31,7 +31,7 @@ export interface FinalReport {
 @Component({
   selector: 'app-initial-or-final-reports',
   templateUrl: './initial-or-final-reports.component.html',
-  styleUrls: ['./initial-or-final-reports.component.scss']
+  styleUrls: ['./initial-or-final-reports.component.css']
 })
 export class InitialOrFinalReportsComponent implements OnInit {
   isRtl: any;

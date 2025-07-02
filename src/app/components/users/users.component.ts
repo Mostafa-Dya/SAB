@@ -33,7 +33,7 @@ export interface UsersData {
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss']
+  styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
   
@@ -92,7 +92,7 @@ export class UsersComponent implements OnInit {
     this._loading.setLoading(true, url);
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.directorateValue.push({ id: key, name: response[key] })
       })
       this.directorateValue.sort((a:any, b:any) => {
@@ -119,7 +119,7 @@ export class UsersComponent implements OnInit {
       this._loading.setLoading(false, url);
       this.departmentValue = [];
       this.departmentValue.push({ id: "0", name: "All" })
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.departmentValue.push({ id: key, name: response[key] })
       })
       this.directorateValue.sort((a:any, b:any) => {
@@ -180,7 +180,7 @@ export class UsersComponent implements OnInit {
     //     this.userjobTitle = userjobTitle;
     //   }
     // }
-    this.dataSource = new MatTableDataSource(response);
+    this.dataSource = new MatTableDataSource(response: any);
     setTimeout(() => {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
@@ -201,7 +201,7 @@ export class UsersComponent implements OnInit {
     }
     this._loading.setLoading(true, url);
     this.coreService.get(url).subscribe(
-      (Response) => {       
+      (response: any) => {       
         this._loading.setLoading(false, url);
         
         this.notification.create(

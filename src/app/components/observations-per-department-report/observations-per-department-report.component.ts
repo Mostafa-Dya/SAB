@@ -61,7 +61,7 @@ export interface ReportDataTable {
 @Component({
   selector: 'app-observations-per-department-report',
   templateUrl: './observations-per-department-report.component.html',
-  styleUrls: ['./observations-per-department-report.component.scss']
+  styleUrls: ['./observations-per-department-report.component.css']
 })
 
 export class ObservationsPerDepartmentReportComponent implements OnInit {
@@ -164,7 +164,7 @@ export class ObservationsPerDepartmentReportComponent implements OnInit {
     this.directorateList = ['All'];
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key: any) => {
+      Object.keys(response: any).forEach((key: any) => {
         this.directorateAllValues.push({ id: key, name: response[key] })
         this.directorateList.push(response[key])
       })
@@ -206,7 +206,7 @@ export class ObservationsPerDepartmentReportComponent implements OnInit {
   //   this._loading.setLoading(true, url);
   //   this.coreService.get(url).subscribe(response => {
   //     this._loading.setLoading(false, url);
-  //     Object.keys(response).forEach((key) => {
+  //     Object.keys(response: any).forEach((key) => {
   //       this.directorate.push({ id: key, name: response[key] })
   //     })
   //     setTimeout(() => {
@@ -229,7 +229,7 @@ export class ObservationsPerDepartmentReportComponent implements OnInit {
   //   this._loading.setLoading(true, url);
   //   this.coreService.get(url).subscribe(response => {
   //     this._loading.setLoading(false, url);
-  //     Object.keys(response).forEach((key) => {
+  //     Object.keys(response: any).forEach((key) => {
   //       this.department.push({ id: key, name: response[key] })
   //     })
   //   }, error => {
@@ -309,7 +309,7 @@ export class ObservationsPerDepartmentReportComponent implements OnInit {
     this.departmentList = ['All'];
     this.coreService.get(url).subscribe(response => {
       this._loading.setLoading(false, url);
-      Object.keys(response).forEach((key) => {
+      Object.keys(response: any).forEach((key) => {
         this.departmentAllValues.push({ id: key, name: response[key] })
         this.departmentList.push(response[key])
       })

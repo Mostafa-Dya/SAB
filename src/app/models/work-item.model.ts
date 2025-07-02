@@ -26,4 +26,17 @@ export interface WorkItem extends BasicObservation {
   assignToComitteeEnabled: boolean;
   sendToCEOEnabled: boolean;
   approveAndCombineEnabled: boolean;
+  obsType: string;
+  irDetails: data[];
+  finalDetailsEnabled: string;
+  frDetails: frData[];
+}
+
+export interface data {
+  reportName: string;
+  reportContent: string;
+}
+
+export interface frData extends data {
+  sabResponse: string;
 }

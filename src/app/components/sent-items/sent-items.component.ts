@@ -22,7 +22,7 @@ export interface PeriodicElement {
 @Component({
   selector: 'app-sent-items',
   templateUrl: './sent-items.component.html',
-  styleUrls: ['./sent-items.component.scss']
+  styleUrls: ['./sent-items.component.css']
 })
 export class SentItemsComponent implements OnInit {
   isRtl: any;
@@ -239,7 +239,7 @@ export class SentItemsComponent implements OnInit {
       }
       // this.multipleData.setValue(this.multipleList);
       this.inboxItems = response;
-      this.dataSource = new MatTableDataSource(response);
+      this.dataSource = new MatTableDataSource(response: any);
       this.dataSource.data.sort((a, b) => {
         return a.obsSeq - b.obsSeq;
        });

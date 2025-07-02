@@ -14,7 +14,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
-import { MatDialogModule } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -25,6 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 const MaterialComponents = [
   MatDatepickerModule,
@@ -53,15 +58,15 @@ const MaterialComponents = [
   MatAutocompleteModule,
   MatChipsModule,
   MatMenuModule,
+  TextFieldModule,
 ];
 @NgModule({
   declarations: [],
-  imports: [
-    MaterialComponents
+  imports: [MaterialComponents],
+  exports: [MaterialComponents],
+  providers: [
+    { provide: MatDialogRef, useValue: {} },
+    { provide: MAT_DIALOG_DATA, useValue: {} },
   ],
-  exports: [
-    MaterialComponents
-  ]
-
 })
-export class MaterialModule { }
+export class MaterialModule {}
